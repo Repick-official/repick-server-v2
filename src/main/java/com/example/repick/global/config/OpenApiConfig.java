@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(title = "Repick API", version = "v2", description = """
-        # 리픽 API 문서입니다.
+        # 리픽 API 문서
         ---
         
         ### 개발자
