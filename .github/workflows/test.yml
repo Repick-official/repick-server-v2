@@ -1,0 +1,31 @@
+name: test ec2 ssh connection
+
+on:
+  push:
+    branches: [ "feature/cicd-deployment" ]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    needs: build
+    name: CD
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          mask-password: true
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ec2-user
+          key: ${{ secrets.KEY }}
+          script: |
+            ls
