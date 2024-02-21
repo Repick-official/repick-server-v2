@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   deploy:
-    needs: build
     name: CD
     runs-on: ubuntu-latest
 
