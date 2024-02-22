@@ -2,7 +2,7 @@
 name: Refactor
 about: 리팩토링 작업
 title: "[Refactor]"
-labels: ''
+labels: refactor
 assignees: ''
 
 ---

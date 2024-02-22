@@ -2,7 +2,7 @@
 name: Bug Report
 about: 버그 발생 보고 및 해결
 title: "[Bug]"
-labels: ''
+labels: bug
 assignees: ''
 
 ---
