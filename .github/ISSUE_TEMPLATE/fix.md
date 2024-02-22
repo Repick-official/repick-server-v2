@@ -1,13 +1,13 @@
 ---
-name: New Feature
-about: 새로운 기능 개발
-title: "[Feature]"
-labels: feature
+name: Fix
+about: 기능 수정 작업
+title: "[Fix]"
+labels: fix
 assignees: ''
 
 ---
 
-# [Feature] <!--{ 작업 내용 }-->
+# [Fix] <!--{ 작업 내용 }-->
 
 ### 📝 Description
 
