@@ -16,7 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://www.repick.shop", "https://repick.shop", "https://appleid.apple.com"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "https://www.repick-server.shop", "https://repick-server.shop", "https://appleid.apple.com"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
