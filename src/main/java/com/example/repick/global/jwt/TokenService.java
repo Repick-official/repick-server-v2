@@ -35,17 +35,17 @@ public class TokenService {
 
     // access 토큰 생성
     public String createAccessToken(UserDetailsImpl userDetailsImpl) {
-        return createToken(userDetailsImpl.user().getEmail(), userDetailsImpl.user().getRole(), 8640000000L);
+        return createToken(userDetailsImpl.user().getProviderId(), userDetailsImpl.user().getRole(), 8640000000L);
     }
 
     // refresh 토큰 생성
     public String createRefreshToken(UserDetailsImpl userDetailsImpl) {
-        return createToken(userDetailsImpl.user().getEmail(), userDetailsImpl.user().getRole(), 8640000000L);
+        return createToken(userDetailsImpl.user().getProviderId(), userDetailsImpl.user().getRole(), 8640000000L);
     }
 
     // 토큰 생성
-    private String createToken(String email, Role role, Long expirationTime) {
-        Claims claims = Jwts.claims().setSubject(email);
+    private String createToken(String providerId, Role role, Long expirationTime) {
+        Claims claims = Jwts.claims().setSubject(providerId);
         claims.put("role", role);
         Date now = new Date();
         return Jwts.builder()
@@ -59,12 +59,12 @@ public class TokenService {
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getEmail(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getProviderId(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     // 토큰에 담겨있는 유저 userId 획득
-    public String getEmail(String token) {
+    public String getProviderId(String token) {
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
@@ -75,9 +75,9 @@ public class TokenService {
     public User getUser(String token) {
         // 토큰으로부터 이메일을 얻음
         token = token.split(" ")[1].trim();
-        String email = getEmail(token);
+        String providerId = getProviderId(token);
         // 이메일로 멤버 인스턴스를 얻음
-        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return userRepository.findByProviderId(providerId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     // Authorization Header를 통해 인증을 한다.

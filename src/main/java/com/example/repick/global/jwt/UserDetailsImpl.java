@@ -26,7 +26,7 @@ public record UserDetailsImpl(User user) implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return user.getProviderId();
     }
 
     @Override

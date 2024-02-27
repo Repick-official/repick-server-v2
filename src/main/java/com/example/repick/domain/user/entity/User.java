@@ -16,14 +16,13 @@ public class User extends BaseEntity {
     @Id @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
+    private String providerId;
     private String email;
     private String profileImage;
     private String password;
 
     // 추가 정보
     private String nickname;
-    private String jobTitle;
-    private String strength;
 
     // 푸시알림 허용 여부
     private Boolean pushAllow;
@@ -37,14 +36,13 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(String email, String nickname, String profileImage, String password, Role role, String jobTitle, String strength, Boolean pushAllow, String fcmToken) {
+    public User(String providerId, String email, String nickname, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+        this.providerId = providerId;
         this.email = email;
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.password = password;
         this.role = role;
-        this.jobTitle = jobTitle;
-        this.strength = strength;
         this.pushAllow = pushAllow;
         this.fcmToken = fcmToken;
         this.userClass = UserClass.ROOKIE_COLLECTOR;
@@ -52,9 +50,8 @@ public class User extends BaseEntity {
 
 
     public void update(PatchUserInfo patchUserInfo) {
+        this.email = patchUserInfo.email() != null ? patchUserInfo.email() : this.email;
         this.nickname = patchUserInfo.nickname() != null ? patchUserInfo.nickname() : this.nickname;
-        this.jobTitle = patchUserInfo.jobTitle() != null ? patchUserInfo.jobTitle() : this.jobTitle;
-        this.strength = patchUserInfo.strength() != null ? patchUserInfo.strength() : this.strength;
         this.pushAllow = patchUserInfo.pushAllow() != null ? patchUserInfo.pushAllow() : this.pushAllow;
         this.fcmToken = patchUserInfo.fcmToken() != null ? patchUserInfo.fcmToken() : this.fcmToken;
     }

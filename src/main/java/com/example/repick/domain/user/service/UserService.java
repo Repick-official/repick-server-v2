@@ -28,7 +28,7 @@ public class UserService {
     private final UserFcmTokenInfoRepository userFcmTokenInfoRepository;
 
     public GetUserInfo getUserInfo() {
-        User user = userRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return GetUserInfo.of(user);
@@ -40,7 +40,7 @@ public class UserService {
 
         String email = authentication.getName();
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByProviderId(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         user.update(patchUserInfo);
@@ -56,7 +56,7 @@ public class UserService {
     public Boolean registerProfile(MultipartFile profileImage) throws IOException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByProviderId(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         String profile = s3UploadService.saveFile(profileImage, "profile/" + user.getId().toString());
@@ -73,7 +73,7 @@ public class UserService {
     public Boolean deleteUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByProviderId(email)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         // delete fcm token from ddb
