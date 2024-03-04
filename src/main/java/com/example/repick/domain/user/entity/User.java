@@ -15,14 +15,18 @@ public class User extends BaseEntity {
 
     @Id @GeneratedValue(strategy = IDENTITY)
     private Long id;
-
+    @Enumerated(EnumType.STRING)
+    private OAuthProvider oAuthProvider;
     private String providerId;
     private String email;
+    private String phoneNumber;
     private String profileImage;
     private String password;
 
     // 추가 정보
     private String nickname;
+    private String topSize;
+    private String bottomSize;
 
     // 푸시알림 허용 여부
     private Boolean pushAllow;
@@ -36,10 +40,12 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(String providerId, String email, String nickname, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+    public User(String providerId, String email, String nickname, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
         this.providerId = providerId;
         this.email = email;
         this.nickname = nickname;
+        this.topSize = topSize;
+        this.bottomSize = bottomSize;
         this.profileImage = profileImage;
         this.password = password;
         this.role = role;
