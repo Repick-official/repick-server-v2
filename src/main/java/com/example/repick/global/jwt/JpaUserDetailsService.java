@@ -18,7 +18,7 @@ public class JpaUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(
+        User user = userRepository.findByProviderId(email).orElseThrow(
                 () -> new CustomException(USER_NOT_FOUND)
         );
 

@@ -91,7 +91,7 @@ public class AppleUserService {
     private Pair<User, Boolean> registerAppleUserIfNeed (AppleUserDto appleUserDto) {
 
         String appleEmail = appleUserDto.getEmail();
-        User appleUser = userRepository.findByEmail(appleEmail)
+        User appleUser = userRepository.findByProviderId(appleEmail)
                 .orElse(null);
 
         if (appleUser == null) {

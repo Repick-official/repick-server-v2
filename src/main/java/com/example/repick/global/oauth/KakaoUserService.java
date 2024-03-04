@@ -1,6 +1,7 @@
 package com.example.repick.global.oauth;
 
 import com.example.repick.domain.user.dto.KakaoUserDto;
+import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -73,17 +74,21 @@ public class KakaoUserService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
+        System.out.println("KakaoUserService.handleKakaoResponse");
+        String id = jsonNode.get("id").asText();
+        System.out.println("KakaoUserService.handleKakaoResponse");
+
         String email = jsonNode.get("kakao_account").get("email").asText();
 
         String thumbnailImage = jsonNode.get("kakao_account").get("profile").get("thumbnail_image_url").asText();
 
-        return KakaoUserDto.of(email, nickname, thumbnailImage);
+        return KakaoUserDto.of(id, email, nickname, thumbnailImage);
     }
 
     private Pair<User, Boolean> registerKakaoUserIfNeed (KakaoUserDto kakaoUserInfo) {
 
-        String kakaoEmail = kakaoUserInfo.getEmail();
-        User kakaoUser = userRepository.findByEmail(kakaoEmail)
+        String providerId = kakaoUserInfo.getId();
+        User kakaoUser = userRepository.findByProviderId(providerId)
                 .orElse(null);
 
         if (kakaoUser == null) {
@@ -91,7 +96,9 @@ public class KakaoUserService {
             String password = UUID.randomUUID().toString();
 
             kakaoUser = User.builder()
-                    .email(kakaoEmail)
+                    .oAuthProvider(OAuthProvider.KAKAO)
+                    .providerId(kakaoUserInfo.getId())
+                    .email(providerId)
                     .nickname(kakaoUserInfo.getNickname())
                     .profileImage(kakaoUserInfo.getProfileImage())
                     .role(Role.USER)

@@ -2,6 +2,8 @@ package com.example.repick.domain.user.api;
 
 import com.example.repick.domain.user.dto.GetUserInfo;
 import com.example.repick.domain.user.dto.PatchUserInfo;
+import com.example.repick.domain.user.dto.PostInitSmsVerification;
+import com.example.repick.domain.user.dto.PostVerifySmsVerification;
 import com.example.repick.domain.user.service.UserService;
 import com.example.repick.global.jwt.TokenResponse;
 import com.example.repick.global.oauth.AppleUserService;
@@ -105,11 +107,13 @@ public class UserController {
                     
                     보내지 않은 값들에 대해서는 기존 값이 유지됩니다.
                     
-                    **프로필 사진 등록/업데이트는 별도의 API를 이용해야 합니다.**
+                    **프로필 사진, 핸드폰 번호 등록은 별도의 API를 이용해야 합니다.**
+                    - email: 이메일
                     - nickname: 닉네임
-                    - jobTitle: 희망 직업
-                    - strength: 나의 강점
+                    - topSize: 상의 사이즈
+                    - bottomSize: 하의 사이즈
                     - pushAllow: 푸시 알림 허용 여부
+                    - fcmToken: FCM 토큰
                     """)
     @PatchMapping("/userInfo")
     public SuccessResponse<Boolean> patchUserInfo(@RequestBody PatchUserInfo patchUserInfo) {
@@ -141,6 +145,42 @@ public class UserController {
     @DeleteMapping("/delete")
     public SuccessResponse<Boolean> deleteUser() {
         return SuccessResponse.success(userService.deleteUser());
+    }
+
+    @Operation(summary = "SMS 인증번호 요청하기",
+            description = """
+                    SMS 인증번호를 요청합니다.
+                    전화번호의 하이픈(-)은 자동으로 제거됩니다.
+                    
+                    요청값:
+                    - phoneNumber: 전화번호
+                    
+                    반환값:
+                    - 성공: true
+                    """)
+    @PostMapping("/init-sms-verification")
+    public SuccessResponse<Boolean> initSmsVerification(@RequestBody PostInitSmsVerification postInitSmsVerification) {
+        return SuccessResponse.success(userService.initSmsVerification(postInitSmsVerification));
+    }
+
+    @Operation(summary = "SMS 인증번호 인증하기",
+            description = """
+                    SMS 인증번호를 인증합니다.
+                    전화번호의 하이픈(-)은 자동으로 제거됩니다.
+                    인증에 성공하면 자동으로 전화번호가 유저 정보에 등록됩니다.
+                    
+                    인증번호는 2분 후 만료됩니다.
+                    
+                    요청값:
+                    - phoneNumber: 전화번호
+                    - verificationCode: 인증번호
+                    
+                    반환값:
+                    - 성공: true
+                    """)
+    @PostMapping("/verify-sms-verification")
+    public SuccessResponse<Boolean> verifySmsVerification(@RequestBody PostVerifySmsVerification postVerifySmsVerification) {
+        return SuccessResponse.success(userService.verifySmsVerification(postVerifySmsVerification));
     }
 
 }
