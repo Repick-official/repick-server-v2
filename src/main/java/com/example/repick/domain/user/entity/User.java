@@ -17,6 +17,7 @@ public class User extends BaseEntity {
     private Long id;
     @Enumerated(EnumType.STRING)
     private OAuthProvider oAuthProvider;
+    @Column(unique = true)
     private String providerId;
     private String email;
     private String phoneNumber;
@@ -40,7 +41,8 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(String providerId, String email, String nickname, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+    public User(OAuthProvider oAuthProvider, String providerId, String email, String nickname, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+        this.oAuthProvider = oAuthProvider;
         this.providerId = providerId;
         this.email = email;
         this.nickname = nickname;
@@ -58,12 +60,18 @@ public class User extends BaseEntity {
     public void update(PatchUserInfo patchUserInfo) {
         this.email = patchUserInfo.email() != null ? patchUserInfo.email() : this.email;
         this.nickname = patchUserInfo.nickname() != null ? patchUserInfo.nickname() : this.nickname;
+        this.topSize = patchUserInfo.topSize() != null ? patchUserInfo.topSize() : this.topSize;
+        this.bottomSize = patchUserInfo.bottomSize() != null ? patchUserInfo.bottomSize() : this.bottomSize;
         this.pushAllow = patchUserInfo.pushAllow() != null ? patchUserInfo.pushAllow() : this.pushAllow;
         this.fcmToken = patchUserInfo.fcmToken() != null ? patchUserInfo.fcmToken() : this.fcmToken;
     }
 
     public void updateProfile(String profile) {
         this.profileImage = profile;
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public void updateClass(UserClass userClass) {

@@ -1,6 +1,7 @@
 package com.example.repick.global.oauth;
 
 import com.example.repick.domain.user.dto.KakaoUserDto;
+import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -86,8 +87,8 @@ public class KakaoUserService {
 
     private Pair<User, Boolean> registerKakaoUserIfNeed (KakaoUserDto kakaoUserInfo) {
 
-        String kakaoEmail = kakaoUserInfo.getEmail();
-        User kakaoUser = userRepository.findByProviderId(kakaoEmail)
+        String providerId = kakaoUserInfo.getId();
+        User kakaoUser = userRepository.findByProviderId(providerId)
                 .orElse(null);
 
         if (kakaoUser == null) {
@@ -95,8 +96,9 @@ public class KakaoUserService {
             String password = UUID.randomUUID().toString();
 
             kakaoUser = User.builder()
+                    .oAuthProvider(OAuthProvider.KAKAO)
                     .providerId(kakaoUserInfo.getId())
-                    .email(kakaoEmail)
+                    .email(providerId)
                     .nickname(kakaoUserInfo.getNickname())
                     .profileImage(kakaoUserInfo.getProfileImage())
                     .role(Role.USER)
