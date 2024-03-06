@@ -97,11 +97,10 @@ public class UserService {
         String randomNumber = messageService.sendSMS(postInitSmsVerification.phoneNumber());
 
         UserSmsVerificationInfo userSmsVerificationInfo = UserSmsVerificationInfo.builder()
-                .id(user.getId().toString())
                 .userId(user.getId())
                 .phoneNumber(phoneNumber)
                 .verificationCode(randomNumber)
-                .expirationTime(LocalDateTime.now().plusMinutes(2).atZone(ZoneId.of("Asia/Seoul")).toEpochSecond())
+                .expirationTime(LocalDateTime.now().plusMinutes(2).atZone(ZoneId.of("UTC")).toEpochSecond())
                 .build();
 
         userSmsVerificationInfoRepository.save(userSmsVerificationInfo);
