@@ -1,6 +1,8 @@
 package com.example.repick.domain.user.entity;
 
 import com.example.repick.domain.user.dto.PatchUserInfo;
+import com.example.repick.global.entity.Address;
+import com.example.repick.global.entity.Account;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -26,6 +28,10 @@ public class User extends BaseEntity {
 
     // 추가 정보
     private String nickname;
+    @Embedded
+    private Address defaultAddress;
+    @Embedded
+    private Account defaultAccount;
     private String topSize;
     private String bottomSize;
 
@@ -41,11 +47,13 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(OAuthProvider oAuthProvider, String providerId, String email, String nickname, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+    public User(OAuthProvider oAuthProvider, String providerId, String email, String nickname, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
         this.oAuthProvider = oAuthProvider;
         this.providerId = providerId;
         this.email = email;
         this.nickname = nickname;
+        this.defaultAddress = defaultAddress;
+        this.defaultAccount = defaultAccount;
         this.topSize = topSize;
         this.bottomSize = bottomSize;
         this.profileImage = profileImage;
@@ -60,6 +68,8 @@ public class User extends BaseEntity {
     public void update(PatchUserInfo patchUserInfo) {
         this.email = patchUserInfo.email() != null ? patchUserInfo.email() : this.email;
         this.nickname = patchUserInfo.nickname() != null ? patchUserInfo.nickname() : this.nickname;
+        this.defaultAddress = patchUserInfo.address() != null ? patchUserInfo.address() : this.defaultAddress;
+        this.defaultAccount = patchUserInfo.account() != null ? patchUserInfo.account() : this.defaultAccount;
         this.topSize = patchUserInfo.topSize() != null ? patchUserInfo.topSize() : this.topSize;
         this.bottomSize = patchUserInfo.bottomSize() != null ? patchUserInfo.bottomSize() : this.bottomSize;
         this.pushAllow = patchUserInfo.pushAllow() != null ? patchUserInfo.pushAllow() : this.pushAllow;
