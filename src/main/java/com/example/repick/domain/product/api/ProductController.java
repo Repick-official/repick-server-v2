@@ -5,10 +5,12 @@ import com.example.repick.domain.product.dto.PostProduct;
 import com.example.repick.domain.product.dto.ProductResponse;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.global.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Product", description = "상품 관련 API")
 @RestController @RequestMapping("/product")
 @RequiredArgsConstructor
 public class ProductController {
