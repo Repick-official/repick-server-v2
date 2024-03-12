@@ -24,4 +24,8 @@ public class BaseEntity {
 
     protected Boolean isDeleted = false;
 
+    public void delete() {
+        this.isDeleted = true;
+    }
+
 }

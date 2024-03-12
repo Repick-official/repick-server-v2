@@ -1,0 +1,25 @@
+package com.example.repick.domain.product.dto;
+
+import com.example.repick.domain.product.entity.Product;
+
+public record ProductResponse(
+        Long productId,
+        String productName,
+        Long price,
+        Long discountRate,
+        String brandName,
+        String description,
+        String qualityRate
+) {
+    public static ProductResponse fromProduct(Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getProductName(),
+                product.getPrice(),
+                product.getDiscountRate(),
+                product.getBrandName(),
+                product.getDescription(),
+                product.getQualityRate().name()
+        );
+    }
+}

@@ -14,7 +14,16 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(500, "C004", "서버 에러입니다."),
     USER_NOT_FOUND(404, "C005", "존재하지 않는 사용자입니다."),
     INVALID_REQUEST_ERROR(400, "C001", "잘못된 요청입니다."),
-    //SMS Verification
+    INVALID_CATEGORY_ID(400, "C002", "존재하지 않는 카테고리 ID입니다."),
+    // Category
+    INVALID_CATEGORY_NAME(400, "C003", "존재하지 않는 카테고리 이름입니다."),
+    IMAGE_UPLOAD_FAILED(500, "C004", "이미지 업로드에 실패했습니다."),
+    // Product
+    INVALID_PRODUCT_ID(400, "C001", "존재하지 않는 상품 ID입니다."),
+    DELETED_PRODUCT(400, "C002", "삭제된 상품입니다."),
+    INVALID_QUALITY_RATE_ID(400, "C005", "존재하지 않는 품질 ID입니다."),
+    INVALID_QUALITY_RATE_NAME(400, "C006", "존재하지 않는 품질 이름입니다."),
+    // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "C006", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "C007", "인증번호가 만료되었습니다."),
 
