@@ -33,4 +33,12 @@ public class Product extends BaseEntity {
         this.thumbnailImageUrl = thumbnailImageUrl;
     }
 
+    public void update(Product product) {
+        this.productName = product.productName;
+        this.price = product.price;
+        this.discountRate = product.discountRate;
+        this.brandName = product.brandName;
+        this.description = product.description;
+        this.qualityRate = product.qualityRate;
+    }
 }
