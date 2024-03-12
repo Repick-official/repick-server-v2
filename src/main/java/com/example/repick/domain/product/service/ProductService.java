@@ -17,8 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.example.repick.global.error.exception.ErrorCode.IMAGE_UPLOAD_FAILED;
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_PRODUCT_ID;
+import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service @RequiredArgsConstructor
 public class ProductService {
@@ -64,6 +63,8 @@ public class ProductService {
         // product
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+
+        if (product.getIsDeleted()) throw new CustomException(PRODUCT_ALREADY_DELETED);
 
         product.delete();
 
