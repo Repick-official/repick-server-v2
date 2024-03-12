@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.dto;
 
+import com.example.repick.domain.product.entity.Gender;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.QualityRate;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +15,8 @@ public record PostProduct (
         Long discountRate,
         String brandName,
         String description,
-        String qualityRate
+        String qualityRate,
+        String gender
 ) {
 
     public Product toProduct() {
@@ -24,7 +26,8 @@ public record PostProduct (
                 .discountRate(this.discountRate())
                 .brandName(this.brandName())
                 .description(this.description())
-                .qualityRate(QualityRate.valueOf(this.qualityRate()))
+                .qualityRate(QualityRate.fromValue(this.qualityRate()))
+                .gender(Gender.fromValue(this.gender()))
                 .build();
     }
 }

@@ -20,16 +20,18 @@ public class Product extends BaseEntity {
     private String brandName;
     private String description;
     private QualityRate qualityRate;
+    private Gender gender;
     private String thumbnailImageUrl;
 
     @Builder
-    public Product(String productName, Long price, Long discountRate, String brandName, String description, QualityRate qualityRate, String thumbnailImageUrl) {
+    public Product(String productName, Long price, Long discountRate, String brandName, String description, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
         this.productName = productName;
         this.price = price;
         this.discountRate = discountRate;
         this.brandName = brandName;
         this.description = description;
         this.qualityRate = qualityRate;
+        this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
     }
 
@@ -40,5 +42,6 @@ public class Product extends BaseEntity {
         this.brandName = product.brandName;
         this.description = product.description;
         this.qualityRate = product.qualityRate;
+        this.gender = product.gender;
     }
 }
