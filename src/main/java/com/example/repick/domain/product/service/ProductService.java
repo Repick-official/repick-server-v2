@@ -1,10 +1,7 @@
 package com.example.repick.domain.product.service;
 
 import com.example.repick.domain.product.dto.PostProduct;
-import com.example.repick.domain.product.entity.Category;
-import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductCategory;
-import com.example.repick.domain.product.entity.ProductImage;
+import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.ProductCategoryRepository;
 import com.example.repick.domain.product.repository.ProductImageRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
@@ -21,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.repick.global.error.exception.ErrorCode.IMAGE_UPLOAD_FAILED;
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_PRODUCT_ID;
 
 @Service @RequiredArgsConstructor
 public class ProductService {
@@ -58,5 +56,26 @@ public class ProductService {
 
         return true;
 
+    }
+
+    @Transactional
+    public Boolean deleteProduct(Long productId) {
+
+        // product
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+
+        product.delete();
+
+        // productImage
+        productImageRepository.findByProductId(product.getId()).forEach(ProductImage::delete);
+
+        // productCategory
+        productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
+
+        // productTag
+        productTagRepository.findByProductId(product.getId()).forEach(ProductTag::delete);
+
+        return true;
     }
 }

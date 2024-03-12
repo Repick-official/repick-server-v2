@@ -18,7 +18,8 @@ public enum ErrorCode {
     // Category
     INVALID_CATEGORY_NAME(400, "C003", "존재하지 않는 카테고리 이름입니다."),
     IMAGE_UPLOAD_FAILED(500, "C004", "이미지 업로드에 실패했습니다."),
-    // QualityRate
+    // Product
+    INVALID_PRODUCT_ID(400, "C001", "존재하지 않는 상품 ID입니다."),
     INVALID_QUALITY_RATE_ID(400, "C005", "존재하지 않는 품질 ID입니다."),
     INVALID_QUALITY_RATE_NAME(400, "C006", "존재하지 않는 품질 이름입니다."),
     // SMS Verification
