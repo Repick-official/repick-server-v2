@@ -19,19 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-#      - name: Configure AWS credentials
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ env.AWS_REGION }}
-#
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v2
-#        with:
-#          mask-password: true
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -39,10 +26,6 @@ jobs:
           username: ec2-user
           key: ${{ secrets.KEY }}
           script: |
-#            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-#            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#            aws configure set region ${{ env.AWS_REGION }}
-#            ECR_REGISTRY_LOGIN=$(aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }})
             sudo docker stop dc
             sudo docker rm dc
             sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
