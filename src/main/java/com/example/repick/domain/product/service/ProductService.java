@@ -13,7 +13,6 @@ import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +52,11 @@ public class ProductService {
 
     @Transactional
     public ProductResponse registerProduct(PostProduct postProduct) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+        User user = userRepository.findById(postProduct.userId())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         // product
-        Product product = productRepository.save(postProduct.toProduct());
+        Product product = productRepository.save(postProduct.toProduct(user));
 
         // productImage
         uploadImage(postProduct.images(), product);
@@ -94,6 +93,8 @@ public class ProductService {
 
     @Transactional
     public ProductResponse updateProduct(Long productId, PatchProduct patchProduct) {
+        User user = userRepository.findById(patchProduct.userId())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         // product
         Product product = productRepository.findById(productId)
@@ -101,7 +102,7 @@ public class ProductService {
 
         if (product.getIsDeleted()) throw new CustomException(DELETED_PRODUCT);
 
-        product.update(patchProduct.toProduct());
+        product.update(patchProduct.toProduct(user));
 
         // productImage
         productImageRepository.findByProductId(product.getId()).forEach(ProductImage::delete);
