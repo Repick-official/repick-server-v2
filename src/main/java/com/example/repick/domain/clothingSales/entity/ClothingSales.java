@@ -1,9 +1,10 @@
 package com.example.repick.domain.clothingSales.entity;
 
+import com.example.repick.domain.clothingSales.dto.PostRequestDto;
+import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClothingSales {
 
     @Id
@@ -18,8 +22,9 @@ public class ClothingSales {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "member_id")
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "clothing_sales_type")
@@ -35,5 +40,12 @@ public class ClothingSales {
     private String imageUrl;
 
     @OneToMany(mappedBy = "clothingSales", cascade = CascadeType.ALL)
-    private List<ClothingSalesState> clothingSalesStates = new ArrayList<>();
+    private final List<ClothingSalesState> clothingSalesStates = new ArrayList<>();
+
+    public ClothingSales(PostRequestDto postRequestDto, String url) {
+        this.clothingSalesType = postRequestDto.getClothingSalesType();
+        this.address = postRequestDto.getAddress();
+        this.bagQuantity = postRequestDto.getBagQuantity();
+        this.imageUrl = url;
+    }
 }
