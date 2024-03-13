@@ -1,18 +1,18 @@
 package com.example.repick.domain.product.service;
 
+import com.example.repick.domain.product.dto.GetMainPageRecommendation;
 import com.example.repick.domain.product.dto.PatchProduct;
 import com.example.repick.domain.product.dto.PostProduct;
 import com.example.repick.domain.product.dto.ProductResponse;
 import com.example.repick.domain.product.entity.*;
-import com.example.repick.domain.product.repository.ProductCategoryRepository;
-import com.example.repick.domain.product.repository.ProductImageRepository;
-import com.example.repick.domain.product.repository.ProductRepository;
-import com.example.repick.domain.product.repository.ProductTagRepository;
+import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +29,7 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final S3UploadService s3UploadService;
     private final UserRepository userRepository;
+    private final ProductLikeRepository productLikeRepository;
 
     private void uploadImage(List<MultipartFile> images, Product product) {
         try {
@@ -113,5 +114,24 @@ public class ProductService {
 
         return ProductResponse.fromProduct(product);
 
+    }
+
+    public List<GetMainPageRecommendation> getMainPageRecommendation(Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId());
+    }
+
+    public Boolean likeProduct(Long productId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        productLikeRepository.findByUserIdAndProductId(user.getId(), productId)
+                .ifPresentOrElse(productLikeRepository::delete, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
+
+        return true;
     }
 }

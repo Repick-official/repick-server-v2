@@ -20,7 +20,9 @@ public class Product extends BaseEntity {
     private Long discountRate;
     private String brandName;
     private String description;
+    @Enumerated(EnumType.STRING)
     private QualityRate qualityRate;
+    @Enumerated(EnumType.STRING)
     private Gender gender;
     private String thumbnailImageUrl;
 

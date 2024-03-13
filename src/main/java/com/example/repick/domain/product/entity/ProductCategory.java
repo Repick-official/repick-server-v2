@@ -16,6 +16,7 @@ public class ProductCategory extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    @Enumerated(EnumType.STRING)
     private Category category;
 
     @Builder
