@@ -97,6 +97,5 @@ jobs:
             sudo docker rm -f $(docker ps -qa)
             sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
             sudo docker run -d --name dc -p 8080:8080 ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-            sudo docker image prune -f
 
 
