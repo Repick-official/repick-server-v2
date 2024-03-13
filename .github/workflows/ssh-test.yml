@@ -8,7 +8,7 @@ env:
   AWS_REGION: ap-northeast-2
   ECR_REGISTRY: 654654448479.dkr.ecr.ap-northeast-2.amazonaws.com
   ECR_REPOSITORY: repick-repo
-  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_TAG: 49119eb9a24649b0efd4bac3113fdb6655539606
 
 permissions:
   contents: read
