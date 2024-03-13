@@ -26,6 +26,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.KEY }}
           script: |
+            ECR_REGISTRY_LOGIN=$(aws ecr get-login-password --region ${{ env.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }})
             sudo docker stop dc
             sudo docker rm dc
             sudo docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
