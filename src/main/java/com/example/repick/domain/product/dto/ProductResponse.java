@@ -9,7 +9,8 @@ public record ProductResponse(
         Long discountRate,
         String brandName,
         String description,
-        String qualityRate
+        String qualityRate,
+        String gender
 ) {
     public static ProductResponse fromProduct(Product product) {
         return new ProductResponse(
@@ -19,7 +20,8 @@ public record ProductResponse(
                 product.getDiscountRate(),
                 product.getBrandName(),
                 product.getDescription(),
-                product.getQualityRate().name()
+                product.getQualityRate().name(),
+                product.getGender().name()
         );
     }
 }
