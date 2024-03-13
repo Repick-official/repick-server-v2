@@ -31,7 +31,7 @@ public enum Gender {
                 return gender;
             }
         }
-        throw new CustomException(ErrorCode.INVALID_CATEGORY_ID);
+        throw new CustomException(ErrorCode.INVALID_GENDER_ID);
     }
 
     public static Gender fromValue(String keyword) {
@@ -40,6 +40,6 @@ public enum Gender {
                 return gender;
             }
         }
-        throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME);
+        throw new CustomException(ErrorCode.INVALID_GENDER_NAME);
     }
 }
