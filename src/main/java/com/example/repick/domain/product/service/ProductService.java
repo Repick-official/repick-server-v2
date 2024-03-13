@@ -116,13 +116,13 @@ public class ProductService {
 
     }
 
-    public List<GetMainPageRecommendation> getMainPageRecommendation(Long cursorId, Integer pageSize) {
+    public List<GetMainPageRecommendation> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         if (pageSize == null) pageSize = 4;
 
-        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId());
+        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), Gender.fromValue(gender));
     }
 
     public Boolean likeProduct(Long productId) {

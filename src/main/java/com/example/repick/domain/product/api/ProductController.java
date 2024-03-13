@@ -43,10 +43,11 @@ public class ProductController {
 
     @GetMapping("/latest")
     public SuccessResponse<List<GetMainPageRecommendation>> getMainPageRecommendation(
+            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
             @Parameter(description = "1번째 페이지 조회시 null, " +
                     "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
             @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getMainPageRecommendation(cursorId, pageSize));
+        return SuccessResponse.success(productService.getMainPageRecommendation(gender, cursorId, pageSize));
     }
 
 }

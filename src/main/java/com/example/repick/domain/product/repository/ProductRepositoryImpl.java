@@ -1,6 +1,7 @@
 package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.product.dto.GetMainPageRecommendation;
+import com.example.repick.domain.product.entity.Gender;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -19,7 +20,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 
     @Override
-    public List<GetMainPageRecommendation> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId) {
+    public List<GetMainPageRecommendation> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, Gender gender) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetMainPageRecommendation.class,
                         product.id,
@@ -35,6 +36,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productLike.productId)
                         .and(productLike.userId.eq(userId)))
                 .where(ltProductId(cursorId)
+                        .and(product.gender.eq(gender))
                         .and(product.isDeleted.eq(false)))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
