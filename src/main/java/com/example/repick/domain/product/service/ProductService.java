@@ -25,7 +25,7 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final ProductTagRepository productTagRepository;
+    private final ProductStyleRepository productStyleRepository;
     private final ProductImageRepository productImageRepository;
     private final S3UploadService s3UploadService;
     private final UserRepository userRepository;
@@ -50,6 +50,12 @@ public class ProductService {
         }
     }
 
+    private void addStyle(List<String> styles, Product product) {
+        for (String styleName : styles) {
+            productStyleRepository.save(ProductStyle.of(product, Style.fromValue(styleName)));
+        }
+    }
+
     @Transactional
     public ProductResponse registerProduct(PostProduct postProduct) {
         User user = userRepository.findById(postProduct.userId())
@@ -63,6 +69,9 @@ public class ProductService {
 
         // productCategory
         addCategory(postProduct.categories(), product);
+
+        // productStyle
+        addStyle(postProduct.styles(), product);
 
         return ProductResponse.fromProduct(product);
 
@@ -85,8 +94,8 @@ public class ProductService {
         // productCategory
         productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
 
-        // productTag
-        productTagRepository.findByProductId(product.getId()).forEach(ProductTag::delete);
+        // productStyle
+        productStyleRepository.findByProductId(product.getId()).forEach(ProductStyle::delete);
 
         return ProductResponse.fromProduct(product);
     }
@@ -111,6 +120,10 @@ public class ProductService {
         // productCategory
         productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
         addCategory(patchProduct.categories(), product);
+
+        // productStyle
+        productStyleRepository.findByProductId(product.getId()).forEach(ProductStyle::delete);
+        addStyle(patchProduct.styles(), product);
 
         return ProductResponse.fromProduct(product);
 

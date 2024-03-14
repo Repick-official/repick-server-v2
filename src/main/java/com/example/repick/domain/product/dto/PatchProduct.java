@@ -11,6 +11,7 @@ import java.util.List;
 public record PatchProduct (
         List<MultipartFile> images,
         List<String> categories,
+        List<String> styles,
         Long userId,
         String productName,
         Long price,

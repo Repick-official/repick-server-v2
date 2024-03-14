@@ -30,7 +30,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.discountRate,
                         product.brandName,
                         product.qualityRate.stringValue(),
-                        productLike.id.isNotNull().as("isLiked")))
+                        productLike.id.isNotNull()))
                 .from(product)
                 .leftJoin(productLike)
                 .on(product.id.eq(productLike.productId)
