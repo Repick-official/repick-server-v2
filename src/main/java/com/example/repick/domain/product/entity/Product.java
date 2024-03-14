@@ -29,7 +29,7 @@ public class Product extends BaseEntity {
     private String thumbnailImageUrl;
 
     @Builder
-    public Product(User user, String productName, Long price, Long predictPrice, Long discountRate, String brandName, String description, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
+    public Product(User user, String productName, Long price, Long predictPrice, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
         this.user = user;
         this.productName = productName;
         this.price = price;
