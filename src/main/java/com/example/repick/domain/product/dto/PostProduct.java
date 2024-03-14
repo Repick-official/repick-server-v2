@@ -15,6 +15,7 @@ public record PostProduct (
         Long userId,
         String productName,
         Long price,
+        Long predictPrice,
         Long discountRate,
         String brandName,
         String description,
@@ -28,6 +29,7 @@ public record PostProduct (
                 .user(user)
                 .productName(this.productName())
                 .price(this.price())
+                .predictPrice(this.predictPrice())
                 .discountRate(this.discountRate())
                 .brandName(this.brandName())
                 .description(this.description())

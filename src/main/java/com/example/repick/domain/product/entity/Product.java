@@ -17,6 +17,7 @@ public class Product extends BaseEntity {
     private User user;
     private String productName;
     private Long price;
+    private Long predictPrice; // 예측정가
     private Long discountRate;
     private String brandName;
     private String description;
@@ -28,10 +29,11 @@ public class Product extends BaseEntity {
     private String thumbnailImageUrl;
 
     @Builder
-    public Product(User user, String productName, Long price, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
+    public Product(User user, String productName, Long price, Long predictPrice, Long discountRate, String brandName, String description, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
         this.user = user;
         this.productName = productName;
         this.price = price;
+        this.predictPrice = predictPrice;
         this.discountRate = discountRate;
         this.brandName = brandName;
         this.description = description;
@@ -45,6 +47,7 @@ public class Product extends BaseEntity {
         this.user = product.user;
         this.productName = product.productName;
         this.price = product.price;
+        this.predictPrice = product.predictPrice;
         this.discountRate = product.discountRate;
         this.brandName = product.brandName;
         this.description = product.description;
