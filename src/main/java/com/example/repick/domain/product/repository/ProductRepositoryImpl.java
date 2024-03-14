@@ -1,6 +1,7 @@
 package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.product.dto.GetProductThumbnail;
+import com.example.repick.domain.product.entity.Category;
 import com.example.repick.domain.product.entity.Gender;
 import com.example.repick.domain.product.entity.Style;
 import com.querydsl.core.types.Projections;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.repick.domain.product.entity.QProduct.product;
+import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
 import static com.example.repick.domain.product.entity.QProductLike.productLike;
 import static com.example.repick.domain.product.entity.QProductStyle.productStyle;
 
@@ -24,6 +26,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductThumbnail> findLatestProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -50,8 +53,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(productLike.userId.eq(userId)))
                 .leftJoin(productStyle)
                 .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
                 .where(
                         genderFilter(gender),
+                        categoryFilter(category),
                         stylesFilter(styles),
                         priceFilter(minPrice, maxPrice),
                         brandFilter(brandNames),
@@ -70,6 +76,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductThumbnail> findLowestProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -96,8 +103,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(productLike.userId.eq(userId)))
                 .leftJoin(productStyle)
                 .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
                 .where(
                         genderFilter(gender),
+                        categoryFilter(category),
                         stylesFilter(styles),
                         priceFilter(minPrice, maxPrice),
                         brandFilter(brandNames),
@@ -116,6 +126,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductThumbnail> findHighestProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -142,8 +153,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(productLike.userId.eq(userId)))
                 .leftJoin(productStyle)
                 .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
                 .where(
                         genderFilter(gender),
+                        categoryFilter(category),
                         stylesFilter(styles),
                         priceFilter(minPrice, maxPrice),
                         brandFilter(brandNames),
@@ -162,6 +176,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public List<GetProductThumbnail> findHighestDiscountProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -188,8 +203,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(productLike.userId.eq(userId)))
                 .leftJoin(productStyle)
                 .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
                 .where(
                         genderFilter(gender),
+                        categoryFilter(category),
                         stylesFilter(styles),
                         priceFilter(minPrice, maxPrice),
                         brandFilter(brandNames),
@@ -207,6 +225,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression genderFilter(String gender) {
         return gender != null ? product.gender.eq(Gender.fromValue(gender)) : null;
+    }
+
+    private BooleanExpression categoryFilter(String category) {
+        return category != null ? productCategory.category.eq(Category.fromValue(category)) : null;
     }
 
     private BooleanExpression priceFilter(Long minPrice, Long maxPrice) {

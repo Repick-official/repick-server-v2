@@ -9,6 +9,7 @@ public interface ProductRepositoryCustom {
 
     List<GetProductThumbnail> findLatestProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -21,6 +22,7 @@ public interface ProductRepositoryCustom {
 
     List<GetProductThumbnail> findLowestProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -33,6 +35,7 @@ public interface ProductRepositoryCustom {
 
     List<GetProductThumbnail> findHighestProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
@@ -45,6 +48,7 @@ public interface ProductRepositoryCustom {
 
     List<GetProductThumbnail> findHighestDiscountProducts(
             String gender,
+            String category,
             List<String> styles,
             Long minPrice,
             Long maxPrice,
