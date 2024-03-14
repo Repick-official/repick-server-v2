@@ -11,6 +11,7 @@ import java.util.List;
 public record PatchProduct (
         List<MultipartFile> images,
         List<String> categories,
+        List<String> styles,
         Long userId,
         String productName,
         Long price,
@@ -18,6 +19,7 @@ public record PatchProduct (
         Long discountRate,
         String brandName,
         String description,
+        String size,
         String qualityRate,
         String gender
 ) {
@@ -31,6 +33,7 @@ public record PatchProduct (
                 .discountRate(this.discountRate())
                 .brandName(this.brandName())
                 .description(this.description())
+                .size(this.size())
                 .qualityRate(QualityRate.fromValue(this.qualityRate()))
                 .gender(Gender.fromValue(this.gender()))
                 .build();

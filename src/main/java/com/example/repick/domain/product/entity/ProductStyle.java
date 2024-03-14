@@ -6,9 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-
 @Entity @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductCategory extends BaseEntity {
+public class ProductStyle extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,20 +15,18 @@ public class ProductCategory extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-    @Enumerated(EnumType.STRING)
-    private Category category;
+    private Style style;
 
     @Builder
-    public ProductCategory(Product product, Category category) {
+    public ProductStyle(Product product, Style style) {
         this.product = product;
-        this.category = category;
+        this.style = style;
     }
 
-    public static ProductCategory of(Product product, Category category) {
-        return ProductCategory.builder()
+    public static ProductStyle of(Product product, Style style) {
+        return ProductStyle.builder()
                 .product(product)
-                .category(category)
+                .style(style)
                 .build();
     }
-
 }

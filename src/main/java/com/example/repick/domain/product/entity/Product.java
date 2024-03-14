@@ -21,7 +21,10 @@ public class Product extends BaseEntity {
     private Long discountRate;
     private String brandName;
     private String description;
+    private String size;
+    @Enumerated(EnumType.STRING)
     private QualityRate qualityRate;
+    @Enumerated(EnumType.STRING)
     private Gender gender;
     private String thumbnailImageUrl;
 
@@ -34,6 +37,7 @@ public class Product extends BaseEntity {
         this.discountRate = discountRate;
         this.brandName = brandName;
         this.description = description;
+        this.size = size;
         this.qualityRate = qualityRate;
         this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
@@ -47,6 +51,7 @@ public class Product extends BaseEntity {
         this.discountRate = product.discountRate;
         this.brandName = product.brandName;
         this.description = product.description;
+        this.size = product.size;
         this.qualityRate = product.qualityRate;
         this.gender = product.gender;
     }
