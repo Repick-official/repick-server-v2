@@ -156,4 +156,31 @@ public class ProductService {
 
         return productRepository.findLatestProducts(gender, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
     }
+
+    public List<GetProductThumbnail> getLowest(String gender, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findLowestProducts(gender, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
+    }
+
+    public List<GetProductThumbnail> getHighest(String gender, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findHighestProducts(gender, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
+    }
+
+    public List<GetProductThumbnail> getHighestDiscount(String gender, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findHighestDiscountProducts(gender, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
+    }
 }
