@@ -1,6 +1,6 @@
 package com.example.repick.domain.product.api;
 
-import com.example.repick.domain.product.dto.GetMainPageRecommendation;
+import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.dto.PatchProduct;
 import com.example.repick.domain.product.dto.PostProduct;
 import com.example.repick.domain.product.dto.ProductResponse;
@@ -41,13 +41,29 @@ public class ProductController {
         return SuccessResponse.createSuccess(productService.likeProduct(productId));
     }
 
-    @GetMapping("/latest")
-    public SuccessResponse<List<GetMainPageRecommendation>> getMainPageRecommendation(
+    @GetMapping("/recommendation")
+    public SuccessResponse<List<GetProductThumbnail>> getMainPageRecommendation(
             @Parameter(description = "조회 의류 성별") @RequestParam String gender,
             @Parameter(description = "1번째 페이지 조회시 null, " +
                     "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
             @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
         return SuccessResponse.success(productService.getMainPageRecommendation(gender, cursorId, pageSize));
     }
+
+    @GetMapping("/latest")
+    public SuccessResponse<List<GetProductThumbnail>> getLatestProduct(
+            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
+            @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
+            @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
+            @Parameter(description = "최대 가격") @RequestParam(required = false) Long maxPrice,
+            @Parameter(description = "브랜드") @RequestParam(required = false) List<String> brandNames,
+            @Parameter(description = "상품등급") @RequestParam(required = false) List<String> qualityRates,
+            @Parameter(description = "사이즈") @RequestParam(required = false) List<String> sizes,
+            @Parameter(description = "1번째 페이지 조회시 null, " +
+                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
+            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
+        return SuccessResponse.success(productService.getLatest(gender, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
+    }
+
 
 }

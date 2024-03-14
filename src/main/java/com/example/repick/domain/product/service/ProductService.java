@@ -1,6 +1,6 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.GetMainPageRecommendation;
+import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.dto.PatchProduct;
 import com.example.repick.domain.product.dto.PostProduct;
 import com.example.repick.domain.product.dto.ProductResponse;
@@ -129,7 +129,7 @@ public class ProductService {
 
     }
 
-    public List<GetMainPageRecommendation> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize) {
+    public List<GetProductThumbnail> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
@@ -146,5 +146,14 @@ public class ProductService {
                 .ifPresentOrElse(productLikeRepository::delete, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
 
         return true;
+    }
+
+    public List<GetProductThumbnail> getLatest(String gender, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findLatestProducts(gender, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
     }
 }

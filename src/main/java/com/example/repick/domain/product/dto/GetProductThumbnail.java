@@ -2,7 +2,7 @@ package com.example.repick.domain.product.dto;
 
 import com.example.repick.domain.product.entity.Product;
 
-public record GetMainPageRecommendation(
+public record GetProductThumbnail(
         Long productId,
         String thumbnailImageUrl,
         String productName,
@@ -12,8 +12,8 @@ public record GetMainPageRecommendation(
         String qualityRate,
         Boolean isLiked
 ) {
-    public static GetMainPageRecommendation fromProduct(Product product) {
-        return new GetMainPageRecommendation(
+    public static GetProductThumbnail fromProduct(Product product) {
+        return new GetProductThumbnail(
                 product.getId(),
                 product.getThumbnailImageUrl(),
                 product.getProductName(),
