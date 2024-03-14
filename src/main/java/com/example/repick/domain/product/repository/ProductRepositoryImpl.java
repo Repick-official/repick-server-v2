@@ -34,14 +34,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Integer pageSize,
             Long userId) {
 
-        BooleanExpression genderFilter = gender != null ? product.gender.eq(Gender.fromValue(gender)) : null;
-        BooleanExpression priceFilter = (minPrice != null && maxPrice != null) ? product.price.between(minPrice, maxPrice) : null;
-        BooleanExpression brandFilter = brandNames != null ? product.brandName.in(brandNames) : null;
-        BooleanExpression qualityFilter = qualityRates != null ? product.qualityRate.stringValue().in(qualityRates) : null;
-        BooleanExpression sizesFilter = sizes != null ? product.size.in(sizes) : null;
-        BooleanExpression cursorFilter = cursorId != null ? product.id.lt(cursorId) : Expressions.asBoolean(true).isTrue();
-        BooleanExpression deletedFilter = product.isDeleted.eq(false);
-
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
@@ -58,10 +50,45 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(productLike.userId.eq(userId)))
                 .leftJoin(productStyle)
                 .on(product.id.eq(productStyle.product.id))
-                .where(genderFilter, stylesFilter(styles), priceFilter, brandFilter, qualityFilter, sizesFilter, cursorFilter, deletedFilter)
+                .where(
+                        genderFilter(gender),
+                        stylesFilter(styles),
+                        priceFilter(minPrice, maxPrice),
+                        brandFilter(brandNames),
+                        qualityFilter(qualityRates),
+                        sizesFilter(sizes),
+                        ltProductId(cursorId),
+                        deletedFilter())
                 .orderBy(product.id.desc())
                 .limit(pageSize)
-                .fetch();
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private BooleanExpression genderFilter(String gender) {
+        return gender != null ? product.gender.eq(Gender.fromValue(gender)) : null;
+    }
+
+    private BooleanExpression priceFilter(Long minPrice, Long maxPrice) {
+        return (minPrice != null && maxPrice != null) ? product.price.between(minPrice, maxPrice) : null;
+    }
+
+    private BooleanExpression brandFilter(List<String> brandNames) {
+        return brandNames != null ? product.brandName.in(brandNames) : null;
+    }
+
+    private BooleanExpression qualityFilter(List<String> qualityRates) {
+        return qualityRates != null ? product.qualityRate.stringValue().in(qualityRates) : null;
+    }
+
+    private BooleanExpression sizesFilter(List<String> sizes) {
+        return sizes != null ? product.size.in(sizes) : null;
+    }
+
+    private BooleanExpression deletedFilter() {
+        return product.isDeleted.eq(false);
     }
 
     private BooleanExpression stylesFilter(List<String> styles) {
@@ -97,7 +124,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(product.isDeleted.eq(false)))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
-                .fetch();
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private BooleanExpression ltProductId(Long cursorId) {
