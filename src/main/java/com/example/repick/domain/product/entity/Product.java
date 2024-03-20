@@ -55,4 +55,8 @@ public class Product extends BaseEntity {
         this.qualityRate = product.qualityRate;
         this.gender = product.gender;
     }
+
+    public void updateThumbnailImageUrl(String thumbnailImageUrl) {
+        this.thumbnailImageUrl = thumbnailImageUrl;
+    }
 }
