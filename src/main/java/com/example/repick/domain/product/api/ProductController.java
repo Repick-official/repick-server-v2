@@ -36,11 +36,6 @@ public class ProductController {
         return SuccessResponse.createSuccess(productService.updateProduct(productId, patchProduct));
     }
 
-    @GetMapping("/like")
-    public SuccessResponse<Boolean> likeProduct(@RequestParam Long productId) {
-        return SuccessResponse.createSuccess(productService.likeProduct(productId));
-    }
-
     @GetMapping("/recommendation")
     public SuccessResponse<List<GetProductThumbnail>> getMainPageRecommendation(
             @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
@@ -114,6 +109,11 @@ public class ProductController {
         return SuccessResponse.success(productService.getHighestDiscount(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
     }
 
+    @GetMapping("/like")
+    public SuccessResponse<Boolean> likeProduct(@RequestParam Long productId) {
+        return SuccessResponse.createSuccess(productService.likeProduct(productId));
+    }
+
     @GetMapping("/liked")
     public SuccessResponse<List<GetProductThumbnail>> getLikedProduct(
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
@@ -121,6 +121,11 @@ public class ProductController {
                     "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
             @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
         return SuccessResponse.success(productService.getLiked(category, cursorId, pageSize));
+    }
+
+    @GetMapping("/cart")
+    public SuccessResponse<Boolean> addToCart(@RequestParam Long productId) {
+        return SuccessResponse.createSuccess(productService.addToCart(productId));
     }
 
 }

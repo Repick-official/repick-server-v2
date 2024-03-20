@@ -30,6 +30,7 @@ public class ProductService {
     private final S3UploadService s3UploadService;
     private final UserRepository userRepository;
     private final ProductLikeRepository productLikeRepository;
+    private final ProductCartRepository productCartRepository;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
         String thumbnailGeneratedUrl = null;
@@ -148,16 +149,6 @@ public class ProductService {
         return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), Gender.fromValue(gender));
     }
 
-    public Boolean likeProduct(Long productId) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-        productLikeRepository.findByUserIdAndProductId(user.getId(), productId)
-                .ifPresentOrElse(productLikeRepository::delete, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
-
-        return true;
-    }
-
     public List<GetProductThumbnail> getLatest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -194,6 +185,16 @@ public class ProductService {
         return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
     }
 
+    public Boolean likeProduct(Long productId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        productLikeRepository.findByUserIdAndProductId(user.getId(), productId)
+                .ifPresentOrElse(productLikeRepository::delete, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
+
+        return true;
+    }
+
     public List<GetProductThumbnail> getLiked(String category, Long cursorId, Integer pageSize) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -201,5 +202,15 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         return productRepository.findLikedProducts(category, cursorId, pageSize, user.getId());
+    }
+
+    public Boolean addToCart(Long productId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        productCartRepository.findByUserIdAndProductId(user.getId(), productId)
+                .ifPresentOrElse(productCartRepository::delete, () -> productCartRepository.save(ProductCart.of(user.getId(), productId)));
+
+        return true;
     }
 }
