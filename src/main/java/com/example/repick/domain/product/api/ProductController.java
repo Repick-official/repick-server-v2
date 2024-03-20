@@ -110,8 +110,8 @@ public class ProductController {
     }
 
     @GetMapping("/like")
-    public SuccessResponse<Boolean> likeProduct(@RequestParam Long productId) {
-        return SuccessResponse.createSuccess(productService.likeProduct(productId));
+    public SuccessResponse<Boolean> toggleLike(@RequestParam Long productId) {
+        return SuccessResponse.createSuccess(productService.toggleLike(productId));
     }
 
     @GetMapping("/liked")
@@ -124,8 +124,8 @@ public class ProductController {
     }
 
     @GetMapping("/cart")
-    public SuccessResponse<Boolean> addToCart(@RequestParam Long productId) {
-        return SuccessResponse.createSuccess(productService.addToCart(productId));
+    public SuccessResponse<Boolean> toggleCart(@RequestParam Long productId) {
+        return SuccessResponse.createSuccess(productService.toggleCart(productId));
     }
 
 }

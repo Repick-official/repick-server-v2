@@ -185,7 +185,7 @@ public class ProductService {
         return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
     }
 
-    public Boolean likeProduct(Long productId) {
+    public Boolean toggleLike(Long productId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
@@ -204,7 +204,7 @@ public class ProductService {
         return productRepository.findLikedProducts(category, cursorId, pageSize, user.getId());
     }
 
-    public Boolean addToCart(Long productId) {
+    public Boolean toggleCart(Long productId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
