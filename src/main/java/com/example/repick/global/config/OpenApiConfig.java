@@ -21,6 +21,12 @@ import org.springframework.context.annotation.Configuration;
         
         ---
         
+        ### 개발용 토큰
+        
+        `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyODg2MjMzNzQ3Iiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3MDk1NTMxNTIsImV4cCI6MTcxODE5MzE1Mn0.85v06Tf4T56-CBjbtzhls_S5_lq7YRhhIaDGH9W7xew`
+        
+        ---
+        
         """),
         servers = {
                 @Server(url = "https://www.repick-server.shop/api", description = "Server URL"),
