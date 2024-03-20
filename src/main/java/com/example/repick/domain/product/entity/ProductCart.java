@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductLike extends BaseEntity {
+public class ProductCart extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,16 +19,17 @@ public class ProductLike extends BaseEntity {
     private Long productId;
 
     @Builder
-    public ProductLike(Long userId, Long productId) {
+    public ProductCart(Long userId, Long productId) {
         this.userId = userId;
         this.productId = productId;
     }
 
-    public static ProductLike of(Long userId, Long productId) {
-        return ProductLike.builder()
+    public static ProductCart of(Long userId, Long productId) {
+        return ProductCart.builder()
                 .userId(userId)
                 .productId(productId)
                 .build();
     }
+
 
 }
