@@ -114,4 +114,13 @@ public class ProductController {
         return SuccessResponse.success(productService.getHighestDiscount(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
     }
 
+    @GetMapping("/liked")
+    public SuccessResponse<List<GetProductThumbnail>> getLikedProduct(
+            @Parameter(description = "카테고리") @RequestParam(required = false) String category,
+            @Parameter(description = "1번째 페이지 조회시 null, " +
+                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
+            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
+        return SuccessResponse.success(productService.getLiked(category, cursorId, pageSize));
+    }
+
 }

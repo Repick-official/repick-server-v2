@@ -223,6 +223,41 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductThumbnail.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.productName,
+                        product.price,
+                        product.discountRate,
+                        product.brandName,
+                        product.qualityRate.stringValue(),
+                        productLike.id.isNotNull()))
+                .from(product)
+                .leftJoin(productLike)
+                .on(product.id.eq(productLike.productId)
+                        .and(productLike.userId.eq(userId)))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
+                .where(
+                        likeFilter(userId),
+                        categoryFilter(category),
+                        ltProductId(cursorId),
+                        deletedFilter())
+                .orderBy(product.discountRate.desc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private BooleanExpression likeFilter(Long userId) {
+        return productLike.userId.eq(userId);
+    }
+
     private BooleanExpression genderFilter(String gender) {
         return gender != null ? product.gender.eq(Gender.fromValue(gender)) : null;
     }

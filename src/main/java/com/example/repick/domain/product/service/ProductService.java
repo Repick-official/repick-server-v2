@@ -193,4 +193,13 @@ public class ProductService {
 
         return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId());
     }
+
+    public List<GetProductThumbnail> getLiked(String category, Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findLikedProducts(category, cursorId, pageSize, user.getId());
+    }
 }
