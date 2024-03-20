@@ -1,9 +1,6 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.GetProductThumbnail;
-import com.example.repick.domain.product.dto.PatchProduct;
-import com.example.repick.domain.product.dto.PostProduct;
-import com.example.repick.domain.product.dto.ProductResponse;
+import com.example.repick.domain.product.dto.*;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.user.entity.User;
@@ -212,5 +209,15 @@ public class ProductService {
                 .ifPresentOrElse(productCartRepository::delete, () -> productCartRepository.save(ProductCart.of(user.getId(), productId)));
 
         return true;
+    }
+
+    public List<GetProductCart> getCarted(Long cursorId, Integer pageSize) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        if (pageSize == null) pageSize = 4;
+
+        return productRepository.findCartedProducts(cursorId, pageSize, user.getId());
+
     }
 }
