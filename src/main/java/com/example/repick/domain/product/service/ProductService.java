@@ -31,13 +31,21 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductLikeRepository productLikeRepository;
 
-    private void uploadImage(List<MultipartFile> images, Product product) {
+    private String uploadImage(List<MultipartFile> images, Product product) {
+        String thumbnailGeneratedUrl = null;
         try {
             int sequence = 0;
             for (MultipartFile image : images) {
-                String imageUrl = s3UploadService.saveFile(image, "product/" + product.getId().toString());
-                productImageRepository.save(ProductImage.of(product, imageUrl, sequence++));
+                if (sequence == 0) {
+                    String imageUrl = s3UploadService.saveFile(image, "product/thumbnail/" + product.getId().toString());
+                    thumbnailGeneratedUrl = imageUrl.replace("thumbnail/", "thumbnail_generated/");
+                    productImageRepository.save(ProductImage.of(product, imageUrl, sequence++));
+                } else {
+                    String imageUrl = s3UploadService.saveFile(image, "product/" + product.getId().toString());
+                    productImageRepository.save(ProductImage.of(product, imageUrl, sequence++));
+                }
             }
+            return thumbnailGeneratedUrl;
         }
         catch (Exception e) {
             throw new CustomException(IMAGE_UPLOAD_FAILED);
@@ -65,7 +73,8 @@ public class ProductService {
         Product product = productRepository.save(postProduct.toProduct(user));
 
         // productImage
-        uploadImage(postProduct.images(), product);
+        String thumbnailGeneratedUrl = uploadImage(postProduct.images(), product);
+        product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
         // productCategory
         addCategory(postProduct.categories(), product);
@@ -115,7 +124,8 @@ public class ProductService {
 
         // productImage
         productImageRepository.findByProductId(product.getId()).forEach(ProductImage::delete);
-        uploadImage(patchProduct.images(), product);
+        String thumbnailGeneratedUrl = uploadImage(patchProduct.images(), product);
+        product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
         // productCategory
         productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
