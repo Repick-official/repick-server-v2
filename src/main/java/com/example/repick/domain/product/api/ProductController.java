@@ -43,7 +43,7 @@ public class ProductController {
 
     @GetMapping("/recommendation")
     public SuccessResponse<List<GetProductThumbnail>> getMainPageRecommendation(
-            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
+            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "1번째 페이지 조회시 null, " +
                     "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
             @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
@@ -52,7 +52,7 @@ public class ProductController {
 
     @GetMapping("/latest")
     public SuccessResponse<List<GetProductThumbnail>> getLatestProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
+            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
             @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
@@ -68,7 +68,7 @@ public class ProductController {
 
     @GetMapping("/lowest-price")
     public SuccessResponse<List<GetProductThumbnail>> getLowestProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
+            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
             @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
@@ -84,7 +84,7 @@ public class ProductController {
 
     @GetMapping("/highest-price")
     public SuccessResponse<List<GetProductThumbnail>> getHighestProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
+            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
             @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
@@ -100,7 +100,7 @@ public class ProductController {
 
     @GetMapping("/highest-discount")
     public SuccessResponse<List<GetProductThumbnail>> getHighestDiscountProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam String gender,
+            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
             @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
