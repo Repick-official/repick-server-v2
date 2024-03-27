@@ -2,7 +2,7 @@ package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
-import com.example.repick.domain.product.entity.Gender;
+import com.example.repick.domain.product.entity.SellingState;
 
 import java.util.List;
 
@@ -19,7 +19,8 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId);
+            Long userId,
+            SellingState sellingState);
 
     List<GetProductThumbnail> findLowestProducts(
             String gender,
@@ -32,7 +33,8 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId);
+            Long userId,
+            SellingState sellingState);
 
     List<GetProductThumbnail> findHighestProducts(
             String gender,
@@ -45,7 +47,8 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId);
+            Long userId,
+            SellingState sellingState);
 
     List<GetProductThumbnail> findHighestDiscountProducts(
             String gender,
@@ -58,9 +61,10 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId);
+            Long userId,
+            SellingState sellingState);
 
-    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, Gender gender);
+    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, SellingState sellingState);
 
     List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId);
 
