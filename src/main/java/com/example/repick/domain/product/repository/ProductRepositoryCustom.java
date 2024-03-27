@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Gender;
 
@@ -62,4 +63,6 @@ public interface ProductRepositoryCustom {
     List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, Gender gender);
 
     List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId);
+
+    List<GetProductCart> findCartedProducts(Long cursorId, Integer pageSize, Long userId);
 }

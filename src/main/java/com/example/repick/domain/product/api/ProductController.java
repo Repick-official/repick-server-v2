@@ -1,9 +1,6 @@
 package com.example.repick.domain.product.api;
 
-import com.example.repick.domain.product.dto.GetProductThumbnail;
-import com.example.repick.domain.product.dto.PatchProduct;
-import com.example.repick.domain.product.dto.PostProduct;
-import com.example.repick.domain.product.dto.ProductResponse;
+import com.example.repick.domain.product.dto.*;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -126,6 +123,14 @@ public class ProductController {
     @GetMapping("/cart")
     public SuccessResponse<Boolean> toggleCart(@RequestParam Long productId) {
         return SuccessResponse.createSuccess(productService.toggleCart(productId));
+    }
+
+    @GetMapping("/carted")
+    public SuccessResponse<List<GetProductCart>> getCartedProduct(
+            @Parameter(description = "1번째 페이지 조회시 null, " +
+                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
+            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
+        return SuccessResponse.success(productService.getCarted(cursorId, pageSize));
     }
 
 }

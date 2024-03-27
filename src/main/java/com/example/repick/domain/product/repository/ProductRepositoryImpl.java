@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Category;
 import com.example.repick.domain.product.entity.Gender;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.repick.domain.product.entity.QProduct.product;
+import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
 import static com.example.repick.domain.product.entity.QProductLike.productLike;
 import static com.example.repick.domain.product.entity.QProductStyle.productStyle;
@@ -246,12 +248,42 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         categoryFilter(category),
                         ltProductId(cursorId),
                         deletedFilter())
-                .orderBy(product.discountRate.desc())
+                .orderBy(productLike.id.desc())
                 .limit(pageSize)
                 .fetch()
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GetProductCart> findCartedProducts(Long cursorId, Integer pageSize, Long userId) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductCart.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.brandName,
+                        product.productName,
+                        product.size,
+                        product.price,
+                        product.discountRate))
+                .from(product)
+                .leftJoin(productCart)
+                .on(product.id.eq(productCart.productId))
+                .where(
+                        cartFilter(userId),
+                        ltProductId(cursorId),
+                        deletedFilter())
+                .orderBy(productCart.id.desc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    private BooleanExpression cartFilter(Long userId) {
+        return productCart.userId.eq(userId);
     }
 
     private BooleanExpression likeFilter(Long userId) {
