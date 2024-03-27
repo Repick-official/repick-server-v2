@@ -4,10 +4,12 @@ import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Category;
 import com.example.repick.domain.product.entity.Gender;
+import com.example.repick.domain.product.entity.SellingState;
 import com.example.repick.domain.product.entity.Style;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +20,7 @@ import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
 import static com.example.repick.domain.product.entity.QProductLike.productLike;
+import static com.example.repick.domain.product.entity.QProductSellingState.productSellingState;
 import static com.example.repick.domain.product.entity.QProductStyle.productStyle;
 
 @RequiredArgsConstructor
@@ -37,7 +40,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId) {
+            Long userId,
+            SellingState sellingState) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -57,6 +61,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
                 .where(
                         genderFilter(gender),
                         categoryFilter(category),
@@ -66,7 +72,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qualityFilter(qualityRates),
                         sizesFilter(sizes),
                         ltProductId(cursorId),
-                        deletedFilter())
+                        deletedFilter(),
+                        sellingStateFilter(sellingState))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()
@@ -87,7 +94,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId) {
+            Long userId,
+            SellingState sellingState) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -107,6 +115,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
                 .where(
                         genderFilter(gender),
                         categoryFilter(category),
@@ -116,7 +126,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qualityFilter(qualityRates),
                         sizesFilter(sizes),
                         ltProductId(cursorId),
-                        deletedFilter())
+                        deletedFilter(),
+                        sellingStateFilter(sellingState))
                 .orderBy(product.price.asc())
                 .limit(pageSize)
                 .fetch()
@@ -137,7 +148,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId) {
+            Long userId,
+            SellingState sellingState) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -157,6 +169,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
                 .where(
                         genderFilter(gender),
                         categoryFilter(category),
@@ -166,7 +180,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qualityFilter(qualityRates),
                         sizesFilter(sizes),
                         ltProductId(cursorId),
-                        deletedFilter())
+                        deletedFilter(),
+                        sellingStateFilter(sellingState))
                 .orderBy(product.price.desc())
                 .limit(pageSize)
                 .fetch()
@@ -187,7 +202,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId) {
+            Long userId,
+            SellingState sellingState) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -207,6 +223,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
                 .where(
                         genderFilter(gender),
                         categoryFilter(category),
@@ -216,7 +234,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         qualityFilter(qualityRates),
                         sizesFilter(sizes),
                         ltProductId(cursorId),
-                        deletedFilter())
+                        deletedFilter(),
+                        sellingStateFilter(sellingState))
                 .orderBy(product.discountRate.desc())
                 .limit(pageSize)
                 .fetch()
@@ -318,6 +337,20 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.isDeleted.eq(false);
     }
 
+    private BooleanExpression sellingStateFilter(SellingState sellingState) {
+        if (sellingState == null) {
+            return null;
+        }
+
+        return JPAExpressions
+                .select(productSellingState.id.max())
+                .from(productSellingState)
+                .where(productSellingState.sellingState.eq(sellingState)
+                        .and(productSellingState.productId.eq(product.id)))
+                .groupBy(productSellingState.productId)
+                .eq(productSellingState.id);
+    }
+
     private BooleanExpression stylesFilter(List<String> styles) {
         if (styles != null && !styles.isEmpty()) {
 
@@ -331,7 +364,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, Gender gender) {
+    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, SellingState sellingState) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
@@ -346,9 +379,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productLike)
                 .on(product.id.eq(productLike.productId)
                         .and(productLike.userId.eq(userId)))
-                .where(ltProductId(cursorId)
-                        .and(product.gender.eq(gender))
-                        .and(product.isDeleted.eq(false)))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
+                .where(ltProductId(cursorId),
+                    genderFilter(gender),
+                    deletedFilter(),
+                    sellingStateFilter(sellingState))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()

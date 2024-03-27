@@ -106,6 +106,12 @@ public class ProductController {
         return SuccessResponse.success(productService.getHighestDiscount(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
     }
 
+    // !!ADMIN ACCESS REQUIRED!!
+    @PostMapping("/state")
+    public SuccessResponse<Boolean> changeSellingState(@RequestBody PostProductSellingState postProductSellingState) {
+        return SuccessResponse.createSuccess(productService.changeSellingState(postProductSellingState));
+    }
+
     @GetMapping("/like")
     public SuccessResponse<Boolean> toggleLike(@RequestParam Long productId) {
         return SuccessResponse.createSuccess(productService.toggleLike(productId));
