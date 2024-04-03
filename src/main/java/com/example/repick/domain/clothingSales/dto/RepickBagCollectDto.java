@@ -12,10 +12,11 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PostRequestDto implements Serializable {
+public class RepickBagCollectDto implements Serializable {
     private ClothingSalesType clothingSalesType;
     private Address address;
     private Integer bagQuantity;
     private String collectionDate;
     private MultipartFile file;
+    private Long repickBagApplyId;
 }

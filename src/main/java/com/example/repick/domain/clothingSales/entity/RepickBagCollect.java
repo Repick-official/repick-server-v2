@@ -1,6 +1,7 @@
 package com.example.repick.domain.clothingSales.entity;
 
 import com.example.repick.domain.clothingSales.dto.PostRequestDto;
+import com.example.repick.domain.clothingSales.dto.RepickBagCollectDto;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClothingSales {
+public class RepickBagCollect {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,13 +40,18 @@ public class ClothingSales {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @OneToMany(mappedBy = "clothingSales", cascade = CascadeType.ALL)
-    private final List<ClothingSalesState> clothingSalesStates = new ArrayList<>();
+    @Column(name = "collection_date")
+    private String collectionDate;
 
-    public ClothingSales(PostRequestDto postRequestDto, String url) {
-        this.clothingSalesType = postRequestDto.getClothingSalesType();
-        this.address = postRequestDto.getAddress();
-        this.bagQuantity = postRequestDto.getBagQuantity();
-        this.imageUrl = url;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repick_bag_apply_id")
+    private RepickBagApply repickBagApply;
+
+    public RepickBagCollect(RepickBagCollectDto repickBagCollectDto, RepickBagApply repickBagApply) {
+        this.clothingSalesType = repickBagCollectDto.getClothingSalesType();
+        this.address = repickBagCollectDto.getAddress();
+        this.bagQuantity = repickBagCollectDto.getBagQuantity();
+        this.collectionDate = repickBagCollectDto.getCollectionDate();
+        this.repickBagApply = repickBagApply;
     }
 }
