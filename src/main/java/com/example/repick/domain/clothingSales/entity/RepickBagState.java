@@ -7,21 +7,21 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class ClothingSalesState {
+public class RepickBagState {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "clothing_sales_state_id")
+    @Column(name = "repick_bag_state_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sales_status")
     private SalesStatus salesStatus;
 
-    // 여러 ClothingSalesState가 하나의 ClothingSales를 참조
     @ManyToOne
-    @JoinColumn(name = "clothing_sales_id")
-    private ClothingSales clothingSales;
+    @JoinColumn(name = "repick_bag_apply_id")
+    private RepickBagApply repickBagApply;
+
 }
 
 
