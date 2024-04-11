@@ -19,6 +19,8 @@ import org.springframework.context.annotation.Configuration;
         
         서버 개발 담당 박상돈: sky980221@gmail.com
         
+        서버 개발 담당 이정현: leejeong918@gmail.com
+        
         ---
         
         ### 개발용 토큰
