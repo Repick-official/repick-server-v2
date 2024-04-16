@@ -48,7 +48,7 @@ public class AdvertisementService {
     }
 
     public AdvertisementResponse patchAdvertisement(PatchAdvertisement patchAdvertisement) {
-        Advertisement advertisement = advertisementRepository.findById(patchAdvertisement.id())
+        Advertisement advertisement = advertisementRepository.findById(patchAdvertisement.advertisementId())
                 .orElseThrow(() -> new CustomException(ErrorCode.ADVERTISEMENT_NOT_FOUND));
 
 

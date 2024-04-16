@@ -38,9 +38,12 @@ public class AdvertisementController {
             sequence 값은 광고를 노출할 우선 순위로, 낮을수록 먼저 노출됩니다.
             sequence 값이 중복일 경우 에러가 발생합니다. (400: ADVERTISEMENT_SEQUENCE_DUPLICATED)
             
+            - advertisementId: 광고 ID
+            - sequence: 광고 노출 순서
+            
             """)
-    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessResponse<AdvertisementResponse> patchAdvertisement(@ModelAttribute PatchAdvertisement patchAdvertisement) {
+    @PatchMapping
+    public SuccessResponse<AdvertisementResponse> patchAdvertisement(@RequestBody PatchAdvertisement patchAdvertisement) {
         return SuccessResponse.success(advertisementService.patchAdvertisement(patchAdvertisement));
     }
 
