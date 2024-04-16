@@ -40,7 +40,8 @@ public enum ErrorCode {
     //FCM
     USER_FCM_TOKEN_NOT_FOUND(404, "C006", "존재하지 않는 FCM 토큰입니다."),
     // Advertisement
-    ADVERTISEMENT_SEQUENCE_DUPLICATED(400, "C001", "중복된 순서의 광고가 존재합니다.");
+    ADVERTISEMENT_SEQUENCE_DUPLICATED(400, "C001", "중복된 순서의 광고가 존재합니다."),
+    ADVERTISEMENT_NOT_FOUND(404, "C002", "존재하지 않는 광고입니다.");
 
     private final int status;
     private final String code;

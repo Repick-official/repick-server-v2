@@ -28,4 +28,8 @@ public class Advertisement extends BaseEntity {
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public void updateSequence(Integer sequence) {
+        this.sequence = sequence == null ? this.sequence : sequence;
+    }
 }

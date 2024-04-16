@@ -3,6 +3,8 @@ package com.example.repick.domain.advertisement.dto;
 import com.example.repick.domain.advertisement.entity.Advertisement;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.List;
+
 public record AdvertisementResponse(
         @Schema(description = "광고 ID", example = "1") Long id,
         @Schema(description = "광고 이미지 URL") String imageUrl,
@@ -19,5 +21,11 @@ public record AdvertisementResponse(
                 advertisement.getLinkUrl(),
                 advertisement.getSequence()
         );
+    }
+
+    public static List<AdvertisementResponse> ofList(List<Advertisement> allByOrderBySequenceAsc) {
+        return allByOrderBySequenceAsc.stream()
+                .map(AdvertisementResponse::of)
+                .toList();
     }
 }
