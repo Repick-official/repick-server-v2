@@ -35,9 +35,3 @@ public class BagInitState extends BaseEntity {
     }
 
 }
-
-
-
-
-
-

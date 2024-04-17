@@ -1,13 +1,12 @@
 package com.example.repick.domain.clothingSales.service;
 
-import com.example.repick.domain.clothingSales.dto.BagInitResponse;
-import com.example.repick.domain.clothingSales.dto.PostBagInit;
-import com.example.repick.domain.clothingSales.dto.PostBagInitState;
-import com.example.repick.domain.clothingSales.entity.BagInit;
-import com.example.repick.domain.clothingSales.entity.BagInitState;
-import com.example.repick.domain.clothingSales.entity.BagInitStateType;
+import com.example.repick.domain.clothingSales.dto.*;
+import com.example.repick.domain.clothingSales.entity.*;
+import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
+import com.example.repick.domain.clothingSales.repository.BagCollectStateRepository;
 import com.example.repick.domain.clothingSales.repository.BagInitRepository;
 import com.example.repick.domain.clothingSales.repository.BagInitStateRepository;
+import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -30,11 +29,13 @@ public class BagService {
     private final UserRepository userRepository;
     private final BagInitRepository bagInitRepository;
     private final BagInitStateRepository bagInitStateRepository;
+    private final BagCollectRepository bagCollectRepository;
+    private final BagCollectStateRepository bagCollectStateRepository;
     private final S3UploadService s3UploadService;
 
-    private String uploadImage(MultipartFile image, Long bagInitId) {
+    private String uploadImage(MultipartFile image, Long bagInitId, String type) {
         try {
-            return s3UploadService.saveFile(image, "clothingSales/" + bagInitId);
+            return s3UploadService.saveFile(image, "clothingSales/" + type + "/" + bagInitId);
         }
         catch (IOException e) {
             throw new CustomException(IMAGE_UPLOAD_FAILED);
@@ -49,7 +50,7 @@ public class BagService {
         // BagInit
         BagInit bagInit = postBagInit.toEntity(user);
 
-        bagInit.updateImageUrl(uploadImage(postBagInit.image(), bagInit.getId()));
+        bagInit.updateImageUrl(uploadImage(postBagInit.image(), bagInit.getId(), "bagInit"));
 
         bagInitRepository.save(bagInit);
 
@@ -57,10 +58,11 @@ public class BagService {
         BagInitState bagInitState = BagInitState.of(BagInitStateType.PENDING, bagInit);
         bagInitStateRepository.save(bagInitState);
 
-        return BagInitResponse.from(bagInit, bagInitState.getBagInitStateType().name());
+        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().name());
 
     }
 
+    @Transactional
     public BagInitResponse updateBagInitState(PostBagInitState postBagInitState) {
         BagInit bagInit = bagInitRepository.findById(postBagInitState.bagInitId())
                 .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
@@ -68,7 +70,33 @@ public class BagService {
         BagInitState bagInitState = BagInitState.of(BagInitStateType.fromValue(postBagInitState.bagInitStateType()), bagInit);
         bagInitStateRepository.save(bagInitState);
 
-        return BagInitResponse.from(bagInit, bagInitState.getBagInitStateType().name());
+        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().name());
+    }
+
+    @Transactional
+    public BagCollectResponse registerBagCollect(PostBagCollect postBagCollect) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // Validations
+        BagInit bagInit = bagInitRepository.findById(postBagCollect.bagInitId())
+                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
+
+        ClothingSalesValidator.validateUserAndBagInit(user.getId(), bagInit);
+
+        // BagCollect
+        BagCollect bagCollect = postBagCollect.toEntity();
+
+        bagCollect.updateImageUrl(uploadImage(postBagCollect.image(), bagCollect.getBagInitId(), "bagCollect"));
+
+        bagCollectRepository.save(bagCollect);
+
+        // BagCollectState
+        BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.PENDING, bagCollect);
+        bagCollectStateRepository.save(bagCollectState);
+
+        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().name());
+
     }
 
 

@@ -14,9 +14,9 @@ public class BoxState {
     @Column(name = "box_state_id")
     private Long id;    // BoxState의 id
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sales_status")
-    private SalesStatus salesStatus;
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "sales_status")
+//    private SalesStatus salesStatus;
 
     @ManyToOne
     @JoinColumn(name = "box_collect_id")

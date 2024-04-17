@@ -11,7 +11,7 @@ public record BagInitResponse(
         Address address,
         @Schema(description = "백 상태", example = "대기중") String bagInitState
 ) {
-    public static BagInitResponse from(BagInit bagInit, String bagInitStateType) {
+    public static BagInitResponse of(BagInit bagInit, String bagInitStateType) {
         return new BagInitResponse(
                 bagInit.getId(),
                 bagInit.getImageUrl(),

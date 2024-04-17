@@ -1,6 +1,5 @@
 package com.example.repick.domain.clothingSales.entity;
 
-import com.example.repick.domain.clothingSales.dto.PostRequestDto;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import jakarta.persistence.*;
@@ -41,10 +40,10 @@ public class BoxCollect {
     @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
     private final List<BoxState> boxStates = new ArrayList<>();
 
-    public BoxCollect(PostRequestDto postRequestDto, String url) {
-        this.address = postRequestDto.getAddress();
-        this.bagQuantity = postRequestDto.getBagQuantity();
-        this.imageUrl = url;
-        this.collectionDate = postRequestDto.getCollectionDate();
-    }
+//    public BoxCollect(PostBagCollect postBagCollect, String url) {
+//        this.address = postBagCollect.getAddress();
+//        this.bagQuantity = postBagCollect.getBagQuantity();
+//        this.imageUrl = url;
+//        this.collectionDate = postBagCollect.getCollectionDate();
+//    }
 }

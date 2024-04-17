@@ -28,7 +28,7 @@ public class BagInit extends BaseEntity {
     @Column(name = "bag_quantity")
     private Integer bagQuantity;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
     @Builder

@@ -32,10 +32,14 @@ public enum ErrorCode {
     INVALID_SELLING_STATE_ID(400, "C009", "존재하지 않는 판매 상태 ID입니다."),
     INVALID_SELLING_STATE_NAME(400, "C010", "존재하지 않는 판매 상태 이름입니다."),
     // BagInit
-    INVALID_BAG_INIT_ID(400, "C009", "존재하지 않는 백 초기화 ID입니다."),
-    // BagInitStatus
+    INVALID_BAG_INIT_ID(400, "C009", "존재하지 않는 백 요청 ID입니다."),
+    BAG_INIT_NOT_MATCH_USER(400, "C010", "백 요청 ID와 사용자 ID가 일치하지 않습니다."),
+    // BagInitStateType
     INVALID_BAG_INIT_STATUS_ID(400, "C011", "존재하지 않는 백 요청 상태 ID입니다."),
     INVALID_BAG_INIT_STATUS_NAME(400, "C012", "존재하지 않는 백 요청 상태 이름입니다."),
+    // BagCollectStateType
+    INVALID_BAG_COLLECT_STATUS_ID(400, "C013", "존재하지 않는 백 수거 상태 ID입니다."),
+    INVALID_BAG_COLLECT_STATUS_NAME(400, "C014", "존재하지 않는 백 수거 상태 이름입니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "C006", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "C007", "인증번호가 만료되었습니다."),
