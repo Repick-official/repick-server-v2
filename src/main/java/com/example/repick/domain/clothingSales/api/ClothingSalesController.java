@@ -15,22 +15,28 @@ public class ClothingSalesController {
     private final BoxService boxService;
     private final BagService bagService;
 
-    //리픽백_신청
+    // 백 요청
     @PostMapping(value = "/bags/initialize", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<BagInitResponse> handleBagInit(@ModelAttribute PostBagInit postBagInit) {
         return SuccessResponse.createSuccess(bagService.registerBagInit(postBagInit));
     }
 
-    // ADMIN OPERATION
+    // ADMIN: 백 상태 변경
     @PostMapping("bags/initialize/state")
     public SuccessResponse<BagInitResponse> updateBagInitState(@RequestBody PostBagInitState postBagInitState) {
         return SuccessResponse.createSuccess(bagService.updateBagInitState(postBagInitState));
     }
 
-    //리픽백_수거신청
+    // 백 수거 요청
     @PostMapping(value = "/bags/collection", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<BagCollectResponse> handleRepickBagCollectionRequest(@ModelAttribute PostBagCollect postBagCollect) {
         return SuccessResponse.createSuccess(bagService.registerBagCollect(postBagCollect));
+    }
+
+    // ADMIN: 백 수거 상태 변경
+    @PostMapping("bags/collection/state")
+    public SuccessResponse<BagCollectResponse> updateBagInitState(@RequestBody PostBagCollectState postBagCollectState) {
+        return SuccessResponse.createSuccess(bagService.updateBagCollectState(postBagCollectState));
     }
 
 

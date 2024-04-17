@@ -20,8 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import static com.example.repick.global.error.exception.ErrorCode.IMAGE_UPLOAD_FAILED;
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
+import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service @RequiredArgsConstructor
 public class BagService {
@@ -58,7 +57,7 @@ public class BagService {
         BagInitState bagInitState = BagInitState.of(BagInitStateType.PENDING, bagInit);
         bagInitStateRepository.save(bagInitState);
 
-        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().name());
+        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getValue());
 
     }
 
@@ -70,7 +69,7 @@ public class BagService {
         BagInitState bagInitState = BagInitState.of(BagInitStateType.fromValue(postBagInitState.bagInitStateType()), bagInit);
         bagInitStateRepository.save(bagInitState);
 
-        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().name());
+        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getValue());
     }
 
     @Transactional
@@ -95,14 +94,19 @@ public class BagService {
         BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.PENDING, bagCollect);
         bagCollectStateRepository.save(bagCollectState);
 
-        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().name());
+        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
 
     }
 
+    @Transactional
+    public BagCollectResponse updateBagCollectState(PostBagCollectState postBagCollectState) {
+        BagCollect bagCollect = bagCollectRepository.findById(postBagCollectState.bagCollectId())
+                .orElseThrow(() -> new CustomException(INVALID_BAG_COLLECT_ID));
 
-    //user_id를 3번째 parameter로 save 하고 싶다
-//    public void save(PostRequestDto postRequestDto, String url, Long userId) {
-//        BagInit bagInit = new BagInit(postRequestDto, url);
-//        repickBagRepository.save(bagInit);
-//    }
+        BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.fromValue(postBagCollectState.bagCollectStateType()), bagCollect);
+        bagCollectStateRepository.save(bagCollectState);
+
+        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
+    }
+
 }
