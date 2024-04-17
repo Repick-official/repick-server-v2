@@ -2,6 +2,7 @@ package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.BagInitResponse;
 import com.example.repick.domain.clothingSales.dto.PostBagInit;
+import com.example.repick.domain.clothingSales.dto.PostBagInitState;
 import com.example.repick.domain.clothingSales.entity.BagInit;
 import com.example.repick.domain.clothingSales.entity.BagInitState;
 import com.example.repick.domain.clothingSales.entity.BagInitStateType;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 import static com.example.repick.global.error.exception.ErrorCode.IMAGE_UPLOAD_FAILED;
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
 
 @Service @RequiredArgsConstructor
 public class BagService {
@@ -52,10 +54,21 @@ public class BagService {
         bagInitRepository.save(bagInit);
 
         // BagInitState
-        bagInitStateRepository.save(BagInitState.of(BagInitStateType.PENDING, bagInit));
+        BagInitState bagInitState = BagInitState.of(BagInitStateType.PENDING, bagInit);
+        bagInitStateRepository.save(bagInitState);
 
-        return BagInitResponse.from(bagInit);
+        return BagInitResponse.from(bagInit, bagInitState.getBagInitStateType().name());
 
+    }
+
+    public BagInitResponse updateBagInitState(PostBagInitState postBagInitState) {
+        BagInit bagInit = bagInitRepository.findById(postBagInitState.bagInitId())
+                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
+
+        BagInitState bagInitState = BagInitState.of(BagInitStateType.fromValue(postBagInitState.bagInitStateType()), bagInit);
+        bagInitStateRepository.save(bagInitState);
+
+        return BagInitResponse.from(bagInit, bagInitState.getBagInitStateType().name());
     }
 
 

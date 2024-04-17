@@ -2,6 +2,7 @@ package com.example.repick.domain.clothingSales.entity;
 
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
+import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BagInit {
+public class BagInit extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
