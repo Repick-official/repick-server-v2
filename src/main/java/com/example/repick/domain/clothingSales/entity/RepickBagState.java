@@ -20,7 +20,7 @@ public class RepickBagState {
 
     @ManyToOne
     @JoinColumn(name = "repick_bag_apply_id")
-    private RepickBagApply repickBagApply;
+    private BagInit bagInit;
 
 }
 

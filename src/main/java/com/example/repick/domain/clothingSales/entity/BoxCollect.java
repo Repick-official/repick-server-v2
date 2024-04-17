@@ -26,10 +26,6 @@ public class BoxCollect {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "clothing_sales_type")
-    private ClothingSalesType clothingSalesType;
-
     @Embedded
     private Address address;
 
@@ -46,7 +42,6 @@ public class BoxCollect {
     private final List<BoxState> boxStates = new ArrayList<>();
 
     public BoxCollect(PostRequestDto postRequestDto, String url) {
-        this.clothingSalesType = postRequestDto.getClothingSalesType();
         this.address = postRequestDto.getAddress();
         this.bagQuantity = postRequestDto.getBagQuantity();
         this.imageUrl = url;
