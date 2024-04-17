@@ -5,8 +5,6 @@ import com.example.repick.domain.clothingSales.dto.PostBagInit;
 import com.example.repick.domain.clothingSales.dto.PostRequestDto;
 import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
-import com.example.repick.domain.user.repository.UserRepository;
-import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -23,8 +21,6 @@ public class ClothingSalesController {
 
     private final BoxService boxService;
     private final BagService bagService;
-    private final S3UploadService s3UploadService;
-    private final UserRepository userRepository;
 
     //리픽백_신청 (리픽백 신청은 박스 수거신청과 동일한 항목을 저장함, 그러나 다른 )
     @PostMapping(value = "/bags/initialize", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

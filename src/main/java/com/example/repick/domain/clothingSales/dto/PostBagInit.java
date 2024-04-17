@@ -1,6 +1,7 @@
 package com.example.repick.domain.clothingSales.dto;
 
 import com.example.repick.domain.clothingSales.entity.BagInit;
+import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,8 +15,9 @@ public record PostBagInit(
 
 ) {
 
-    public BagInit toEntity() {
+    public BagInit toEntity(User user) {
         return BagInit.builder()
+                .user(user)
                 .bagQuantity(bagQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
                 .build();
