@@ -5,7 +5,7 @@ import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record BagInitResponse(
-        @Schema(description = "백 ID", example = "1") Long bagId,
+        @Schema(description = "백 초기 요청 ID", example = "1") Long bagInitId,
         @Schema(description = "의류 사진 url", example = "https://repick.s3.ap-northeast-2.amazonaws.com/repick/2021/09/15/1631690136_1.jpg") String imageUrl,
         @Schema(description = "백 수량", example = "3") Integer bagQuantity,
         Address address,

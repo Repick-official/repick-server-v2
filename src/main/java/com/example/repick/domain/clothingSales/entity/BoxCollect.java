@@ -2,19 +2,15 @@ package com.example.repick.domain.clothingSales.entity;
 
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
+import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 @Entity
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class BoxCollect {
+@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BoxCollect extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,22 +24,26 @@ public class BoxCollect {
     @Embedded
     private Address address;
 
-    @Column(name = "bag_quantity")
-    private Integer bagQuantity;
+    @Column(name = "box_quantity")
+    private Integer boxQuantity;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
     @Column(name = "collection_date")
-    private String collectionDate;
+    private LocalDate collectionDate;
 
-    @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
-    private final List<BoxState> boxStates = new ArrayList<>();
+    @Builder
+    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate) {
+        this.user = user;
+        this.address = address;
+        this.boxQuantity = boxQuantity;
+        this.imageUrl = imageUrl;
+        this.collectionDate = collectionDate;
+    }
 
-//    public BoxCollect(PostBagCollect postBagCollect, String url) {
-//        this.address = postBagCollect.getAddress();
-//        this.bagQuantity = postBagCollect.getBagQuantity();
-//        this.imageUrl = url;
-//        this.collectionDate = postBagCollect.getCollectionDate();
-//    }
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
 }

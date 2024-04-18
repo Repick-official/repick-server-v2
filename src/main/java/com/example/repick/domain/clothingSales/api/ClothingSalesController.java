@@ -6,14 +6,13 @@ import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.global.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController @RequestMapping("/clothing-sales") @RequiredArgsConstructor
 public class ClothingSalesController {
 
-    private final BoxService boxService;
     private final BagService bagService;
+    private final BoxService boxService;
 
     // 백 요청
     @PostMapping(value = "/bags/initialize", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -40,9 +39,9 @@ public class ClothingSalesController {
     }
 
 
-    @PostMapping(value = "/box/collection-requests", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> handleBoxCollectionRequest(@ModelAttribute PostBagCollect postBagCollect) {
-        return ResponseEntity.ok().build(); // 성공 응답 반환
+    @PostMapping(value = "/box/collection", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public SuccessResponse<BoxCollectResponse> handleBoxCollectionRequest(@ModelAttribute PostBoxCollect postBoxCollect) {
+        return SuccessResponse.createSuccess(boxService.registerBoxCollect(postBoxCollect));
     }
 }
 

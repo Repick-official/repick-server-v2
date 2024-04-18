@@ -16,11 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
-import static com.example.repick.global.error.exception.ErrorCode.*;
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_COLLECT_ID;
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
 
 @Service @RequiredArgsConstructor
 public class BagService {
@@ -32,15 +30,6 @@ public class BagService {
     private final BagCollectStateRepository bagCollectStateRepository;
     private final S3UploadService s3UploadService;
 
-    private String uploadImage(MultipartFile image, Long bagInitId, String type) {
-        try {
-            return s3UploadService.saveFile(image, "clothingSales/" + type + "/" + bagInitId);
-        }
-        catch (IOException e) {
-            throw new CustomException(IMAGE_UPLOAD_FAILED);
-        }
-    }
-
     @Transactional
     public BagInitResponse registerBagInit(PostBagInit postBagInit) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -49,7 +38,7 @@ public class BagService {
         // BagInit
         BagInit bagInit = postBagInit.toEntity(user);
 
-        bagInit.updateImageUrl(uploadImage(postBagInit.image(), bagInit.getId(), "bagInit"));
+        bagInit.updateImageUrl(s3UploadService.saveFile(postBagInit.image(), "clothingSales/bagInit/" + user.getId() + "/" + bagInit.getId()));
 
         bagInitRepository.save(bagInit);
 
@@ -86,7 +75,7 @@ public class BagService {
         // BagCollect
         BagCollect bagCollect = postBagCollect.toEntity();
 
-        bagCollect.updateImageUrl(uploadImage(postBagCollect.image(), bagCollect.getBagInitId(), "bagCollect"));
+        bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
 
         bagCollectRepository.save(bagCollect);
 

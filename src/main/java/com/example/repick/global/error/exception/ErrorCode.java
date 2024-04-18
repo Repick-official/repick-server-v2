@@ -42,6 +42,9 @@ public enum ErrorCode {
     // BagCollectStateType
     INVALID_BAG_COLLECT_STATUS_ID(400, "C013", "존재하지 않는 백 수거 상태 ID입니다."),
     INVALID_BAG_COLLECT_STATUS_NAME(400, "C014", "존재하지 않는 백 수거 상태 이름입니다."),
+    // BoxCollectStateType
+    INVALID_BOX_COLLECT_STATUS_ID(400, "C013", "존재하지 않는 박스 수거 상태 ID입니다."),
+    INVALID_BOX_COLLECT_STATUS_NAME(400, "C014", "존재하지 않는 박스 수거 상태 이름입니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "C006", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "C007", "인증번호가 만료되었습니다."),
