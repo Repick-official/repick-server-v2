@@ -31,6 +31,15 @@ public enum ErrorCode {
     // ProductSellingState
     INVALID_SELLING_STATE_ID(400, "C009", "존재하지 않는 판매 상태 ID입니다."),
     INVALID_SELLING_STATE_NAME(400, "C010", "존재하지 않는 판매 상태 이름입니다."),
+    // ProductOrder
+    DUPLICATE_PRODUCT_ORDER(409, "C001", "중복된 결제 고유번호입니다."),
+    WRONG_PAYMENT_AMOUNT(409, "C002", "결제 금액이 일치하지 않습니다."),
+    INVALID_PAYMENT_ID(400, "C003", "존재하지 않는 결제 고유번호입니다."),
+    INVALID_PAYMENT_STATUS(400, "C004", "존재하지 않는 결제 상태입니다."),
+    INVALID_PAYMENT_METHOD(400, "C005", "존재하지 않는 결제 수단입니다."),
+    PAYMENT_NOT_COMPLETED(400, "C006", "결제가 완료되지 않았습니다."),
+    FAILED_PAYMENT(400, "C007", "결제에 실패했습니다."),
+    CANCELLED_PAYMENT(400, "C008", "결제가 취소되었습니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "C006", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "C007", "인증번호가 만료되었습니다."),

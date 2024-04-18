@@ -25,17 +25,15 @@ public class ProductOrder extends BaseEntity {
 
     private String paymentId;
 
-    private PaymentMethod paymentMethod;
-
     private Address address;
 
     @Builder
-    public ProductOrder(Long productId, Long userId, PaymentMethod paymentMethod, Address address) {
+    public ProductOrder(Long productId, Long userId, String paymentId, PaymentStatus paymentStatus, Address address) {
         this.productId = productId;
         this.userId = userId;
-        this.paymentMethod = paymentMethod;
+        this.paymentId = paymentId;
+        this.paymentStatus = paymentStatus;
         this.address = address;
-        this.paymentStatus = PaymentStatus.PENDING;
     }
 
 

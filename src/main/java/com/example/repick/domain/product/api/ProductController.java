@@ -213,4 +213,14 @@ public class ProductController {
         return SuccessResponse.success(productService.getCarted(cursorId, pageSize));
     }
 
+    @Operation(summary = "결제 사후 검증",
+            description = """
+                    결제가 완료 후 변조 여부에 대한 사후 검증을 진행합니다.
+                    """)
+    @PostMapping("/validate-order")
+    public SuccessResponse<Boolean> validateOrder(@RequestBody PostProductOrder postProductOrder) {
+        productService.validateProductOrder(postProductOrder);
+        return SuccessResponse.createSuccess(true);
+    }
+
 }
