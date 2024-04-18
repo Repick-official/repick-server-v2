@@ -2,6 +2,7 @@ package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.BoxCollectResponse;
 import com.example.repick.domain.clothingSales.dto.PostBoxCollect;
+import com.example.repick.domain.clothingSales.dto.PostBoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.BoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
@@ -10,11 +11,14 @@ import com.example.repick.domain.clothingSales.repository.BoxCollectStateReposit
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
+import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_BOX_COLLECT_ID;
 
 @Service @RequiredArgsConstructor
 public class BoxService {
@@ -46,4 +50,15 @@ public class BoxService {
 
     }
 
+    @Transactional
+    public BoxCollectResponse updateBoxCollectState(PostBoxCollectState postBoxCollectState) {
+        BoxCollect boxCollect = boxCollectRepository.findById(postBoxCollectState.boxCollectId())
+                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
+
+        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.fromValue(postBoxCollectState.boxCollectStateType()), boxCollect);
+
+        boxCollectStateRepository.save(boxCollectState);
+
+        return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
+    }
 }
