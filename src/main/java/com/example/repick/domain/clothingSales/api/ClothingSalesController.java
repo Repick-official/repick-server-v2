@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController @RequestMapping("/clothing-sales") @RequiredArgsConstructor
 public class ClothingSalesController {
 
@@ -94,6 +96,16 @@ public class ClothingSalesController {
     @PostMapping("box/collection/state")
     public SuccessResponse<BoxCollectResponse> updateBoxCollectState(@RequestBody PostBoxCollectState postBoxCollectState) {
         return SuccessResponse.createSuccess(boxService.updateBoxCollectState(postBoxCollectState));
+    }
+
+    @Operation(summary = "박스 수거 상태 조회", description = """
+            유저의 박스 수거 상태를 리스트로 조회합니다.
+            - createdDate : 박스 수거 신청 날짜
+            - lastModifiedDate : 마지막 상태 변경 날짜
+            """)
+    @GetMapping("box/collection")
+    public SuccessResponse<List<GetBoxCollect>> getBoxCollectState() {
+        return SuccessResponse.createSuccess(boxService.getBoxCollectState());
     }
 }
 

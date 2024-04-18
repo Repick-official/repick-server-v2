@@ -42,4 +42,13 @@ public enum BagInitStateType {
         }
         throw new CustomException(ErrorCode.INVALID_BAG_INIT_STATUS_NAME);
     }
+
+    public static String getValueByName(String name) {
+        for (BagInitStateType stateType : values()) {
+            if (stateType.name().equals(name)) {
+                return stateType.getValue();
+            }
+        }
+        return null;
+    }
 }
