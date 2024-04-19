@@ -16,7 +16,7 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
     private String productName;
-    private Long price;
+    private Long price;  // FIXME: 제안 - BigDecimal로 변경
     private Long predictPrice; // 예측정가
     private Long discountRate;
     private String brandName;
