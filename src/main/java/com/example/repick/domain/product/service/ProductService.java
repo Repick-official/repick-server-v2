@@ -9,6 +9,7 @@ import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Prepare;
@@ -281,11 +282,6 @@ public class ProductService {
 
     @Transactional
     public void validatePayment(PostPayment postPayment){
-        /*
-        TODO:
-         결제 금액 일치 안하면 결제 취소
-         장바구니 삭제 및 ProductSellingState 추가
-         */
         //유효하지 않은 결제 -> 예외 발생 및 결제 취소
         // 이미 처리된 결제번호인지 확인
         if (paymentRepository.findByPaymentId(postPayment.iamportUid()).isPresent()) {
@@ -298,21 +294,38 @@ public class ProductService {
             Payment payment = paymentRepository.findByMerchantUid(paymentResponse.getMerchantUid())
                     .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
             if (!payment.getAmount().equals(paymentResponse.getAmount())) {
+                CancelData cancelData = new CancelData(paymentResponse.getImpUid(), true);
+                iamportClient.cancelPaymentByImpUid(cancelData);
+
+                payment.updatePaymentStatus(PaymentStatus.CANCELLED);
+                paymentRepository.save(payment);
+
                 throw new CustomException(WRONG_PAYMENT_AMOUNT);
             }
 
             switch (paymentResponse.getStatus().toUpperCase()) {
-                case "READY":
-                    // TODO: 가상계좌 발급한다면 여기에 추가
+                case "READY": // 가상계좌 발급한다면 여기 수정
                     throw new CustomException(PAYMENT_NOT_COMPLETED);
                 case "CANCELLED":
+                    payment.updatePaymentStatus(PaymentStatus.CANCELLED);
+                    paymentRepository.save(payment);
                     throw new CustomException(CANCELLED_PAYMENT);
                 case "FAILED":
+                    payment.updatePaymentStatus(PaymentStatus.FAILED);
+                    paymentRepository.save(payment);
                     throw new CustomException(FAILED_PAYMENT);
                 case "PAID":
                     // 유효한 결제 -> Payment 저장
                     payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
                     paymentRepository.save(payment);
+
+                    // 장바구니 삭제 및 ProductSellingState 추가
+                    List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
+                    productOrders.forEach(productOrder -> {
+                        productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
+                        addProductSellingState(productOrder.getProductId(), SellingState.SOLD_OUT);
+                    });
+
                 default:
                     throw new CustomException(INVALID_PAYMENT_STATUS);
             }

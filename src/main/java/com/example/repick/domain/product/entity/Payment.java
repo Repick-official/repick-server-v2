@@ -53,6 +53,10 @@ public class Payment extends BaseEntity {
                 .build();
     }
 
+    public void updatePaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public void completePayment(PaymentStatus paymentStatus, String iamportUid, Address address) {
         this.paymentStatus = paymentStatus;
         this.iamportUid = iamportUid;
