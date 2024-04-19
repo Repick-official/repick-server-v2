@@ -1,19 +1,26 @@
 package com.example.repick.domain.product.entity;
 
+import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Payment extends BaseEntity {
 
-    @Id
-    private String id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private Long userId;
 
@@ -21,14 +28,34 @@ public class Payment extends BaseEntity {
 
     private String iamportUid;
 
+    private String merchantUid;
+
+    private BigDecimal amount;
+
     private Address address;
 
     @Builder
-    public Payment(String id, Long userId, String iamportUid, PaymentStatus paymentStatus, Address address) {
-        this.id = id;
+    public Payment(Long userId, PaymentStatus paymentStatus, String iamportUid, String merchantUid, BigDecimal amount, Address address) {
         this.userId = userId;
-        this.iamportUid = iamportUid;
         this.paymentStatus = paymentStatus;
+        this.iamportUid = iamportUid;
+        this.merchantUid = merchantUid;
+        this.amount = amount;
+        this.address = address;
+    }
+
+    public static Payment of(Long userId, String merchantUid, BigDecimal amount) {
+        return Payment.builder()
+                .userId(userId)
+                .paymentStatus(PaymentStatus.READY)
+                .merchantUid(merchantUid)
+                .amount(amount)
+                .build();
+    }
+
+    public void completePayment(PaymentStatus paymentStatus, String iamportUid, Address address) {
+        this.paymentStatus = paymentStatus;
+        this.iamportUid = iamportUid;
         this.address = address;
     }
 

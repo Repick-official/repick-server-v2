@@ -31,8 +31,9 @@ public enum ErrorCode {
     // ProductSellingState
     INVALID_SELLING_STATE_ID(400, "C009", "존재하지 않는 판매 상태 ID입니다."),
     INVALID_SELLING_STATE_NAME(400, "C010", "존재하지 않는 판매 상태 이름입니다."),
-    // ProductOrder
-    DUPLICATE_PRODUCT_ORDER(409, "C001", "중복된 결제 고유번호입니다."),
+    // Payment
+    INVALID_PREPARE_DATA(400, "C001", "결제 사전 검증 데이터가 올바르지 않습니다."),
+    DUPLICATE_PAYMENT(409, "C001", "중복된 결제 고유번호입니다."),
     WRONG_PAYMENT_AMOUNT(409, "C002", "결제 금액이 일치하지 않습니다."),
     INVALID_PAYMENT_ID(400, "C003", "존재하지 않는 결제 고유번호입니다."),
     INVALID_PAYMENT_STATUS(400, "C004", "존재하지 않는 결제 상태입니다."),

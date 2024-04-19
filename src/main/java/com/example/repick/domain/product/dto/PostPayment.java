@@ -10,12 +10,4 @@ public record PostPayment(
         @Schema(description = "주문 아이디") String merchantUid,
         @Schema(description = "결제 금액") Long paymentAmount,
         Address address) {
-    public Payment toProductOrder(Long userId, PaymentStatus paymentStatus) {
-        return Payment.builder()
-                .iamportUid(iamportUid)
-                .userId(userId)
-                .paymentStatus(paymentStatus)
-                .address(address)
-                .build();
-    }
 }

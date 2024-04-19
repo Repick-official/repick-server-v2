@@ -8,8 +8,10 @@ import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.IamportResponse;
-import com.siot.IamportRestClient.response.Payment;
+import com.siot.IamportRestClient.response.Prepare;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -33,6 +36,7 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final ProductCartRepository productCartRepository;
     private final ProductSellingStateRepository productSellingStateRepository;
+    private final PaymentRepository paymentRepository;
     private final ProductOrderRepository productOrderRepository;
     private final IamportClient iamportClient;
 
@@ -243,37 +247,72 @@ public class ProductService {
         return true;
     }
 
-    public void validateProductOrder(PostProductOrder postProductOrder){
+    @Transactional
+    public GetProductOrderPreparation prepareProductOrder(PostProductOrder postProductOrder) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 얼마 결제 예정인지 미리 등록해 결제 변조 원천 차단
+        String merchantUid = user.getProviderId() + System.currentTimeMillis();
+        BigDecimal totalPrice = postProductOrder.productIds().stream()
+                .map(productId -> productRepository.findById(productId).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID)))
+                .map(product -> BigDecimal.valueOf(product.getPrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
+        try{
+            iamportClient.postPrepare(prepareData);
+
+            // Payment 저장
+            Payment payment = Payment.of(user.getId(), merchantUid, totalPrice);
+            paymentRepository.save(payment);
+
+            // ProductOrder 저장
+            List<ProductOrder> productOrders  = postProductOrder.productIds().stream()
+                    .map(productId -> ProductOrder.of(user.getId(), productId, payment))
+                    .toList();
+            productOrderRepository.saveAll(productOrders);
+
+        } catch (Exception e) {
+            throw new CustomException(e.getMessage(), INVALID_PREPARE_DATA);
+        }
+
+        return GetProductOrderPreparation.of(merchantUid, totalPrice);
+    }
+
+    @Transactional
+    public void validatePayment(PostPayment postPayment){
+        /*
+        TODO:
+         결제 금액 일치 안하면 결제 취소
+         장바구니 삭제 및 ProductSellingState 추가
+         */
         //유효하지 않은 결제 -> 예외 발생 및 결제 취소
         // 이미 처리된 결제번호인지 확인
-        if (productOrderRepository.findByPaymentId(postProductOrder.paymentId()).isPresent()) {
-            throw new CustomException(DUPLICATE_PRODUCT_ORDER);
+        if (paymentRepository.findByPaymentId(postPayment.iamportUid()).isPresent()) {
+            throw new CustomException(DUPLICATE_PAYMENT);
         }
         try{
-            Payment paymentResponse = iamportClient.paymentByImpUid(postProductOrder.paymentId()).getResponse();
+            com.siot.IamportRestClient.response.Payment paymentResponse = iamportClient.paymentByImpUid(postPayment.iamportUid()).getResponse();
 
             // 결제금액 확인 (데이터베이스에 저장되어 있는 상품 가격과 비교)
-            BigDecimal productPrice = new BigDecimal(productRepository.findById(postProductOrder.productId())
-                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID))
-                    .getPrice());
-            if (!paymentResponse.getAmount().equals(productPrice)) {
+            Payment payment = paymentRepository.findByMerchantUid(paymentResponse.getMerchantUid())
+                    .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
+            if (!payment.getAmount().equals(paymentResponse.getAmount())) {
                 throw new CustomException(WRONG_PAYMENT_AMOUNT);
             }
 
             switch (paymentResponse.getStatus().toUpperCase()) {
                 case "READY":
-                    // TODO: 가상계좌 발급 로직?
+                    // TODO: 가상계좌 발급한다면 여기에 추가
                     throw new CustomException(PAYMENT_NOT_COMPLETED);
                 case "CANCELLED":
                     throw new CustomException(CANCELLED_PAYMENT);
                 case "FAILED":
                     throw new CustomException(FAILED_PAYMENT);
                 case "PAID":
-                    // 유효한 결제 -> ProductOrder 저장
-                    User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-                    ProductOrder productOrder = postProductOrder.toProductOrder(user.getId(), PaymentStatus.PAID);
-                    productOrderRepository.save(productOrder);
+                    // 유효한 결제 -> Payment 저장
+                    payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
+                    paymentRepository.save(payment);
                 default:
                     throw new CustomException(INVALID_PAYMENT_STATUS);
             }
