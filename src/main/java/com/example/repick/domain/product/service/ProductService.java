@@ -253,7 +253,7 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 얼마 결제 예정인지 미리 등록해 결제 변조 원천 차단 (할인된 가격 적용)
+        // 얼마 결제 예정인지 미리 등록해 결제 변조 원천 차단 (장바구니 합산, 할인된 가격 적용)
         String merchantUid = user.getProviderId() + System.currentTimeMillis();
         BigDecimal totalPrice = postProductOrder.productIds().stream()
                 .map(productId -> productRepository.findById(productId).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID)))
@@ -261,6 +261,7 @@ public class ProductService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
         try{
+            // 사전 결제 검증 요청
             iamportClient.postPrepare(prepareData);
 
             // Payment 저장
@@ -282,7 +283,6 @@ public class ProductService {
 
     @Transactional
     public void validatePayment(PostPayment postPayment){
-        //유효하지 않은 결제 -> 예외 발생 및 결제 취소
         // 이미 처리된 결제번호인지 확인
         if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
             throw new CustomException(DUPLICATE_PAYMENT);
