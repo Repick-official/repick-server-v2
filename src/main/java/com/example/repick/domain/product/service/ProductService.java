@@ -281,7 +281,7 @@ public class ProductService {
         return GetProductOrderPreparation.of(merchantUid, totalPrice);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = CustomException.class)
     public void validatePayment(PostPayment postPayment){
         // 이미 처리된 결제번호인지 확인
         if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
@@ -332,6 +332,8 @@ public class ProductService {
                     throw new CustomException(INVALID_PAYMENT_STATUS);
             }
 
+        } catch (CustomException e){
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

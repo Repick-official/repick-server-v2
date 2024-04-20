@@ -39,8 +39,8 @@ public enum ErrorCode {
     INVALID_PAYMENT_STATUS(400, "P045", "존재하지 않는 결제 상태입니다."),
     INVALID_PAYMENT_METHOD(400, "P046", "존재하지 않는 결제 수단입니다."),
     PAYMENT_NOT_COMPLETED(400, "P047", "결제가 완료되지 않았습니다."),
-    FAILED_PAYMENT(400, "P048", "결제에 실패했습니다."),
-    CANCELLED_PAYMENT(400, "P049", "결제가 취소되었습니다."),
+    FAILED_PAYMENT(400, "P048", "실패한 결제입니다."),
+    CANCELLED_PAYMENT(400, "P049", "취소된 결제입니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "A001", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "A002", "인증번호가 만료되었습니다."),
