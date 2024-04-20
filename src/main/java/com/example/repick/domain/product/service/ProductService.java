@@ -299,17 +299,11 @@ public class ProductService {
             }
 
             switch (paymentResponse.getStatus().toUpperCase()) {
-                case "READY" -> // 가상계좌 발급한다면 여기 수정
-                        throw new CustomException(PAYMENT_NOT_COMPLETED);
-                case "CANCELLED" -> {
-                    payment.updatePaymentStatus(PaymentStatus.CANCELLED);
+                case "READY", "CANCELLED", "FAILED"  -> {
+                    // 가상계좌 발급한다면 "READY" case 수정
+                    payment.completePayment(PaymentStatus.fromValue(paymentResponse.getStatus().toUpperCase()), postPayment.iamportUid(), postPayment.address());
                     paymentRepository.save(payment);
-                    throw new CustomException(CANCELLED_PAYMENT);
-                }
-                case "FAILED" -> {
-                    payment.updatePaymentStatus(PaymentStatus.FAILED);
-                    paymentRepository.save(payment);
-                    throw new CustomException(FAILED_PAYMENT);
+                    throw new CustomException(INVALID_PAYMENT_STATUS);
                 }
                 case "PAID" -> {
                     // 결제금액 확인 (데이터베이스에 저장되어 있는 상품 가격과 비교)

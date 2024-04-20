@@ -1,5 +1,8 @@
 package com.example.repick.domain.product.entity;
 
+import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.error.exception.ErrorCode;
+
 public enum PaymentStatus {
     READY(1, "미결제"),
     PAID(2, "결제완료"),
@@ -22,6 +25,14 @@ public enum PaymentStatus {
         return value;
     }
 
+    public static PaymentStatus fromValue(String keyword) {
+        for (PaymentStatus paymentStatus : values()) {
+            if (paymentStatus.getValue().equals(keyword)) {
+                return paymentStatus;
+            }
+        }
+        throw new CustomException(ErrorCode.INVALID_PAYMENT_STATUS);
+    }
 
 
 }
