@@ -253,11 +253,11 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 얼마 결제 예정인지 미리 등록해 결제 변조 원천 차단
+        // 얼마 결제 예정인지 미리 등록해 결제 변조 원천 차단 (할인된 가격 적용)
         String merchantUid = user.getProviderId() + System.currentTimeMillis();
         BigDecimal totalPrice = postProductOrder.productIds().stream()
                 .map(productId -> productRepository.findById(productId).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID)))
-                .map(product -> BigDecimal.valueOf(product.getPrice()))
+                .map(product -> BigDecimal.valueOf(product.getPrice() * (1 - product.getDiscountRate() / 100.0)))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
         try{
@@ -284,7 +284,7 @@ public class ProductService {
     public void validatePayment(PostPayment postPayment){
         //유효하지 않은 결제 -> 예외 발생 및 결제 취소
         // 이미 처리된 결제번호인지 확인
-        if (paymentRepository.findByPaymentId(postPayment.iamportUid()).isPresent()) {
+        if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
             throw new CustomException(DUPLICATE_PAYMENT);
         }
         try{
@@ -293,7 +293,7 @@ public class ProductService {
             // 결제금액 확인 (데이터베이스에 저장되어 있는 상품 가격과 비교)
             Payment payment = paymentRepository.findByMerchantUid(paymentResponse.getMerchantUid())
                     .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
-            if (!payment.getAmount().equals(paymentResponse.getAmount())) {
+            if (paymentResponse.getAmount().compareTo(payment.getAmount()) != 0) {
                 CancelData cancelData = new CancelData(paymentResponse.getImpUid(), true);
                 iamportClient.cancelPaymentByImpUid(cancelData);
 
@@ -326,12 +326,14 @@ public class ProductService {
                         addProductSellingState(productOrder.getProductId(), SellingState.SOLD_OUT);
                     });
 
+                    break;
+
                 default:
                     throw new CustomException(INVALID_PAYMENT_STATUS);
             }
 
         } catch (Exception e) {
-            throw new CustomException(INVALID_PAYMENT_ID);
+            throw new RuntimeException(e);
         }
     }
 }
