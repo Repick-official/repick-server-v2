@@ -282,7 +282,10 @@ public class ProductService {
     }
 
     @Transactional(noRollbackFor = CustomException.class)
-    public void validatePayment(PostPayment postPayment){
+    public Boolean validatePayment(PostPayment postPayment){
+        Payment payment = paymentRepository.findByMerchantUid(postPayment.merchantUid())
+                .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
+
         // 이미 처리된 결제번호인지 확인
         if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
             throw new CustomException(DUPLICATE_PAYMENT);
@@ -290,52 +293,58 @@ public class ProductService {
         try{
             com.siot.IamportRestClient.response.Payment paymentResponse = iamportClient.paymentByImpUid(postPayment.iamportUid()).getResponse();
 
-            // 결제금액 확인 (데이터베이스에 저장되어 있는 상품 가격과 비교)
-            Payment payment = paymentRepository.findByMerchantUid(paymentResponse.getMerchantUid())
-                    .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
-            if (paymentResponse.getAmount().compareTo(payment.getAmount()) != 0) {
-                CancelData cancelData = new CancelData(paymentResponse.getImpUid(), true);
-                iamportClient.cancelPaymentByImpUid(cancelData);
-
-                payment.updatePaymentStatus(PaymentStatus.CANCELLED);
-                paymentRepository.save(payment);
-
-                throw new CustomException(WRONG_PAYMENT_AMOUNT);
+            // 가맹점 주문번호 일치 확인
+            if (!paymentResponse.getMerchantUid().equals(postPayment.merchantUid())) {
+                throw new CustomException(INVALID_PAYMENT_ID);
             }
 
             switch (paymentResponse.getStatus().toUpperCase()) {
-                case "READY": // 가상계좌 발급한다면 여기 수정
-                    throw new CustomException(PAYMENT_NOT_COMPLETED);
-                case "CANCELLED":
+                case "READY" -> // 가상계좌 발급한다면 여기 수정
+                        throw new CustomException(PAYMENT_NOT_COMPLETED);
+                case "CANCELLED" -> {
                     payment.updatePaymentStatus(PaymentStatus.CANCELLED);
                     paymentRepository.save(payment);
                     throw new CustomException(CANCELLED_PAYMENT);
-                case "FAILED":
+                }
+                case "FAILED" -> {
                     payment.updatePaymentStatus(PaymentStatus.FAILED);
                     paymentRepository.save(payment);
                     throw new CustomException(FAILED_PAYMENT);
-                case "PAID":
-                    // 유효한 결제 -> Payment 저장
-                    payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
-                    paymentRepository.save(payment);
+                }
+                case "PAID" -> {
+                    // 결제금액 확인 (데이터베이스에 저장되어 있는 상품 가격과 비교)
+                    if (paymentResponse.getAmount().compareTo(payment.getAmount()) != 0) {
+                        CancelData cancelData = new CancelData(paymentResponse.getImpUid(), true);
+                        iamportClient.cancelPaymentByImpUid(cancelData);
 
-                    // 장바구니 삭제 및 ProductSellingState 추가
-                    List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
-                    productOrders.forEach(productOrder -> {
-                        productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
-                        addProductSellingState(productOrder.getProductId(), SellingState.SOLD_OUT);
-                    });
+                        payment.updatePaymentStatus(PaymentStatus.CANCELLED);
+                        paymentRepository.save(payment);
 
-                    break;
-
-                default:
-                    throw new CustomException(INVALID_PAYMENT_STATUS);
+                        throw new CustomException(WRONG_PAYMENT_AMOUNT);
+                    }
+                }
+                default -> throw new CustomException(INVALID_PAYMENT_STATUS);
             }
 
         } catch (CustomException e){
             throw e;
-        } catch (Exception e) {
+        } catch (IamportResponseException | IOException e) {
+            throw new CustomException(INVALID_PAYMENT_ID);
+        } catch(Exception e){
             throw new RuntimeException(e);
         }
+
+        // 유효한 결제 -> Payment 저장
+        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
+        paymentRepository.save(payment);
+
+        // 장바구니 삭제 및 ProductSellingState 추가
+        List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
+        productOrders.forEach(productOrder -> {
+            productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
+            addProductSellingState(productOrder.getProductId(), SellingState.SOLD_OUT);
+        });
+
+        return true;
     }
 }

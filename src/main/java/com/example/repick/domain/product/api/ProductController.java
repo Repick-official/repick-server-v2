@@ -229,8 +229,7 @@ public class ProductController {
                     """)
     @PostMapping("/validate-payment")
     public SuccessResponse<Boolean> validateOrder(@RequestBody PostPayment postPayment) {
-        productService.validatePayment(postPayment);
-        return SuccessResponse.createSuccess(true);
+        return SuccessResponse.createSuccess(productService.validatePayment(postPayment));
     }
 
 }
