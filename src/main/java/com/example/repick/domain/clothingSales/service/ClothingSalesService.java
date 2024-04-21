@@ -38,6 +38,11 @@ public class ClothingSalesService {
 
         // get bag inits
         bagService.getBagInitByUser(user.getId()).forEach(bagInit -> {
+            requestDate.set(null);
+            bagArriveDate.set(null);
+            collectDate.set(null);
+            productDate.set(null);
+            isCanceled.set(false);
 
             bagInit.getBagInitStateList().forEach(bagInitState -> {
                 if (bagInitState.getBagInitStateType().equals(BagInitStateType.PENDING)) {
@@ -67,6 +72,10 @@ public class ClothingSalesService {
 
         // get box collects
         boxService.getBoxCollectByUser(user.getId()).forEach(boxCollect -> {
+            requestDate.set(null);
+            collectDate.set(null);
+            productDate.set(null);
+            isCanceled.set(false);
 
             boxCollect.getBoxCollectStateList().forEach(boxCollectState -> {
                 if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.PENDING)) {
