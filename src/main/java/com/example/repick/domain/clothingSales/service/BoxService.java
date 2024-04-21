@@ -1,7 +1,6 @@
 package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.BoxCollectResponse;
-import com.example.repick.domain.clothingSales.dto.GetBoxCollect;
 import com.example.repick.domain.clothingSales.dto.PostBoxCollect;
 import com.example.repick.domain.clothingSales.dto.PostBoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
@@ -65,11 +64,7 @@ public class BoxService {
         return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
     }
 
-    public List<GetBoxCollect> getBoxCollectState() {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-        return boxCollectRepository.findBoxCollects(user.getId());
-
+    public List<BoxCollect> getBoxCollectByUser(Long userId) {
+        return boxCollectRepository.findByUserId(userId);
     }
 }

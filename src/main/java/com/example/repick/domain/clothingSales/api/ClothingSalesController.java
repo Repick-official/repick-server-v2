@@ -3,6 +3,7 @@ package com.example.repick.domain.clothingSales.api;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
+import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class ClothingSalesController {
 
     private final BagService bagService;
     private final BoxService boxService;
+    private final ClothingSalesService clothingSalesService;
 
     @Operation(summary = "백 초기 요청", description = """
             백 초기 요청을 합니다.
@@ -98,14 +100,13 @@ public class ClothingSalesController {
         return SuccessResponse.createSuccess(boxService.updateBoxCollectState(postBoxCollectState));
     }
 
-    @Operation(summary = "박스 수거 상태 조회", description = """
-            유저의 박스 수거 상태를 리스트로 조회합니다.
-            - createdDate : 박스 수거 신청 날짜
-            - lastModifiedDate : 마지막 상태 변경 날짜
+    @Operation(summary = "옷장 정리 통합 조회", description = """
+            옷장 정리 통합 조회를 합니다.
+            TODO
             """)
-    @GetMapping("box/collection")
-    public SuccessResponse<List<GetBoxCollect>> getBoxCollectState() {
-        return SuccessResponse.createSuccess(boxService.getBoxCollectState());
+    @GetMapping
+    public SuccessResponse<List<GetClothingSales>> getClothingSales() {
+        return SuccessResponse.createSuccess(clothingSalesService.getClothingSales());
     }
 }
 

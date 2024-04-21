@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,7 +25,9 @@ public class BagCollect extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Long bagInitId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bag_init_id")
+    private BagInit bagInit;
 
     @Embedded
     private Address address;
@@ -38,10 +41,13 @@ public class BagCollect extends BaseEntity {
     @Column(name = "collection_date")
     private LocalDate collectionDate;
 
+    @OneToMany(mappedBy = "bagCollect", cascade = CascadeType.ALL)
+    private List<BagCollectState> bagCollectStateList;
+
     @Builder
-    public BagCollect(User user, Long bagInitId, Address address, Integer bagQuantity, String imageUrl, LocalDate collectionDate) {
+    public BagCollect(User user, BagInit bagInit, Address address, Integer bagQuantity, String imageUrl, LocalDate collectionDate) {
         this.user = user;
-        this.bagInitId = bagInitId;
+        this.bagInit = bagInit;
         this.address = address;
         this.bagQuantity = bagQuantity;
         this.imageUrl = imageUrl;

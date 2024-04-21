@@ -7,7 +7,8 @@ public enum BagCollectStateType {
     PENDING(1, "대기중"),
     DELIVERING(2, "배송중"),
     DELIVERED(3, "배송완료"),
-    CANCELED(4, "요청취소");
+    INSPECTION_COMPLETED(4, "검수완료"),
+    CANCELED(5, "요청취소");
 
     private final int id;
     private final String value;

@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,6 +33,9 @@ public class BoxCollect extends BaseEntity {
 
     @Column(name = "collection_date")
     private LocalDate collectionDate;
+
+    @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
+    private List<BoxCollectState> boxCollectStateList;
 
     @Builder
     public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate) {

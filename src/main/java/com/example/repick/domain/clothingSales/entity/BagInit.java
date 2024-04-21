@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BagInit extends BaseEntity {
@@ -30,6 +32,12 @@ public class BagInit extends BaseEntity {
 
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
+
+    @OneToMany(mappedBy = "bagInit", cascade = CascadeType.ALL)
+    private List<BagInitState> bagInitStateList;
+
+    @OneToOne(mappedBy = "bagInit", cascade = CascadeType.ALL)
+    private BagCollect bagCollect;
 
     @Builder
     public BagInit(User user, Address address, Integer bagQuantity, String imageUrl) {

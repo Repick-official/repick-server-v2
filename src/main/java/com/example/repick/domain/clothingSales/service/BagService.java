@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_COLLECT_ID;
 import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
 
@@ -73,7 +75,7 @@ public class BagService {
         ClothingSalesValidator.validateUserAndBagInit(user.getId(), bagInit);
 
         // BagCollect
-        BagCollect bagCollect = postBagCollect.toEntity();
+        BagCollect bagCollect = postBagCollect.toEntity(bagInit);
 
         bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
 
@@ -98,4 +100,7 @@ public class BagService {
         return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
     }
 
+    public List<BagInit> getBagInitByUser(Long userId) {
+        return bagInitRepository.findByUserId(userId);
+    }
 }
