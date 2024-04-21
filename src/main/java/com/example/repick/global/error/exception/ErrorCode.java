@@ -32,22 +32,22 @@ public enum ErrorCode {
     INVALID_SELLING_STATE_ID(400, "C009", "존재하지 않는 판매 상태 ID입니다."),
     INVALID_SELLING_STATE_NAME(400, "C010", "존재하지 않는 판매 상태 이름입니다."),
     // BagInit
-    INVALID_BAG_INIT_ID(400, "C009", "존재하지 않는 백 요청 ID입니다."),
+    INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect
-    INVALID_BAG_COLLECT_ID(400, "C009", "존재하지 않는 백 수거 ID입니다."),
-    BAG_INIT_NOT_MATCH_USER(400, "C010", "백 요청 ID와 사용자 ID가 일치하지 않습니다."),
-    BAG_COLLECT_DUPLICANT(400, "C011", "이미 수거된 백입니다."),
+    INVALID_BAG_COLLECT_ID(400, "B002", "존재하지 않는 백 수거 ID입니다."),
+    BAG_INIT_NOT_MATCH_USER(400, "B003", "백 요청 ID와 사용자 ID가 일치하지 않습니다."),
+    BAG_COLLECT_DUPLICANT(400, "B004", "이미 수거된 백입니다."),
     // BoxCollect
-    INVALID_BOX_COLLECT_ID(400, "C009", "존재하지 않는 박스 수거 ID입니다."),
+    INVALID_BOX_COLLECT_ID(400, "B005", "존재하지 않는 박스 수거 ID입니다."),
     // BagInitStateType
-    INVALID_BAG_INIT_STATUS_ID(400, "C011", "존재하지 않는 백 요청 상태 ID입니다."),
-    INVALID_BAG_INIT_STATUS_NAME(400, "C012", "존재하지 않는 백 요청 상태 이름입니다."),
+    INVALID_BAG_INIT_STATUS_ID(400, "B006", "존재하지 않는 백 요청 상태 ID입니다."),
+    INVALID_BAG_INIT_STATUS_NAME(400, "B007", "존재하지 않는 백 요청 상태 이름입니다."),
     // BagCollectStateType
-    INVALID_BAG_COLLECT_STATUS_ID(400, "C013", "존재하지 않는 백 수거 상태 ID입니다."),
-    INVALID_BAG_COLLECT_STATUS_NAME(400, "C014", "존재하지 않는 백 수거 상태 이름입니다."),
+    INVALID_BAG_COLLECT_STATUS_ID(400, "B008", "존재하지 않는 백 수거 상태 ID입니다."),
+    INVALID_BAG_COLLECT_STATUS_NAME(400, "B009", "존재하지 않는 백 수거 상태 이름입니다."),
     // BoxCollectStateType
-    INVALID_BOX_COLLECT_STATUS_ID(400, "C013", "존재하지 않는 박스 수거 상태 ID입니다."),
-    INVALID_BOX_COLLECT_STATUS_NAME(400, "C014", "존재하지 않는 박스 수거 상태 이름입니다."),
+    INVALID_BOX_COLLECT_STATUS_ID(400, "B010", "존재하지 않는 박스 수거 상태 ID입니다."),
+    INVALID_BOX_COLLECT_STATUS_NAME(400, "B011", "존재하지 않는 박스 수거 상태 이름입니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "C006", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "C007", "인증번호가 만료되었습니다."),
