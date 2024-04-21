@@ -213,4 +213,23 @@ public class ProductController {
         return SuccessResponse.success(productService.getCarted(cursorId, pageSize));
     }
 
+    @Operation(summary = "결제 사전 검증",
+            description = """
+                    결제가 이루어지기 전 변조 원천 차단을 위한 사전 단계를 진행합니다.
+                    """)
+    @PostMapping("/prepare-payment")
+    public SuccessResponse<GetProductOrderPreparation> prepareOrder(@RequestBody PostProductOrder postProductOrder) {
+        return SuccessResponse.createSuccess(productService.prepareProductOrder(postProductOrder));
+    }
+
+
+    @Operation(summary = "결제 사후 검증",
+            description = """
+                    결제가 완료 후 변조 여부에 대한 사후 검증을 진행합니다.
+                    """)
+    @PostMapping("/validate-payment")
+    public SuccessResponse<Boolean> validateOrder(@RequestBody PostPayment postPayment) {
+        return SuccessResponse.createSuccess(productService.validatePayment(postPayment));
+    }
+
 }

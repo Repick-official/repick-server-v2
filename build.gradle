@@ -19,6 +19,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven { url 'https://jitpack.io' }  // iamport
 }
 
 dependencies {
@@ -63,6 +64,9 @@ dependencies {
 
 	// sms
 	implementation 'net.nurigo:javaSDK:2.2'
+
+	//iamport
+	implementation 'com.github.iamport:iamport-rest-client-java:0.2.22'
 
 }
 
