@@ -1,24 +1,70 @@
 package com.example.repick.domain.clothingSales.service;
 
-import com.example.repick.domain.clothingSales.dto.PostRequestDto;
+import com.example.repick.domain.clothingSales.dto.BoxCollectResponse;
+import com.example.repick.domain.clothingSales.dto.PostBoxCollect;
+import com.example.repick.domain.clothingSales.dto.PostBoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
-import com.example.repick.domain.clothingSales.repository.BoxRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.repick.domain.clothingSales.entity.BoxCollectState;
+import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
+import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
+import com.example.repick.domain.clothingSales.repository.BoxCollectStateRepository;
+import com.example.repick.domain.user.entity.User;
+import com.example.repick.domain.user.repository.UserRepository;
+import com.example.repick.global.aws.S3UploadService;
+import com.example.repick.global.error.exception.CustomException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
+import java.util.List;
+
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_BOX_COLLECT_ID;
+
+@Service @RequiredArgsConstructor
 public class BoxService {
 
-    private final BoxRepository boxRepository;
+    private final UserRepository userRepository;
+    private final BoxCollectRepository boxCollectRepository;
+    private final BoxCollectStateRepository boxCollectStateRepository;
+    private final S3UploadService s3UploadService;
 
-    @Autowired
-    public BoxService(BoxRepository boxRepository) {
-        this.boxRepository = boxRepository;
+
+    @Transactional
+    public BoxCollectResponse registerBoxCollect(PostBoxCollect postBoxCollect) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // BoxCollect
+        BoxCollect boxCollect = postBoxCollect.toEntity(user);
+
+        boxCollect.updateImageUrl(s3UploadService.saveFile(postBoxCollect.image(), "clothingSales/boxCollect/" + user.getId() + "/" + boxCollect.getId()));
+
+        boxCollectRepository.save(boxCollect);
+
+        // BoxCollectState
+        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.PENDING, boxCollect);
+
+        boxCollectStateRepository.save(boxCollectState);
+
+        return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
+
     }
 
-    //user_id를 3번째 parameter로 save 하고 싶다
-    public void save(PostRequestDto postRequestDto, String url, Long userId) {
-        BoxCollect boxCollect = new BoxCollect(postRequestDto, url);
-        boxRepository.save(boxCollect);
+    @Transactional
+    public BoxCollectResponse updateBoxCollectState(PostBoxCollectState postBoxCollectState) {
+        BoxCollect boxCollect = boxCollectRepository.findById(postBoxCollectState.boxCollectId())
+                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
+
+        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.fromValue(postBoxCollectState.boxCollectStateType()), boxCollect);
+
+        boxCollectStateRepository.save(boxCollectState);
+
+        return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
+    }
+
+    public List<BoxCollect> getBoxCollectByUser(Long userId) {
+        return boxCollectRepository.findByUserId(userId);
     }
 }

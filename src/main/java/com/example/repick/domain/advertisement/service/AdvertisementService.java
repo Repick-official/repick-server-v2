@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service @RequiredArgsConstructor
@@ -22,15 +21,9 @@ public class AdvertisementService {
     private final S3UploadService s3UploadService;
 
     private void uploadAndUpdateImage(MultipartFile image, Advertisement advertisement) {
-        try {
-            String imageUrl = s3UploadService.saveFile(image, "advertisement/" + advertisement.getId());
-            advertisement.updateImageUrl(imageUrl);
-            advertisementRepository.save(advertisement);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
-        }
+        String imageUrl = s3UploadService.saveFile(image, "advertisement/" + advertisement.getId());
+        advertisement.updateImageUrl(imageUrl);
+        advertisementRepository.save(advertisement);
     }
 
     public AdvertisementResponse postAdvertisement(PostAdvertisement postAdvertisement) {

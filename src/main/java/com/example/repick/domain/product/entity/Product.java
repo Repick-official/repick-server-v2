@@ -26,6 +26,7 @@ public class Product extends BaseEntity {
     private QualityRate qualityRate;
     @Enumerated(EnumType.STRING)
     private Gender gender;
+    @Column(length = 1000)
     private String thumbnailImageUrl;
 
     @Builder

@@ -4,14 +4,17 @@ import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BoxCollect extends BaseEntity {
+public class BagCollect extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,11 +25,15 @@ public class BoxCollect extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bag_init_id")
+    private BagInit bagInit;
+
     @Embedded
     private Address address;
 
-    @Column(name = "box_quantity")
-    private Integer boxQuantity;
+    @Column(name = "bag_quantity")
+    private Integer bagQuantity;
 
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
@@ -34,14 +41,15 @@ public class BoxCollect extends BaseEntity {
     @Column(name = "collection_date")
     private LocalDate collectionDate;
 
-    @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
-    private List<BoxCollectState> boxCollectStateList;
+    @OneToMany(mappedBy = "bagCollect", cascade = CascadeType.ALL)
+    private List<BagCollectState> bagCollectStateList;
 
     @Builder
-    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate) {
+    public BagCollect(User user, BagInit bagInit, Address address, Integer bagQuantity, String imageUrl, LocalDate collectionDate) {
         this.user = user;
+        this.bagInit = bagInit;
         this.address = address;
-        this.boxQuantity = boxQuantity;
+        this.bagQuantity = bagQuantity;
         this.imageUrl = imageUrl;
         this.collectionDate = collectionDate;
     }
