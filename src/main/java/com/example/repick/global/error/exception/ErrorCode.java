@@ -36,6 +36,7 @@ public enum ErrorCode {
     // BagCollect
     INVALID_BAG_COLLECT_ID(400, "C009", "존재하지 않는 백 수거 ID입니다."),
     BAG_INIT_NOT_MATCH_USER(400, "C010", "백 요청 ID와 사용자 ID가 일치하지 않습니다."),
+    BAG_COLLECT_DUPLICANT(400, "C011", "이미 수거된 백입니다."),
     // BoxCollect
     INVALID_BOX_COLLECT_ID(400, "C009", "존재하지 않는 박스 수거 ID입니다."),
     // BagInitStateType

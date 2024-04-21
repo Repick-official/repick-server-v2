@@ -30,6 +30,7 @@ public class BagService {
     private final BagInitStateRepository bagInitStateRepository;
     private final BagCollectRepository bagCollectRepository;
     private final BagCollectStateRepository bagCollectStateRepository;
+    private final ClothingSalesValidator clothingSalesValidator;
     private final S3UploadService s3UploadService;
 
     @Transactional
@@ -68,11 +69,12 @@ public class BagService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // Validations
         BagInit bagInit = bagInitRepository.findById(postBagCollect.bagInitId())
                 .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
 
-        ClothingSalesValidator.validateUserAndBagInit(user.getId(), bagInit);
+        // Validations
+        clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
+        clothingSalesValidator.duplicateBagCollectExists(bagInit.getId());
 
         // BagCollect
         BagCollect bagCollect = postBagCollect.toEntity(bagInit);

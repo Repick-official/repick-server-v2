@@ -29,14 +29,15 @@ public class ClothingSalesService {
 
         List<GetClothingSales> clothingSalesList = new ArrayList<>();
 
+        AtomicReference<Boolean> isCanceled = new AtomicReference<>(false);
+
+        AtomicReference<String> requestDate = new AtomicReference<>();
+        AtomicReference<String> bagArriveDate = new AtomicReference<>();
+        AtomicReference<String> collectDate = new AtomicReference<>();
+        AtomicReference<String> productDate = new AtomicReference<>();
+
         // get bag inits
         bagService.getBagInitByUser(user.getId()).forEach(bagInit -> {
-            AtomicReference<Boolean> isCanceled = new AtomicReference<>(false);
-
-            AtomicReference<String> requestDate = new AtomicReference<>();
-            AtomicReference<String> bagArriveDate = new AtomicReference<>();
-            AtomicReference<String> collectDate = new AtomicReference<>();
-            AtomicReference<String> productDate = new AtomicReference<>();
 
             bagInit.getBagInitStateList().forEach(bagInitState -> {
                 if (bagInitState.getBagInitStateType().equals(BagInitStateType.PENDING)) {
@@ -60,17 +61,12 @@ public class ClothingSalesService {
             });
 
             if (!isCanceled.get())
-                clothingSalesList.add(GetClothingSales.of("백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
+                clothingSalesList.add(GetClothingSales.of(bagInit.getId(), "백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
         });
 
 
         // get box collects
         boxService.getBoxCollectByUser(user.getId()).forEach(boxCollect -> {
-            AtomicReference<Boolean> isCanceled = new AtomicReference<>(false);
-
-            AtomicReference<String> requestDate = new AtomicReference<>();
-            AtomicReference<String> collectDate = new AtomicReference<>();
-            AtomicReference<String> productDate = new AtomicReference<>();
 
             boxCollect.getBoxCollectStateList().forEach(boxCollectState -> {
                 if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.PENDING)) {
@@ -85,7 +81,7 @@ public class ClothingSalesService {
             });
 
             if (!isCanceled.get())
-                clothingSalesList.add(GetClothingSales.of("박스", requestDate.get(), null, collectDate.get(), productDate.get()));
+                clothingSalesList.add(GetClothingSales.of(boxCollect.getId(), "박스", requestDate.get(), null, collectDate.get(), productDate.get()));
         });
 
         // order by created date

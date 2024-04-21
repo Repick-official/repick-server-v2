@@ -106,6 +106,7 @@ public class ClothingSalesController {
 
     @Operation(summary = "옷장 정리 통합 조회", description = """
             옷장 정리 통합 조회를 합니다. 신청 완료일 순으로 정렬되어 리스트로 반환합니다.
+            - id: ID, '백 수거 요청' 시 '백 요청 ID'를 조회하기 위해 사용됩니다.
             - type: 박스/백
             - requestDate: 신청 완료일
             - bagArriveDate: 백 도착일 (박스의 경우 항상 null)
