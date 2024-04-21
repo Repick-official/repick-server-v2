@@ -5,6 +5,7 @@ import com.example.repick.global.error.exception.ErrorCode;
 
 public enum BoxCollectStateType {
     PENDING(1, "신청완료"),
+    DELIVERING(2, "수거중"),
     DELIVERED(3, "수거완료"),
     INSPECTION_COMPLETED(4, "검수완료"),
     SELLING(5, "판매진행"),

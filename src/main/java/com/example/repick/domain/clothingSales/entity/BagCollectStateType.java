@@ -4,11 +4,12 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
 
 public enum BagCollectStateType {
-    PENDING(1, "대기중"),
-    DELIVERING(2, "배송중"),
-    DELIVERED(3, "배송완료"),
+    PENDING(1, "신청완료"),
+    DELIVERING(2, "수거중"),
+    DELIVERED(3, "수거완료"),
     INSPECTION_COMPLETED(4, "검수완료"),
-    CANCELED(5, "요청취소");
+    SELLING(5, "판매진행"),
+    CANCELED(6, "요청취소");
 
     private final int id;
     private final String value;

@@ -31,6 +31,8 @@ public class ClothingSalesService {
 
         // get bag inits
         bagService.getBagInitByUser(user.getId()).forEach(bagInit -> {
+            AtomicReference<Boolean> isCanceled = new AtomicReference<>(false);
+
             AtomicReference<String> requestDate = new AtomicReference<>();
             AtomicReference<String> bagArriveDate = new AtomicReference<>();
             AtomicReference<String> collectDate = new AtomicReference<>();
@@ -48,17 +50,24 @@ public class ClothingSalesService {
                             collectDate.set(bagCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
                         } else if (bagCollectState.getBagCollectStateType().equals(BagCollectStateType.INSPECTION_COMPLETED)) {
                             productDate.set(bagCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
+                        } else if (bagCollectState.getBagCollectStateType().equals(BagCollectStateType.CANCELED)) {
+                            isCanceled.set(true);
                         }
                     });
+                } else if (bagInitState.getBagInitStateType().equals(BagInitStateType.CANCELED)) {
+                    isCanceled.set(true);
                 }
             });
 
-            clothingSalesList.add(GetClothingSales.of("백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
+            if (!isCanceled.get())
+                clothingSalesList.add(GetClothingSales.of("백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
         });
 
 
         // get box collects
         boxService.getBoxCollectByUser(user.getId()).forEach(boxCollect -> {
+            AtomicReference<Boolean> isCanceled = new AtomicReference<>(false);
+
             AtomicReference<String> requestDate = new AtomicReference<>();
             AtomicReference<String> collectDate = new AtomicReference<>();
             AtomicReference<String> productDate = new AtomicReference<>();
@@ -70,10 +79,13 @@ public class ClothingSalesService {
                     collectDate.set(boxCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
                 } else if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.INSPECTION_COMPLETED)) {
                     productDate.set(boxCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
+                } else if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.CANCELED)) {
+                    isCanceled.set(true);
                 }
             });
 
-            clothingSalesList.add(GetClothingSales.of("박스", requestDate.get(), null, collectDate.get(), productDate.get()));
+            if (!isCanceled.get())
+                clothingSalesList.add(GetClothingSales.of("박스", requestDate.get(), null, collectDate.get(), productDate.get()));
         });
 
         // order by created date

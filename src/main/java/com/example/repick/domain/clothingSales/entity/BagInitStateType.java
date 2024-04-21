@@ -4,7 +4,7 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
 
 public enum BagInitStateType {
-    PENDING(1, "대기중"),
+    PENDING(1, "신청완료"),
     DELIVERING(2, "배송중"),
     DELIVERED(3, "배송완료"),
     CANCELED(4, "요청취소");

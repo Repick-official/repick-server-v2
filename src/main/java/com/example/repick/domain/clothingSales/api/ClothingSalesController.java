@@ -33,7 +33,7 @@ public class ClothingSalesController {
     @Operation(summary = "백 초기 요청 상태 업데이트", description = """
             백 초기 요청에 대한 상태를 변경합니다.
             가능한 상태:
-            - '대기중'
+            - '신청완료'
             - '배송중'
             - '배송완료'
             - '요청취소'
@@ -60,9 +60,11 @@ public class ClothingSalesController {
     @Operation(summary = "백 수거 요청 상태 업데이트", description = """
             백 수거 요청에 대한 상태를 변경합니다.
             가능한 상태:
-            - '대기중'
-            - '배송중'
-            - '배송완료'
+            - '신청완료'
+            - '수거중'
+            - '수거완료'
+            - '검수완료'
+            - '판매진행'
             - '요청취소'
             
             네가지 값 중 하나를 bagCollectStateType 에 입력합니다.
@@ -87,9 +89,11 @@ public class ClothingSalesController {
     @Operation(summary = "박스 수거 요청 상태 업데이트", description = """
             박스 수거 요청에 대한 상태를 변경합니다.
             가능한 상태:
-            - '대기중'
-            - '배송중'
-            - '배송완료'
+            - '신청완료'
+            - '수거중'
+            - '수거완료'
+            - '검수완료'
+            - '판매진행'
             - '요청취소'
             
             네가지 값 중 하나를 boxCollectStateType 에 입력합니다.
@@ -101,8 +105,12 @@ public class ClothingSalesController {
     }
 
     @Operation(summary = "옷장 정리 통합 조회", description = """
-            옷장 정리 통합 조회를 합니다.
-            TODO
+            옷장 정리 통합 조회를 합니다. 신청 완료일 순으로 정렬되어 리스트로 반환합니다.
+            - type: 박스/백
+            - requestDate: 신청 완료일
+            - bagArriveDate: 백 도착일 (박스의 경우 항상 null)
+            - collectDate: 수거 완료일
+            - productDate: 상품화 완료일
             """)
     @GetMapping
     public SuccessResponse<List<GetClothingSales>> getClothingSales() {
