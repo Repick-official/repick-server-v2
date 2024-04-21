@@ -68,7 +68,7 @@ public class ClothingSalesController {
             - '요청취소'
             
             네가지 값 중 하나를 bagCollectStateType 에 입력합니다.
-            예시: bagCollectStateType: "배송중"
+            예시: bagCollectStateType: "수거완료"
             """)
     @PostMapping("bags/collection/state")
     public SuccessResponse<BagCollectResponse> updateBagInitState(@RequestBody PostBagCollectState postBagCollectState) {
@@ -97,7 +97,7 @@ public class ClothingSalesController {
             - '요청취소'
             
             네가지 값 중 하나를 boxCollectStateType 에 입력합니다.
-            예시: boxCollectStateType: "배송중"
+            예시: boxCollectStateType: "판매진행"
             """)
     @PostMapping("box/collection/state")
     public SuccessResponse<BoxCollectResponse> updateBoxCollectState(@RequestBody PostBoxCollectState postBoxCollectState) {
