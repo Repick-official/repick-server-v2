@@ -22,6 +22,8 @@ public class Product extends BaseEntity {
     private String brandName;
     private String description;
     private String size;
+    private Boolean isBoxCollect;
+    private Long clothingSalesId;
     @Enumerated(EnumType.STRING)
     private QualityRate qualityRate;
     @Enumerated(EnumType.STRING)
@@ -30,7 +32,7 @@ public class Product extends BaseEntity {
     private String thumbnailImageUrl;
 
     @Builder
-    public Product(User user, String productName, Long price, Long predictPrice, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
+    public Product(User user, String productName, Long price, Long predictPrice, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender, Boolean isBoxCollect, Long clothingSalesId) {
         this.user = user;
         this.productName = productName;
         this.price = price;
@@ -42,6 +44,8 @@ public class Product extends BaseEntity {
         this.qualityRate = qualityRate;
         this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
+        this.isBoxCollect = isBoxCollect;
+        this.clothingSalesId = clothingSalesId;
     }
 
     public void update(Product product) {

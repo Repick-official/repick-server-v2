@@ -7,6 +7,7 @@ import com.example.repick.domain.clothingSales.repository.BagCollectStateReposit
 import com.example.repick.domain.clothingSales.repository.BagInitRepository;
 import com.example.repick.domain.clothingSales.repository.BagInitStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
+import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -19,8 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_COLLECT_ID;
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
+import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service @RequiredArgsConstructor
 public class BagService {
@@ -32,6 +32,7 @@ public class BagService {
     private final BagCollectStateRepository bagCollectStateRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final S3UploadService s3UploadService;
+    private final ProductRepository productRepository;
 
     @Transactional
     public BagInitResponse registerBagInit(PostBagInit postBagInit) {
@@ -104,5 +105,18 @@ public class BagService {
 
     public List<BagInit> getBagInitByUser(Long userId) {
         return bagInitRepository.findByUserId(userId);
+    }
+
+    public List<GetProductByClothingSales> getProductsByBagInitId(Long bagInitId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        BagInit bagInit = bagInitRepository.findById(bagInitId)
+                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
+
+        // validate bagInitId and user
+        clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
+
+        return productRepository.findByClothingSales(false, bagInitId);
     }
 }

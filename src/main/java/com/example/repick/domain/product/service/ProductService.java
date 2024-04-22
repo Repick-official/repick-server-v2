@@ -3,6 +3,7 @@ package com.example.repick.domain.product.service;
 import com.example.repick.domain.product.dto.*;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
+import com.example.repick.domain.product.validator.ProductValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -38,6 +39,7 @@ public class ProductService {
     private final PaymentRepository paymentRepository;
     private final ProductOrderRepository productOrderRepository;
     private final IamportClient iamportClient;
+    private final ProductValidator productValidator;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
         String thumbnailGeneratedUrl = null;
@@ -80,6 +82,9 @@ public class ProductService {
     public ProductResponse registerProduct(PostProduct postProduct) {
         User user = userRepository.findById(postProduct.userId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // validate clothing sales info
+        productValidator.clothingSalesExists(postProduct.isBoxCollect(), postProduct.clothingSalesId());
 
         // product
         Product product = productRepository.save(postProduct.toProduct(user));

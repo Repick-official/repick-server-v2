@@ -117,5 +117,21 @@ public class ClothingSalesController {
     public SuccessResponse<List<GetClothingSales>> getClothingSales() {
         return SuccessResponse.createSuccess(clothingSalesService.getClothingSales());
     }
+
+    @Operation(summary = "박스: 판매 가능한 상품 보기", description = """
+            박스 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+            """)
+    @GetMapping("/products/box/{boxCollectId}")
+    public SuccessResponse<List<GetProductByClothingSales>> getProductsByBoxCollectId(@PathVariable Long boxCollectId) {
+        return SuccessResponse.success(boxService.getProductsByBoxId(boxCollectId));
+    }
+
+    @Operation(summary = "백: 판매 가능한 상품 보기", description = """
+            백 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+            """)
+    @GetMapping("/products/bag/{bagInitId}")
+    public SuccessResponse<List<GetProductByClothingSales>> getProductsByBagInitId(@PathVariable Long bagInitId) {
+        return SuccessResponse.success(bagService.getProductsByBagInitId(bagInitId));
+    }
 }
 

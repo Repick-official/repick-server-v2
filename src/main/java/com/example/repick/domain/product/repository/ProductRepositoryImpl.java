@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetProductByClothingSales;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Category;
@@ -395,5 +396,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression ltProductId(Long cursorId) {
         return cursorId != null ? product.id.lt(cursorId) : Expressions.asBoolean(true).isTrue();
+    }
+
+    @Override
+    public List<GetProductByClothingSales> findByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductByClothingSales.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.productName,
+                        product.brandName))
+                .from(product)
+                .where(product.isBoxCollect.eq(isBoxCollect)
+                        .and(product.clothingSalesId.eq(clothingSalesId)))
+                .fetch();
     }
 }
