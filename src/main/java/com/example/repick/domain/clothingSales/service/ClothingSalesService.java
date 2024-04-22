@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_PRODUCT_ID;
 import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service @RequiredArgsConstructor
