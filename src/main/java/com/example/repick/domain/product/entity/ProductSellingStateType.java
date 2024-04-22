@@ -6,7 +6,7 @@ import com.example.repick.global.error.exception.ErrorCode;
 public enum ProductSellingStateType {
 
     PREPARING(1, "판매준비중"),
-    PENDING(2, "가격입력중"),
+    PRICE_INPUT(2, "가격입력중"),
     SELLING(3, "판매중"),
     SOLD_OUT(4, "판매완료"),
     SETTLEING(5, "정산중"),

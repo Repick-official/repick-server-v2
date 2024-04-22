@@ -5,6 +5,7 @@ import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.dto.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.entity.ProductSellingStateType;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -124,7 +125,7 @@ public class ClothingSalesService {
         Product product = productService.getProduct(postProductPrice.productId());
 
         clothingSalesValidator.productUserMatches(product, user);
-        clothingSalesValidator.productStateIsPending(product);
+        clothingSalesValidator.validateProductState(product, ProductSellingStateType.PRICE_INPUT);
 
         productService.updatePrice(product, postProductPrice.price());
 
@@ -142,7 +143,7 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public Boolean startSelling(PostStartSelling postStartSelling) {
+    public Boolean startSelling(PostClothingSales postStartSelling) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -177,5 +178,14 @@ public class ClothingSalesService {
         productList.forEach(clothingSalesValidator::productPriceNotSet);
         productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중")));
 
+    }
+
+    public Boolean changeProductPriceInputState(PostClothingSales postClothingSales) {
+        List<Product> productList = productService.findByClothingSales(postClothingSales.isBoxCollect(), postClothingSales.clothingSalesId());
+
+        productList.forEach(product -> clothingSalesValidator.validateProductState(product, ProductSellingStateType.PREPARING));
+        productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "가격입력중")));
+
+        return true;
     }
 }

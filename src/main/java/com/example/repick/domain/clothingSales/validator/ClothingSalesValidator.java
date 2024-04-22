@@ -53,13 +53,13 @@ public class ClothingSalesValidator {
         }
     }
 
-    public void productStateIsPending(Product product) {
+    public void validateProductState(Product product, ProductSellingStateType productSellingStateType) {
         List<ProductSellingState> productSellingStateList = productSellingStateRepository.findByProductId(product.getId());
 
         productSellingStateList.stream()
                 .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
-                .filter(productSellingState -> productSellingState.getProductSellingStateType().equals(ProductSellingStateType.PENDING))
-                .orElseThrow(() -> new CustomException(PRODUCT_NOT_PENDING));
+                .filter(productSellingState -> productSellingState.getProductSellingStateType().equals(productSellingStateType))
+                .orElseThrow(() -> new CustomException(PRODUCT_NOT_DESIRED_STATE));
     }
 
     public void productPriceNotSet(Product product) {

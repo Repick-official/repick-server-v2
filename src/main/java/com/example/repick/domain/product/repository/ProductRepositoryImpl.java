@@ -419,7 +419,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 .where(productSellingState.productId.eq(product.id))
                                 .groupBy(productSellingState.productId)
                                 .eq(productSellingState.id))
-                        .and(productSellingState.productSellingStateType.eq(ProductSellingStateType.PENDING)))
+                        .and(productSellingState.productSellingStateType.eq(ProductSellingStateType.PRICE_INPUT)))
                 .fetch();
     }
 }

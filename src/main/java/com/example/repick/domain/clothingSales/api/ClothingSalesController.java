@@ -177,8 +177,17 @@ public class ClothingSalesController {
             
             """)
     @PostMapping("/products/start-selling")
-    public SuccessResponse<Boolean> startSellingBox(@RequestBody PostStartSelling postStartSelling) {
+    public SuccessResponse<Boolean> startSellingBox(@RequestBody PostClothingSales postStartSelling) {
         return SuccessResponse.success(clothingSalesService.startSelling(postStartSelling));
+    }
+
+    // TODO: ADMIN ACCESS
+    @Operation(summary = "옷장 수거 가격입력중 상태로 변경하기", description = """
+            옷장 수거에 해당하는 상품들을 가격입력중 상태로 변경합니다.
+            """)
+    @PostMapping("/products/price-input")
+    public SuccessResponse<Boolean> changeProductPriceInputState(@RequestBody PostClothingSales postClothingSales) {
+        return SuccessResponse.success(clothingSalesService.changeProductPriceInputState(postClothingSales));
     }
 
 }
