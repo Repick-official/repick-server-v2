@@ -73,6 +73,12 @@ public class BagService {
         BagInit bagInit = bagInitRepository.findById(postBagCollect.bagInitId())
                 .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
 
+        // 만약 bagInit의 state에 배송완료가 없다면 자동으로 추가한다.
+        if (!bagInitStateRepository.existsByBagInitIdAndBagInitStateType(bagInit.getId(), BagInitStateType.DELIVERED)) {
+            BagInitState bagInitState = BagInitState.of(BagInitStateType.DELIVERED, bagInit);
+            bagInitStateRepository.save(bagInitState);
+        }
+
         // Validations
         clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
         clothingSalesValidator.duplicateBagCollectExists(bagInit.getId());
