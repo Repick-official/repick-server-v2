@@ -4,11 +4,15 @@ import com.example.repick.domain.clothingSales.entity.BagInit;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
 import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.entity.ProductSellingState;
+import com.example.repick.domain.product.entity.ProductSellingStateType;
+import com.example.repick.domain.product.repository.ProductSellingStateRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -17,6 +21,7 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 public class ClothingSalesValidator {
 
     private final BagCollectRepository bagCollectRepository;
+    private final ProductSellingStateRepository productSellingStateRepository;
 
     public void userBagInitMatches(Long userId, BagInit bagInit) {
         if (!userId.equals(bagInit.getUser().getId())) {
@@ -46,6 +51,15 @@ public class ClothingSalesValidator {
         if (product.getPrice() != null) {
             throw new CustomException(PRICE_ALREADY_EXISTS);
         }
+    }
+
+    public void productStateIsPending(Product product) {
+        List<ProductSellingState> productSellingStateList = productSellingStateRepository.findByProductId(product.getId());
+
+        productSellingStateList.stream()
+                .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
+                .filter(productSellingState -> productSellingState.getProductSellingStateType().equals(ProductSellingStateType.PENDING))
+                .orElseThrow(() -> new CustomException(PRODUCT_NOT_PENDING));
     }
 
     public void productPriceNotSet(Product product) {

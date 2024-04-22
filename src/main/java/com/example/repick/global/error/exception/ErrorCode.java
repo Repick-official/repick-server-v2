@@ -30,6 +30,7 @@ public enum ErrorCode {
     INVALID_GENDER_NAME(400, "P026", "존재하지 않는 성별 이름입니다."),
     PRICE_ALREADY_EXISTS(400, "P027", "이미 가격이 설정된 상품입니다."),
     PRICE_NOT_EXISTS(400, "P028", "가격이 설정되지 않은 상품입니다."),
+    PRODUCT_NOT_PENDING(400, "P029", "가격 설정중인 상품이 아닙니다."),
     // BagInit
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect

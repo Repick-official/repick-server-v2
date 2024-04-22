@@ -124,7 +124,7 @@ public class ClothingSalesService {
         Product product = productService.getProduct(postProductPrice.productId());
 
         clothingSalesValidator.productUserMatches(product, user);
-        clothingSalesValidator.productPriceAlreadySet(product);
+        clothingSalesValidator.productStateIsPending(product);
 
         productService.updatePrice(product, postProductPrice.price());
 
