@@ -107,7 +107,7 @@ public class BagService {
         return bagInitRepository.findByUserId(userId);
     }
 
-    public List<GetProductByClothingSales> getProductsByBagInitId(Long bagInitId) {
+    public GetProductListByClothingSales getProductsByBagInitId(Long bagInitId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -117,6 +117,8 @@ public class BagService {
         // validate bagInitId and user
         clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
 
-        return productRepository.findByClothingSales(false, bagInitId);
+        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findByClothingSales(false, bagInitId);
+
+        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), getProductByClothingSalesDtoList.size());
     }
 }

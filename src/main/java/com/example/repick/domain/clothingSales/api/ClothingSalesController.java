@@ -120,17 +120,23 @@ public class ClothingSalesController {
 
     @Operation(summary = "박스: 판매 가능한 상품 보기", description = """
             박스 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+            - productList: 상품 리스트
+            - requestedQuantity: 신청한 의류 수량
+            - productQuantity: 판매 가능한 의류 수량
             """)
     @GetMapping("/products/box/{boxCollectId}")
-    public SuccessResponse<List<GetProductByClothingSales>> getProductsByBoxCollectId(@PathVariable Long boxCollectId) {
+    public SuccessResponse<GetProductListByClothingSales> getProductsByBoxCollectId(@PathVariable Long boxCollectId) {
         return SuccessResponse.success(boxService.getProductsByBoxId(boxCollectId));
     }
 
     @Operation(summary = "백: 판매 가능한 상품 보기", description = """
             백 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+            - productList: 상품 리스트
+            - requestedQuantity: 신청한 의류 수량
+            - productQuantity: 판매 가능한 의류 수량
             """)
     @GetMapping("/products/bag/{bagInitId}")
-    public SuccessResponse<List<GetProductByClothingSales>> getProductsByBagInitId(@PathVariable Long bagInitId) {
+    public SuccessResponse<GetProductListByClothingSales> getProductsByBagInitId(@PathVariable Long bagInitId) {
         return SuccessResponse.success(bagService.getProductsByBagInitId(bagInitId));
     }
 
@@ -144,7 +150,7 @@ public class ClothingSalesController {
             - price: 상품 가격
             """)
     @PostMapping("/products/price")
-    public SuccessResponse<GetProductByClothingSales> updateProductPrice(@RequestBody PostProductPrice postProductPrice) {
+    public SuccessResponse<GetProductByClothingSalesDto> updateProductPrice(@RequestBody PostProductPrice postProductPrice) {
         return SuccessResponse.createSuccess(clothingSalesService.updateProductPrice(postProductPrice));
     }
 }

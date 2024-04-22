@@ -1,6 +1,6 @@
 package com.example.repick.domain.product.repository;
 
-import com.example.repick.domain.clothingSales.dto.GetProductByClothingSales;
+import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Category;
@@ -399,9 +399,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductByClothingSales> findByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
+    public List<GetProductByClothingSalesDto> findByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
         return jpaQueryFactory
-                .select(Projections.constructor(GetProductByClothingSales.class,
+                .select(Projections.constructor(GetProductByClothingSalesDto.class,
                         product.id,
                         product.thumbnailImageUrl,
                         product.productName,

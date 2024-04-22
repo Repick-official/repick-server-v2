@@ -1,7 +1,7 @@
 package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.GetClothingSales;
-import com.example.repick.domain.clothingSales.dto.GetProductByClothingSales;
+import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.clothingSales.dto.PostProductPrice;
 import com.example.repick.domain.clothingSales.entity.BagCollectStateType;
 import com.example.repick.domain.clothingSales.entity.BagInitStateType;
@@ -116,7 +116,7 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public GetProductByClothingSales updateProductPrice(PostProductPrice postProductPrice) {
+    public GetProductByClothingSalesDto updateProductPrice(PostProductPrice postProductPrice) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -127,7 +127,7 @@ public class ClothingSalesService {
 
         productService.updatePriceAndChangeProductState(product, postProductPrice.price());
 
-        return GetProductByClothingSales.of(product);
+        return GetProductByClothingSalesDto.of(product);
 
     }
 }

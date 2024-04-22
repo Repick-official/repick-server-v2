@@ -1,9 +1,6 @@
 package com.example.repick.domain.clothingSales.service;
 
-import com.example.repick.domain.clothingSales.dto.BoxCollectResponse;
-import com.example.repick.domain.clothingSales.dto.GetProductByClothingSales;
-import com.example.repick.domain.clothingSales.dto.PostBoxCollect;
-import com.example.repick.domain.clothingSales.dto.PostBoxCollectState;
+import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.BoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
@@ -73,7 +70,7 @@ public class BoxService {
         return boxCollectRepository.findByUserId(userId);
     }
 
-    public List<GetProductByClothingSales> getProductsByBoxId(Long boxCollectId) {
+    public GetProductListByClothingSales getProductsByBoxId(Long boxCollectId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -83,6 +80,8 @@ public class BoxService {
         // validate boxCollectId and user
         clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
 
-        return productRepository.findByClothingSales(true, boxCollectId);
+        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findByClothingSales(true, boxCollectId);
+
+        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), getProductByClothingSalesDtoList.size());
     }
 }

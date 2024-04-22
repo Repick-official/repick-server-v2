@@ -1,6 +1,6 @@
 package com.example.repick.domain.product.repository;
 
-import com.example.repick.domain.clothingSales.dto.GetProductByClothingSales;
+import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.SellingState;
@@ -71,5 +71,5 @@ public interface ProductRepositoryCustom {
 
     List<GetProductCart> findCartedProducts(Long cursorId, Integer pageSize, Long userId);
 
-    List<GetProductByClothingSales> findByClothingSales(Boolean isBoxCollect, Long boxCollectId);
+    List<GetProductByClothingSalesDto> findByClothingSales(Boolean isBoxCollect, Long boxCollectId);
 }
