@@ -84,7 +84,7 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         // validate clothing sales info
-        productValidator.clothingSalesExists(postProduct.isBoxCollect(), postProduct.clothingSalesId());
+        productValidator.validateClothingSales(postProduct.isBoxCollect(), postProduct.clothingSalesId(), user.getId());
 
         // product
         Product product = productRepository.save(postProduct.toProduct(user));
