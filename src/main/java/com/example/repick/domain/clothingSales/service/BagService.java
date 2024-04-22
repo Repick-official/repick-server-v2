@@ -117,8 +117,15 @@ public class BagService {
         // validate bagInitId and user
         clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
 
-        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findByClothingSales(false, bagInitId);
+        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSales(false, bagInitId);
 
-        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), getProductByClothingSalesDtoList.size());
+        Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(false, bagInitId);
+
+        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantity);
+    }
+
+    public BagInit getBagInitByBagInitId(Long bagInitId) {
+        return bagInitRepository.findById(bagInitId)
+                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
     }
 }

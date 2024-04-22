@@ -80,8 +80,15 @@ public class BoxService {
         // validate boxCollectId and user
         clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
 
-        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findByClothingSales(true, boxCollectId);
+        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSales(true, boxCollectId);
 
-        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), getProductByClothingSalesDtoList.size());
+        Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(true, boxCollectId);
+
+        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity);
+    }
+
+    public BoxCollect getBoxCollectByBoxCollectId(Long boxCollectId) {
+        return boxCollectRepository.findById(boxCollectId)
+                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
     }
 }

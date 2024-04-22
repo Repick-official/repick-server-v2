@@ -12,18 +12,18 @@ public class ProductSellingState extends BaseEntity {
     private Long id;
     private Long productId;
     @Enumerated(EnumType.STRING)
-    private SellingState sellingState;
+    private ProductSellingStateType productSellingStateType;
 
     @Builder
-    public ProductSellingState(Long productId, SellingState sellingState) {
+    public ProductSellingState(Long productId, ProductSellingStateType productSellingStateType) {
         this.productId = productId;
-        this.sellingState = sellingState;
+        this.productSellingStateType = productSellingStateType;
     }
 
-    public static ProductSellingState of(Long productId, SellingState sellingState) {
+    public static ProductSellingState of(Long productId, ProductSellingStateType productSellingStateType) {
         return ProductSellingState.builder()
                 .productId(productId)
-                .sellingState(sellingState)
+                .productSellingStateType(productSellingStateType)
                 .build();
     }
 

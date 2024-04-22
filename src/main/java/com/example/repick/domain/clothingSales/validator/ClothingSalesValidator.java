@@ -47,4 +47,10 @@ public class ClothingSalesValidator {
             throw new CustomException(PRICE_ALREADY_EXISTS);
         }
     }
+
+    public void productPriceNotSet(Product product) {
+        if (product.getPrice() == null) {
+            throw new CustomException(PRICE_NOT_EXISTS);
+        }
+    }
 }

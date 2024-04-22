@@ -74,8 +74,8 @@ public class ProductService {
         }
     }
 
-    private void addProductSellingState(Long productId, SellingState sellingState) {
-        productSellingStateRepository.save(ProductSellingState.of(productId, sellingState));
+    private void addProductSellingState(Long productId, ProductSellingStateType productSellingStateType) {
+        productSellingStateRepository.save(ProductSellingState.of(productId, productSellingStateType));
     }
 
     @Transactional
@@ -100,7 +100,7 @@ public class ProductService {
         addStyle(postProduct.styles(), product);
 
         // productSellingState
-        addProductSellingState(product.getId(), SellingState.PREPARING);
+        addProductSellingState(product.getId(), ProductSellingStateType.PREPARING);
 
         return ProductResponse.fromProduct(product);
 
@@ -169,9 +169,9 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, SellingState.SELLING);
+        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, ProductSellingStateType.SELLING);
 
-        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, SellingState.SELLING);
+        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductSellingStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getLatest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
@@ -181,9 +181,9 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
+        if (user == null) return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, ProductSellingStateType.SELLING);
 
-        return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
+        return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), ProductSellingStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getLowest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
@@ -193,8 +193,8 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
-        return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
+        if (user == null) return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, ProductSellingStateType.SELLING);
+        return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), ProductSellingStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getHighest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
@@ -204,9 +204,9 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
+        if (user == null) return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, ProductSellingStateType.SELLING);
 
-        return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
+        return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), ProductSellingStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getHighestDiscount(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
@@ -216,9 +216,9 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
+        if (user == null) return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, ProductSellingStateType.SELLING);
 
-        return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
+        return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), ProductSellingStateType.SELLING);
     }
 
     public Boolean toggleLike(Long productId) {
@@ -261,7 +261,7 @@ public class ProductService {
     }
 
     public Boolean changeSellingState(PostProductSellingState postProductSellingState) {
-        addProductSellingState(postProductSellingState.productId(), SellingState.fromValue(postProductSellingState.sellingState()));
+        addProductSellingState(postProductSellingState.productId(), ProductSellingStateType.fromValue(postProductSellingState.sellingState()));
         return true;
     }
 
@@ -353,7 +353,7 @@ public class ProductService {
         List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
         productOrders.forEach(productOrder -> {
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
-            addProductSellingState(productOrder.getProductId(), SellingState.SOLD_OUT);
+            addProductSellingState(productOrder.getProductId(), ProductSellingStateType.SOLD_OUT);
         });
 
         return true;
@@ -364,8 +364,11 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
     }
 
-    public void updatePriceAndChangeProductState(Product product, Long price) {
+    public void updatePrice(Product product, Long price) {
         product.updatePrice(price);
-        addProductSellingState(product.getId(), SellingState.SELLING);
+    }
+
+    public List<Product> findByClothingSales(Boolean isBoxCollect, Long clothingSlaesId) {
+        return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
     }
 }

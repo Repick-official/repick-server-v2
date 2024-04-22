@@ -5,7 +5,7 @@ import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Category;
 import com.example.repick.domain.product.entity.Gender;
-import com.example.repick.domain.product.entity.SellingState;
+import com.example.repick.domain.product.entity.ProductSellingStateType;
 import com.example.repick.domain.product.entity.Style;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -42,7 +42,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Long cursorId,
             Integer pageSize,
             Long userId,
-            SellingState sellingState) {
+            ProductSellingStateType productSellingStateType) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -74,7 +74,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(sizes),
                         ltProductId(cursorId),
                         deletedFilter(),
-                        sellingStateFilter(sellingState))
+                        sellingStateFilter(productSellingStateType))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()
@@ -96,7 +96,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Long cursorId,
             Integer pageSize,
             Long userId,
-            SellingState sellingState) {
+            ProductSellingStateType productSellingStateType) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -128,7 +128,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(sizes),
                         ltProductId(cursorId),
                         deletedFilter(),
-                        sellingStateFilter(sellingState))
+                        sellingStateFilter(productSellingStateType))
                 .orderBy(product.price.asc())
                 .limit(pageSize)
                 .fetch()
@@ -150,7 +150,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Long cursorId,
             Integer pageSize,
             Long userId,
-            SellingState sellingState) {
+            ProductSellingStateType productSellingStateType) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -182,7 +182,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(sizes),
                         ltProductId(cursorId),
                         deletedFilter(),
-                        sellingStateFilter(sellingState))
+                        sellingStateFilter(productSellingStateType))
                 .orderBy(product.price.desc())
                 .limit(pageSize)
                 .fetch()
@@ -204,7 +204,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Long cursorId,
             Integer pageSize,
             Long userId,
-            SellingState sellingState) {
+            ProductSellingStateType productSellingStateType) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -236,7 +236,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(sizes),
                         ltProductId(cursorId),
                         deletedFilter(),
-                        sellingStateFilter(sellingState))
+                        sellingStateFilter(productSellingStateType))
                 .orderBy(product.discountRate.desc())
                 .limit(pageSize)
                 .fetch()
@@ -338,15 +338,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.isDeleted.eq(false);
     }
 
-    private BooleanExpression sellingStateFilter(SellingState sellingState) {
-        if (sellingState == null) {
+    private BooleanExpression sellingStateFilter(ProductSellingStateType productSellingStateType) {
+        if (productSellingStateType == null) {
             return null;
         }
 
         return JPAExpressions
                 .select(productSellingState.id.max())
                 .from(productSellingState)
-                .where(productSellingState.sellingState.eq(sellingState)
+                .where(productSellingState.productSellingStateType.eq(productSellingStateType)
                         .and(productSellingState.productId.eq(product.id)))
                 .groupBy(productSellingState.productId)
                 .eq(productSellingState.id);
@@ -365,7 +365,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, SellingState sellingState) {
+    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductSellingStateType productSellingStateType) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
@@ -385,7 +385,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(ltProductId(cursorId),
                     genderFilter(gender),
                     deletedFilter(),
-                    sellingStateFilter(sellingState))
+                    sellingStateFilter(productSellingStateType))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()
@@ -399,17 +399,27 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductByClothingSalesDto> findByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
+    public List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductByClothingSalesDto.class,
                         product.id,
                         product.thumbnailImageUrl,
                         product.productName,
-                        product.brandName))
+                        product.brandName,
+                        product.suggestedPrice,
+                        product.price))
                 .from(product)
+                .leftJoin(productSellingState).on(product.id.eq(productSellingState.productId))
                 .where(product.isBoxCollect.eq(isBoxCollect)
                         .and(product.clothingSalesId.eq(clothingSalesId))
-                        .and(product.price.isNull()))
+                        .and(product.isDeleted.isFalse())
+                        .and(JPAExpressions
+                                .select(productSellingState.id.max())
+                                .from(productSellingState)
+                                .where(productSellingState.productId.eq(product.id))
+                                .groupBy(productSellingState.productId)
+                                .eq(productSellingState.id))
+                        .and(productSellingState.productSellingStateType.eq(ProductSellingStateType.PENDING)))
                 .fetch();
     }
 }
