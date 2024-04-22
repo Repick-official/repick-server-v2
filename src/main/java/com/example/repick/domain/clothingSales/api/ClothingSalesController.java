@@ -133,5 +133,19 @@ public class ClothingSalesController {
     public SuccessResponse<List<GetProductByClothingSales>> getProductsByBagInitId(@PathVariable Long bagInitId) {
         return SuccessResponse.success(bagService.getProductsByBagInitId(bagInitId));
     }
+
+    @Operation(summary = "상품 가격 입력하기", description = """
+            상품 가격을 입력합니다.
+            
+            1. 다른 유저의 상품을 등록할 수 없습니다.
+            2. 이미 가격이 등록된 상품의 가격을 수정할 수 없습니다.
+            
+            - productId: 상품 ID
+            - price: 상품 가격
+            """)
+    @PostMapping("/products/price")
+    public SuccessResponse<GetProductByClothingSales> updateProductPrice(@RequestBody PostProductPrice postProductPrice) {
+        return SuccessResponse.createSuccess(clothingSalesService.updateProductPrice(postProductPrice));
+    }
 }
 

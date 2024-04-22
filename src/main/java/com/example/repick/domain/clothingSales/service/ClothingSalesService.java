@@ -1,20 +1,29 @@
 package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.GetClothingSales;
+import com.example.repick.domain.clothingSales.dto.GetProductByClothingSales;
+import com.example.repick.domain.clothingSales.dto.PostProductPrice;
 import com.example.repick.domain.clothingSales.entity.BagCollectStateType;
 import com.example.repick.domain.clothingSales.entity.BagInitStateType;
 import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
+import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
+import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
+import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_PRODUCT_ID;
+import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service @RequiredArgsConstructor
 public class ClothingSalesService {
@@ -22,10 +31,12 @@ public class ClothingSalesService {
     private final UserRepository userRepository;
     private final BagService bagService;
     private final BoxService boxService;
+    private final ProductService productService;
+    private final ClothingSalesValidator clothingSalesValidator;
 
     public List<GetClothingSales> getClothingSales() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         List<GetClothingSales> clothingSalesList = new ArrayList<>();
 
@@ -102,6 +113,22 @@ public class ClothingSalesService {
         });
 
         return clothingSalesList;
+
+    }
+
+    @Transactional
+    public GetProductByClothingSales updateProductPrice(PostProductPrice postProductPrice) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        Product product = productService.getProduct(postProductPrice.productId());
+
+        clothingSalesValidator.productUserMatches(product, user);
+        clothingSalesValidator.productPriceAlreadySet(product);
+
+        productService.updatePriceAndChangeProductState(product, postProductPrice.price());
+
+        return GetProductByClothingSales.of(product);
 
     }
 }

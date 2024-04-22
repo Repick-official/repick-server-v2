@@ -81,7 +81,7 @@ public class BoxService {
                 .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
 
         // validate boxCollectId and user
-        clothingSalesValidator.userBoxCollectMaches(user.getId(), boxCollect);
+        clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
 
         return productRepository.findByClothingSales(true, boxCollectId);
     }

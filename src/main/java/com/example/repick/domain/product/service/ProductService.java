@@ -358,4 +358,14 @@ public class ProductService {
 
         return true;
     }
+
+    public Product getProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+    }
+
+    public void updatePriceAndChangeProductState(Product product, Long price) {
+        product.updatePrice(price);
+        addProductSellingState(product.getId(), SellingState.SELLING);
+    }
 }

@@ -64,4 +64,7 @@ public class Product extends BaseEntity {
     public void updateThumbnailImageUrl(String thumbnailImageUrl) {
         this.thumbnailImageUrl = thumbnailImageUrl;
     }
+    public void updatePrice(Long price) {
+        this.price = price;
+    }
 }

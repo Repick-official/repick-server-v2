@@ -408,7 +408,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.brandName))
                 .from(product)
                 .where(product.isBoxCollect.eq(isBoxCollect)
-                        .and(product.clothingSalesId.eq(clothingSalesId)))
+                        .and(product.clothingSalesId.eq(clothingSalesId))
+                        .and(product.price.isNull()))
                 .fetch();
     }
 }
