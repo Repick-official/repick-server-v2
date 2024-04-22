@@ -371,4 +371,11 @@ public class ProductService {
     public List<Product> findByClothingSales(Boolean isBoxCollect, Long clothingSlaesId) {
         return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
     }
+
+    public ProductSellingState getProductSellingState(Long productId) {
+        return productSellingStateRepository.findByProductId(productId)
+                .stream()
+                .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+    }
 }
