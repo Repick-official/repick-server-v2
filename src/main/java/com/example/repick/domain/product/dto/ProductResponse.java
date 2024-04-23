@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record ProductResponse(
         @Schema(description = "상품ID", example = "3") Long productId,
         @Schema(description = "상품명", example = "블랙 카라 오버핏 셔츠") String productName,
+        @Schema(description = "제안가", example = "40000") Long suggestedPrice,
         @Schema(description = "상품 가격(할인 전)", example = "40000") Long price,
         @Schema(description = "상품 예측 원가", example = "25000") Long predictPrice,
         @Schema(description = "할인율",example = "30") Long discountRate,
@@ -19,6 +20,7 @@ public record ProductResponse(
         return new ProductResponse(
                 product.getId(),
                 product.getProductName(),
+                product.getSuggestedPrice(),
                 product.getPrice(),
                 product.getPredictPrice(),
                 product.getDiscountRate(),

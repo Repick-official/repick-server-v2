@@ -18,10 +18,13 @@ public class Product extends BaseEntity {
     private String productName;
     private Long price;
     private Long predictPrice; // 예측정가
+    private Long suggestedPrice; // 제안가
     private Long discountRate;
     private String brandName;
     private String description;
     private String size;
+    private Boolean isBoxCollect;
+    private Long clothingSalesId;
     @Enumerated(EnumType.STRING)
     private QualityRate qualityRate;
     @Enumerated(EnumType.STRING)
@@ -30,11 +33,12 @@ public class Product extends BaseEntity {
     private String thumbnailImageUrl;
 
     @Builder
-    public Product(User user, String productName, Long price, Long predictPrice, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender) {
+    public Product(User user, String productName, Long price, Long predictPrice, Long suggestedPrice, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender, Boolean isBoxCollect, Long clothingSalesId) {
         this.user = user;
         this.productName = productName;
         this.price = price;
         this.predictPrice = predictPrice;
+        this.suggestedPrice = suggestedPrice;
         this.discountRate = discountRate;
         this.brandName = brandName;
         this.description = description;
@@ -42,6 +46,8 @@ public class Product extends BaseEntity {
         this.qualityRate = qualityRate;
         this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
+        this.isBoxCollect = isBoxCollect;
+        this.clothingSalesId = clothingSalesId;
     }
 
     public void update(Product product) {
@@ -49,6 +55,7 @@ public class Product extends BaseEntity {
         this.productName = product.productName;
         this.price = product.price;
         this.predictPrice = product.predictPrice;
+        this.suggestedPrice = product.suggestedPrice;
         this.discountRate = product.discountRate;
         this.brandName = product.brandName;
         this.description = product.description;
@@ -59,5 +66,8 @@ public class Product extends BaseEntity {
 
     public void updateThumbnailImageUrl(String thumbnailImageUrl) {
         this.thumbnailImageUrl = thumbnailImageUrl;
+    }
+    public void updatePrice(Long price) {
+        this.price = price;
     }
 }

@@ -3,27 +3,28 @@ package com.example.repick.domain.product.entity;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
+@Entity @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED) @Getter
 public class ProductSellingState extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long productId;
     @Enumerated(EnumType.STRING)
-    private SellingState sellingState;
+    private ProductSellingStateType productSellingStateType;
 
     @Builder
-    public ProductSellingState(Long productId, SellingState sellingState) {
+    public ProductSellingState(Long productId, ProductSellingStateType productSellingStateType) {
         this.productId = productId;
-        this.sellingState = sellingState;
+        this.productSellingStateType = productSellingStateType;
     }
 
-    public static ProductSellingState of(Long productId, SellingState sellingState) {
+    public static ProductSellingState of(Long productId, ProductSellingStateType productSellingStateType) {
         return ProductSellingState.builder()
                 .productId(productId)
-                .sellingState(sellingState)
+                .productSellingStateType(productSellingStateType)
                 .build();
     }
 
