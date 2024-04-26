@@ -169,51 +169,29 @@ public class ProductService {
         return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, SellingState.SELLING);
     }
 
-    public List<GetProductThumbnail> getLatest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
+    public List<GetProductThumbnail> getProducts(String type, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
+        Long userId = user == null ? 0L : user.getId();  // non-login user 고려
 
         if (pageSize == null) pageSize = 4;
 
-        // non-login user
-        if (user == null) return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
+        switch (type) {
+            case "latest" -> {
+                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+            }
+            case "lowest-price" -> {
+                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+            }
+            case "highest-price" -> {
+                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+            }
+            case "highest-discount" -> {
+                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+            }
+            default -> throw new CustomException(INVALID_SORT_TYPE);
+        }
 
-        return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
-    }
-
-    public List<GetProductThumbnail> getLowest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElse(null);
-
-        if (pageSize == null) pageSize = 4;
-
-        // non-login user
-        if (user == null) return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
-        return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
-    }
-
-    public List<GetProductThumbnail> getHighest(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElse(null);
-
-        if (pageSize == null) pageSize = 4;
-
-        // non-login user
-        if (user == null) return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
-
-        return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
-    }
-
-    public List<GetProductThumbnail> getHighestDiscount(String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElse(null);
-
-        if (pageSize == null) pageSize = 4;
-
-        // non-login user
-        if (user == null) return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, 0L, SellingState.SELLING);
-
-        return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, user.getId(), SellingState.SELLING);
     }
 
     public Boolean toggleLike(Long productId) {

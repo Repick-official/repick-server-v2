@@ -28,6 +28,7 @@ public enum ErrorCode {
     INVALID_QUALITY_RATE_NAME(400, "P024", "존재하지 않는 품질 이름입니다."),
     INVALID_GENDER_ID(400, "P025", "존재하지 않는 성별 ID입니다."),
     INVALID_GENDER_NAME(400, "P026", "존재하지 않는 성별 이름입니다."),
+    INVALID_SORT_TYPE(400, "P027", "존재하지 않는 정렬 타입입니다."),
     // BagInit
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect

@@ -70,14 +70,16 @@ public class ProductController {
         return SuccessResponse.success(productService.getMainPageRecommendation(gender, cursorId, pageSize));
     }
 
-    @Operation(summary = "최신순 조회",
-            description = """
-                    최신순으로 상품 리스트 페이지를 조회합니다. 무한스크롤 방식을 사용합니다.
+    @Operation(summary = "상품 조회",
+        description = """
+                    최신순, 가격 낮은순, 가격 높은순, 할인율 높은순으로 상품 리스트 페이지를 조회합니다.
+                    무한스크롤 방식을 사용합니다.
                     
                     각각의 파라미터는 옵셔널입니다.
                     """)
-    @GetMapping("/latest")
-    public SuccessResponse<List<GetProductThumbnail>> getLatestProduct(
+    @GetMapping("/{type}")
+    public SuccessResponse<List<GetProductThumbnail>> getProducts(
+            @Parameter(description = "조회 타입 (latest, lowest-price, highest-price, highest-discount)") @PathVariable String type,
             @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
@@ -88,74 +90,8 @@ public class ProductController {
             @Parameter(description = "사이즈") @RequestParam(required = false) List<String> sizes,
             @Parameter(description = "1번째 페이지 조회시 null, " +
                     "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getLatest(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
-    }
-
-    @Operation(summary = "가격 낮은순 조회",
-            description = """
-                    가격 낮은순으로 상품 리스트 페이지를 조회합니다. 무한스크롤 방식을 사용합니다.
-                    
-                    각각의 파라미터는 옵셔널입니다.
-                    """)
-    @GetMapping("/lowest-price")
-    public SuccessResponse<List<GetProductThumbnail>> getLowestProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
-            @Parameter(description = "카테고리") @RequestParam(required = false) String category,
-            @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
-            @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
-            @Parameter(description = "최대 가격") @RequestParam(required = false) Long maxPrice,
-            @Parameter(description = "브랜드") @RequestParam(required = false) List<String> brandNames,
-            @Parameter(description = "상품등급") @RequestParam(required = false) List<String> qualityRates,
-            @Parameter(description = "사이즈") @RequestParam(required = false) List<String> sizes,
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getLowest(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
-    }
-
-    @Operation(summary = "가격 높은순 조회",
-            description = """
-                    가격 높은순으로 상품 리스트 페이지를 조회합니다. 무한스크롤 방식을 사용합니다.
-                    
-                    각각의 파라미터는 옵셔널입니다.
-                    """)
-    @GetMapping("/highest-price")
-    public SuccessResponse<List<GetProductThumbnail>> getHighestProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
-            @Parameter(description = "카테고리") @RequestParam(required = false) String category,
-            @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
-            @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
-            @Parameter(description = "최대 가격") @RequestParam(required = false) Long maxPrice,
-            @Parameter(description = "브랜드") @RequestParam(required = false) List<String> brandNames,
-            @Parameter(description = "상품등급") @RequestParam(required = false) List<String> qualityRates,
-            @Parameter(description = "사이즈") @RequestParam(required = false) List<String> sizes,
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getHighest(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
-    }
-
-    @Operation(summary = "할인율 높은순 조회",
-            description = """
-                    할인율 높은순으로 상품 리스트 페이지를 조회합니다. 무한스크롤 방식을 사용합니다.
-                    
-                    각각의 파라미터는 옵셔널입니다.
-                    """)
-    @GetMapping("/highest-discount")
-    public SuccessResponse<List<GetProductThumbnail>> getHighestDiscountProduct(
-            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
-            @Parameter(description = "카테고리") @RequestParam(required = false) String category,
-            @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
-            @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
-            @Parameter(description = "최대 가격") @RequestParam(required = false) Long maxPrice,
-            @Parameter(description = "브랜드") @RequestParam(required = false) List<String> brandNames,
-            @Parameter(description = "상품등급") @RequestParam(required = false) List<String> qualityRates,
-            @Parameter(description = "사이즈") @RequestParam(required = false) List<String> sizes,
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getHighestDiscount(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
+            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize){
+        return SuccessResponse.success(productService.getProducts(type, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
     }
 
     // TODO: !!ADMIN ACCESS REQUIRED!!
