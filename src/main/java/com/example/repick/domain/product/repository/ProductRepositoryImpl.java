@@ -6,6 +6,7 @@ import com.example.repick.domain.product.entity.Category;
 import com.example.repick.domain.product.entity.Gender;
 import com.example.repick.domain.product.entity.SellingState;
 import com.example.repick.domain.product.entity.Style;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -28,8 +29,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    @Override
-    public List<GetProductThumbnail> findLatestProducts(
+    private List<GetProductThumbnail> findProducts(
             String gender,
             String category,
             List<String> styles,
@@ -41,7 +41,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Long cursorId,
             Integer pageSize,
             Long userId,
-            SellingState sellingState) {
+            SellingState sellingState,
+            OrderSpecifier<?> orderBy) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -74,174 +75,40 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         ltProductId(cursorId),
                         deletedFilter(),
                         sellingStateFilter(sellingState))
-                .orderBy(product.id.desc())
+                .orderBy(orderBy)
                 .limit(pageSize)
                 .fetch()
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GetProductThumbnail> findLatestProducts(
+            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
+        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.id.desc());
     }
 
     @Override
     public List<GetProductThumbnail> findLowestProducts(
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId,
-            SellingState sellingState) {
-
-        return jpaQueryFactory
-                .select(Projections.constructor(GetProductThumbnail.class,
-                        product.id,
-                        product.thumbnailImageUrl,
-                        product.productName,
-                        product.price,
-                        product.discountRate,
-                        product.brandName,
-                        product.qualityRate.stringValue(),
-                        productLike.id.isNotNull()))
-                .from(product)
-                .leftJoin(productLike)
-                .on(product.id.eq(productLike.productId)
-                        .and(productLike.userId.eq(userId)))
-                .leftJoin(productStyle)
-                .on(product.id.eq(productStyle.product.id))
-                .leftJoin(productCategory)
-                .on(product.id.eq(productCategory.product.id))
-                .leftJoin(productSellingState)
-                .on(product.id.eq(productSellingState.productId))
-                .where(
-                        genderFilter(gender),
-                        categoryFilter(category),
-                        stylesFilter(styles),
-                        priceFilter(minPrice, maxPrice),
-                        brandFilter(brandNames),
-                        qualityFilter(qualityRates),
-                        sizesFilter(sizes),
-                        ltProductId(cursorId),
-                        deletedFilter(),
-                        sellingStateFilter(sellingState))
-                .orderBy(product.price.asc())
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
+        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.price.asc());
     }
 
     @Override
     public List<GetProductThumbnail> findHighestProducts(
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId,
-            SellingState sellingState) {
-
-        return jpaQueryFactory
-                .select(Projections.constructor(GetProductThumbnail.class,
-                        product.id,
-                        product.thumbnailImageUrl,
-                        product.productName,
-                        product.price,
-                        product.discountRate,
-                        product.brandName,
-                        product.qualityRate.stringValue(),
-                        productLike.id.isNotNull()))
-                .from(product)
-                .leftJoin(productLike)
-                .on(product.id.eq(productLike.productId)
-                        .and(productLike.userId.eq(userId)))
-                .leftJoin(productStyle)
-                .on(product.id.eq(productStyle.product.id))
-                .leftJoin(productCategory)
-                .on(product.id.eq(productCategory.product.id))
-                .leftJoin(productSellingState)
-                .on(product.id.eq(productSellingState.productId))
-                .where(
-                        genderFilter(gender),
-                        categoryFilter(category),
-                        stylesFilter(styles),
-                        priceFilter(minPrice, maxPrice),
-                        brandFilter(brandNames),
-                        qualityFilter(qualityRates),
-                        sizesFilter(sizes),
-                        ltProductId(cursorId),
-                        deletedFilter(),
-                        sellingStateFilter(sellingState))
-                .orderBy(product.price.desc())
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
+        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.price.desc());
     }
 
     @Override
     public List<GetProductThumbnail> findHighestDiscountProducts(
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId,
-            SellingState sellingState) {
-
-        return jpaQueryFactory
-                .select(Projections.constructor(GetProductThumbnail.class,
-                        product.id,
-                        product.thumbnailImageUrl,
-                        product.productName,
-                        product.price,
-                        product.discountRate,
-                        product.brandName,
-                        product.qualityRate.stringValue(),
-                        productLike.id.isNotNull()))
-                .from(product)
-                .leftJoin(productLike)
-                .on(product.id.eq(productLike.productId)
-                        .and(productLike.userId.eq(userId)))
-                .leftJoin(productStyle)
-                .on(product.id.eq(productStyle.product.id))
-                .leftJoin(productCategory)
-                .on(product.id.eq(productCategory.product.id))
-                .leftJoin(productSellingState)
-                .on(product.id.eq(productSellingState.productId))
-                .where(
-                        genderFilter(gender),
-                        categoryFilter(category),
-                        stylesFilter(styles),
-                        priceFilter(minPrice, maxPrice),
-                        brandFilter(brandNames),
-                        qualityFilter(qualityRates),
-                        sizesFilter(sizes),
-                        ltProductId(cursorId),
-                        deletedFilter(),
-                        sellingStateFilter(sellingState))
-                .orderBy(product.discountRate.desc())
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
+        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.discountRate.desc());
     }
 
     @Override
