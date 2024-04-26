@@ -183,16 +183,16 @@ public class ProductService {
 
         switch (type) {
             case "latest" -> {
-                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
+                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "lowest-price" -> {
-                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
+                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "highest-price" -> {
-                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
+                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "highest-discount" -> {
-                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
+                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             default -> throw new CustomException(INVALID_SORT_TYPE);
         }

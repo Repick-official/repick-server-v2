@@ -20,8 +20,7 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId,
-            ProductSellingStateType productSellingStateType);
+            Long userId);
 
     List<GetProductThumbnail> findLowestProducts(
             String gender,
@@ -34,8 +33,7 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId,
-            ProductSellingStateType productSellingStateType);
+            Long userId);
 
     List<GetProductThumbnail> findHighestProducts(
             String gender,
@@ -48,8 +46,7 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId,
-            ProductSellingStateType productSellingStateType);
+            Long userId);
 
     List<GetProductThumbnail> findHighestDiscountProducts(
             String gender,
@@ -62,8 +59,7 @@ public interface ProductRepositoryCustom {
             List<String> sizes,
             Long cursorId,
             Integer pageSize,
-            Long userId,
-            ProductSellingStateType productSellingStateType);
+            Long userId);
 
     List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductSellingStateType productSellingStateType);
 
