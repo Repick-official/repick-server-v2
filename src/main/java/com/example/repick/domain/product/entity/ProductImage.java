@@ -15,6 +15,7 @@ public class ProductImage extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
     private Integer sequence;
 

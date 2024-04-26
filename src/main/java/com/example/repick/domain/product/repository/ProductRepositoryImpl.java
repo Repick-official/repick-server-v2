@@ -1,12 +1,12 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Category;
 import com.example.repick.domain.product.entity.Gender;
-import com.example.repick.domain.product.entity.SellingState;
+import com.example.repick.domain.product.entity.ProductSellingStateType;
 import com.example.repick.domain.product.entity.Style;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -29,7 +29,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    private List<GetProductThumbnail> findProducts(
+    @Override
+    public List<GetProductThumbnail> findLatestProducts(
             String gender,
             String category,
             List<String> styles,
@@ -41,8 +42,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             Long cursorId,
             Integer pageSize,
             Long userId,
-            SellingState sellingState,
-            OrderSpecifier<?> orderBy) {
+            ProductSellingStateType productSellingStateType) {
 
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
@@ -74,8 +74,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(sizes),
                         ltProductId(cursorId),
                         deletedFilter(),
-                        sellingStateFilter(sellingState))
-                .orderBy(orderBy)
+                        sellingStateFilter(productSellingStateType))
+                .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()
                 .stream()
@@ -84,31 +84,165 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findLatestProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.id.desc());
-    }
-
-    @Override
     public List<GetProductThumbnail> findLowestProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.price.asc());
+            String gender,
+            String category,
+            List<String> styles,
+            Long minPrice,
+            Long maxPrice,
+            List<String> brandNames,
+            List<String> qualityRates,
+            List<String> sizes,
+            Long cursorId,
+            Integer pageSize,
+            Long userId,
+            ProductSellingStateType productSellingStateType) {
+
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductThumbnail.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.productName,
+                        product.price,
+                        product.discountRate,
+                        product.brandName,
+                        product.qualityRate.stringValue(),
+                        productLike.id.isNotNull()))
+                .from(product)
+                .leftJoin(productLike)
+                .on(product.id.eq(productLike.productId)
+                        .and(productLike.userId.eq(userId)))
+                .leftJoin(productStyle)
+                .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
+                .where(
+                        genderFilter(gender),
+                        categoryFilter(category),
+                        stylesFilter(styles),
+                        priceFilter(minPrice, maxPrice),
+                        brandFilter(brandNames),
+                        qualityFilter(qualityRates),
+                        sizesFilter(sizes),
+                        ltProductId(cursorId),
+                        deletedFilter(),
+                        sellingStateFilter(productSellingStateType))
+                .orderBy(product.price.asc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<GetProductThumbnail> findHighestProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.price.desc());
+            String gender,
+            String category,
+            List<String> styles,
+            Long minPrice,
+            Long maxPrice,
+            List<String> brandNames,
+            List<String> qualityRates,
+            List<String> sizes,
+            Long cursorId,
+            Integer pageSize,
+            Long userId,
+            ProductSellingStateType productSellingStateType) {
+
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductThumbnail.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.productName,
+                        product.price,
+                        product.discountRate,
+                        product.brandName,
+                        product.qualityRate.stringValue(),
+                        productLike.id.isNotNull()))
+                .from(product)
+                .leftJoin(productLike)
+                .on(product.id.eq(productLike.productId)
+                        .and(productLike.userId.eq(userId)))
+                .leftJoin(productStyle)
+                .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
+                .where(
+                        genderFilter(gender),
+                        categoryFilter(category),
+                        stylesFilter(styles),
+                        priceFilter(minPrice, maxPrice),
+                        brandFilter(brandNames),
+                        qualityFilter(qualityRates),
+                        sizesFilter(sizes),
+                        ltProductId(cursorId),
+                        deletedFilter(),
+                        sellingStateFilter(productSellingStateType))
+                .orderBy(product.price.desc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<GetProductThumbnail> findHighestDiscountProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId, SellingState sellingState) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, sellingState, product.discountRate.desc());
+            String gender,
+            String category,
+            List<String> styles,
+            Long minPrice,
+            Long maxPrice,
+            List<String> brandNames,
+            List<String> qualityRates,
+            List<String> sizes,
+            Long cursorId,
+            Integer pageSize,
+            Long userId,
+            ProductSellingStateType productSellingStateType) {
+
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductThumbnail.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.productName,
+                        product.price,
+                        product.discountRate,
+                        product.brandName,
+                        product.qualityRate.stringValue(),
+                        productLike.id.isNotNull()))
+                .from(product)
+                .leftJoin(productLike)
+                .on(product.id.eq(productLike.productId)
+                        .and(productLike.userId.eq(userId)))
+                .leftJoin(productStyle)
+                .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
+                .where(
+                        genderFilter(gender),
+                        categoryFilter(category),
+                        stylesFilter(styles),
+                        priceFilter(minPrice, maxPrice),
+                        brandFilter(brandNames),
+                        qualityFilter(qualityRates),
+                        sizesFilter(sizes),
+                        ltProductId(cursorId),
+                        deletedFilter(),
+                        sellingStateFilter(productSellingStateType))
+                .orderBy(product.discountRate.desc())
+                .limit(pageSize)
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -204,15 +338,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.isDeleted.eq(false);
     }
 
-    private BooleanExpression sellingStateFilter(SellingState sellingState) {
-        if (sellingState == null) {
+    private BooleanExpression sellingStateFilter(ProductSellingStateType productSellingStateType) {
+        if (productSellingStateType == null) {
             return null;
         }
 
         return JPAExpressions
                 .select(productSellingState.id.max())
                 .from(productSellingState)
-                .where(productSellingState.sellingState.eq(sellingState)
+                .where(productSellingState.productSellingStateType.eq(productSellingStateType)
                         .and(productSellingState.productId.eq(product.id)))
                 .groupBy(productSellingState.productId)
                 .eq(productSellingState.id);
@@ -231,7 +365,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, SellingState sellingState) {
+    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductSellingStateType productSellingStateType) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
@@ -251,7 +385,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(ltProductId(cursorId),
                     genderFilter(gender),
                     deletedFilter(),
-                    sellingStateFilter(sellingState))
+                    sellingStateFilter(productSellingStateType))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()
@@ -262,5 +396,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression ltProductId(Long cursorId) {
         return cursorId != null ? product.id.lt(cursorId) : Expressions.asBoolean(true).isTrue();
+    }
+
+    @Override
+    public List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetProductByClothingSalesDto.class,
+                        product.id,
+                        product.thumbnailImageUrl,
+                        product.productName,
+                        product.brandName,
+                        product.suggestedPrice,
+                        product.price))
+                .from(product)
+                .leftJoin(productSellingState).on(product.id.eq(productSellingState.productId))
+                .where(product.isBoxCollect.eq(isBoxCollect)
+                        .and(product.clothingSalesId.eq(clothingSalesId))
+                        .and(product.isDeleted.isFalse())
+                        .and(JPAExpressions
+                                .select(productSellingState.id.max())
+                                .from(productSellingState)
+                                .where(productSellingState.productId.eq(product.id))
+                                .groupBy(productSellingState.productId)
+                                .eq(productSellingState.id))
+                        .and(productSellingState.productSellingStateType.eq(ProductSellingStateType.PRICE_INPUT)))
+                .fetch();
     }
 }

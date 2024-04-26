@@ -3,6 +3,7 @@ package com.example.repick.domain.product.service;
 import com.example.repick.domain.product.dto.*;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
+import com.example.repick.domain.product.validator.ProductValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -38,6 +39,7 @@ public class ProductService {
     private final PaymentRepository paymentRepository;
     private final ProductOrderRepository productOrderRepository;
     private final IamportClient iamportClient;
+    private final ProductValidator productValidator;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
         String thumbnailGeneratedUrl = null;
@@ -72,14 +74,17 @@ public class ProductService {
         }
     }
 
-    private void addProductSellingState(Long productId, SellingState sellingState) {
-        productSellingStateRepository.save(ProductSellingState.of(productId, sellingState));
+    private void addProductSellingState(Long productId, ProductSellingStateType productSellingStateType) {
+        productSellingStateRepository.save(ProductSellingState.of(productId, productSellingStateType));
     }
 
     @Transactional
     public ProductResponse registerProduct(PostProduct postProduct) {
         User user = userRepository.findById(postProduct.userId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        // validate clothing sales info
+        productValidator.validateClothingSales(postProduct.isBoxCollect(), postProduct.clothingSalesId(), user.getId());
 
         // product
         Product product = productRepository.save(postProduct.toProduct(user));
@@ -95,7 +100,7 @@ public class ProductService {
         addStyle(postProduct.styles(), product);
 
         // productSellingState
-        addProductSellingState(product.getId(), SellingState.PREPARING);
+        addProductSellingState(product.getId(), ProductSellingStateType.PREPARING);
 
         return ProductResponse.fromProduct(product);
 
@@ -164,9 +169,9 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, SellingState.SELLING);
+        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, ProductSellingStateType.SELLING);
 
-        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, SellingState.SELLING);
+        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductSellingStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getProducts(String type, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
@@ -178,16 +183,16 @@ public class ProductService {
 
         switch (type) {
             case "latest" -> {
-                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
             }
             case "lowest-price" -> {
-                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
             }
             case "highest-price" -> {
-                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
             }
             case "highest-discount" -> {
-                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, SellingState.SELLING);
+                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, ProductSellingStateType.SELLING);
             }
             default -> throw new CustomException(INVALID_SORT_TYPE);
         }
@@ -234,7 +239,7 @@ public class ProductService {
     }
 
     public Boolean changeSellingState(PostProductSellingState postProductSellingState) {
-        addProductSellingState(postProductSellingState.productId(), SellingState.fromValue(postProductSellingState.sellingState()));
+        addProductSellingState(postProductSellingState.productId(), ProductSellingStateType.fromValue(postProductSellingState.sellingState()));
         return true;
     }
 
@@ -326,9 +331,29 @@ public class ProductService {
         List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
         productOrders.forEach(productOrder -> {
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
-            addProductSellingState(productOrder.getProductId(), SellingState.SOLD_OUT);
+            addProductSellingState(productOrder.getProductId(), ProductSellingStateType.SOLD_OUT);
         });
 
         return true;
+    }
+
+    public Product getProduct(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+    }
+
+    public void updatePrice(Product product, Long price) {
+        product.updatePrice(price);
+    }
+
+    public List<Product> findByClothingSales(Boolean isBoxCollect, Long clothingSlaesId) {
+        return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
+    }
+
+    public ProductSellingState getProductSellingState(Long productId) {
+        return productSellingStateRepository.findByProductId(productId)
+                .stream()
+                .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
     }
 }
