@@ -1,9 +1,6 @@
 package com.example.repick.domain.user.api;
 
-import com.example.repick.domain.user.dto.GetUserInfo;
-import com.example.repick.domain.user.dto.PatchUserInfo;
-import com.example.repick.domain.user.dto.PostInitSmsVerification;
-import com.example.repick.domain.user.dto.PostVerifySmsVerification;
+import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.service.UserService;
 import com.example.repick.global.jwt.TokenResponse;
 import com.example.repick.global.oauth.AppleUserService;
@@ -59,6 +56,14 @@ public class UserController {
             return SuccessResponse.success(pair.getLeft());
         }
 
+    }
+
+    @Operation(summary = "refresh token으로 토큰 재발급하기", description = """
+            refresh token으로 토큰을 재발급합니다.
+            """)
+    @PostMapping("/refresh")
+    public SuccessResponse<TokenResponse> refreshToken(@RequestBody PostTokenRefresh postTokenRefresh) {
+        return SuccessResponse.success(userService.refreshToken(postTokenRefresh));
     }
 
     @Operation(summary = "애플 인증 코드로 내부 토큰 발급하기",

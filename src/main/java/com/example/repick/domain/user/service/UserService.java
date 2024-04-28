@@ -1,10 +1,7 @@
 package com.example.repick.domain.user.service;
 
 import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
-import com.example.repick.domain.user.dto.GetUserInfo;
-import com.example.repick.domain.user.dto.PatchUserInfo;
-import com.example.repick.domain.user.dto.PostInitSmsVerification;
-import com.example.repick.domain.user.dto.PostVerifySmsVerification;
+import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.entity.UserSmsVerificationInfo;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -13,6 +10,9 @@ import com.example.repick.dynamodb.UserSmsVerificationInfoRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
+import com.example.repick.global.jwt.TokenResponse;
+import com.example.repick.global.jwt.TokenService;
+import com.example.repick.global.jwt.UserDetailsImpl;
 import com.example.repick.global.sms.MessageService;
 import com.example.repick.global.util.StringParser;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import static com.example.repick.global.error.exception.ErrorCode.TOKEN_EXPIRED;
+
 @Service @RequiredArgsConstructor
 public class UserService {
 
@@ -35,6 +37,7 @@ public class UserService {
     private final UserFcmTokenInfoRepository userFcmTokenInfoRepository;
     private final MessageService messageService;
     private final UserSmsVerificationInfoRepository userSmsVerificationInfoRepository;
+    private final TokenService tokenService;
 
     public GetUserInfo getUserInfo() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -128,5 +131,20 @@ public class UserService {
         userSmsVerificationInfoRepository.deleteById(user.getId().toString());
 
         return true;
+    }
+
+    public TokenResponse refreshToken(PostTokenRefresh postTokenRefresh) {
+        String token = "Bearer " + postTokenRefresh.refreshToken();
+        System.out.println("token = " + token);
+
+        if (!tokenService.validateToken(token)) {
+            throw new CustomException("토큰이 만료되었습니다.", TOKEN_EXPIRED);
+        }
+
+        User user = tokenService.getUser(token);
+
+        String accessToken = tokenService.createAccessToken(new UserDetailsImpl(user));
+
+        return new TokenResponse(accessToken, postTokenRefresh.refreshToken());
     }
 }
