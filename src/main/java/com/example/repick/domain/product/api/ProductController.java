@@ -1,6 +1,7 @@
 package com.example.repick.domain.product.api;
 
 import com.example.repick.domain.product.dto.*;
+import com.example.repick.domain.product.service.PaymentService;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final PaymentService paymentService;
 
     @Operation(summary = "상품 등록하기",
             description = """
@@ -155,7 +157,7 @@ public class ProductController {
                     """)
     @PostMapping("/prepare-payment")
     public SuccessResponse<GetProductOrderPreparation> prepareOrder(@RequestBody PostProductOrder postProductOrder) {
-        return SuccessResponse.createSuccess(productService.prepareProductOrder(postProductOrder));
+        return SuccessResponse.createSuccess(paymentService.prepareProductOrder(postProductOrder));
     }
 
 
@@ -165,7 +167,7 @@ public class ProductController {
                     """)
     @PostMapping("/validate-payment")
     public SuccessResponse<Boolean> validateOrder(@RequestBody PostPayment postPayment) {
-        return SuccessResponse.createSuccess(productService.validatePayment(postPayment));
+        return SuccessResponse.createSuccess(paymentService.validatePayment(postPayment));
     }
 
 }
