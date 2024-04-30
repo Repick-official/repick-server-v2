@@ -15,6 +15,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "C004", "존재하지 않는 사용자입니다."),
     INVALID_REQUEST_ERROR(400, "C005", "잘못된 요청입니다."),
     INVALID_CATEGORY_ID(400, "C006", "존재하지 않는 카테고리 ID입니다."),
+    // Security
+    TOKEN_EXPIRED(401, "S001", "토큰이 만료되었습니다."),
     // Category
     INVALID_CATEGORY_NAME(400, "P001", "존재하지 않는 카테고리 이름입니다."),
     IMAGE_UPLOAD_FAILED(500, "P002", "이미지 업로드에 실패했습니다."),
