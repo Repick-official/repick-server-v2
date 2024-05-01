@@ -177,7 +177,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression genderFilter(String gender) {
-        return gender != null ? product.gender.eq(Gender.fromValue(gender)) : null;
+        return gender != null ? product.gender.eq(Gender.fromValue(gender)).or(product.gender.eq(Gender.UNISEX)) : null;
     }
 
     private BooleanExpression categoryFilter(String category) {
