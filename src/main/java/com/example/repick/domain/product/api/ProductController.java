@@ -27,6 +27,33 @@ public class ProductController {
                     상품을 등록합니다. 상품 등록 시 상품의 메인 이미지와 상세 이미지를 함께 등록합니다.
                     상품 등록 시 등록된 상품은 '판매준비중'으로 설정됩니다.
                     
+                    **카테고리 가이드**
+                    
+                    아우터
+                    
+                    - CAR: 가디건, BLA: 자켓, WIN: 바람막이,
+                    - COA: 코트, PAD: 패딩, FLE: 후리스,
+                    - JIP: 집업, MIL: 야상
+                    
+                    상의
+                    
+                    - NON: 민소매, HAL: 반소매, LON: 긴소매,
+                    - MAN: 맨투맨, HOO: 후드, NEA: 니트,
+                    - SHI: 셔츠, VES: 조끼, BLO: 블라우스
+                    
+                    하의
+                    
+                    - HAP: 반바지, LOP: 긴바지, SLA: 슬랙스,
+                    - DEN: 데님, LEG: 레깅스, JUM: 점프수트
+                    
+                    스커트
+                    
+                    - MNS: 미니스커트, MDS: 미디스커트, LOS: 롱스커트
+                    
+                    원피스
+                    
+                    - MNO: 미니원피스, LNO: 롱원피스
+                    
                     MediaType: multipart/form-data
                     """)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
