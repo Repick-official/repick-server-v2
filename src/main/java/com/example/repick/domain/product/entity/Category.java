@@ -60,4 +60,13 @@ public enum Category {
         }
         throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME);
     }
+
+    public static Category fromName(String name) {
+        for (Category category : values()) {
+            if (category.name().equals(name)) {
+                return category;
+            }
+        }
+        throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME);
+    }
 }
