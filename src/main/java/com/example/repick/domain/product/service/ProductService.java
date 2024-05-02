@@ -55,7 +55,7 @@ public class ProductService {
 
     private void addCategory(List<String> categories, Product product) {
         for (String categoryName : categories) {
-            productCategoryRepository.save(ProductCategory.of(product, Category.fromValue(categoryName)));
+            productCategoryRepository.save(ProductCategory.of(product, Category.fromName(categoryName)));
         }
     }
 
