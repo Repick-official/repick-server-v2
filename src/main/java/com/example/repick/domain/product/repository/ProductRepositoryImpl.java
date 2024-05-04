@@ -3,10 +3,7 @@ package com.example.repick.domain.product.repository;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
-import com.example.repick.domain.product.entity.Category;
-import com.example.repick.domain.product.entity.Gender;
-import com.example.repick.domain.product.entity.ProductSellingStateType;
-import com.example.repick.domain.product.entity.Style;
+import com.example.repick.domain.product.entity.*;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -286,6 +283,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 .groupBy(productSellingState.productId)
                                 .eq(productSellingState.id))
                         .and(productSellingState.productSellingStateType.eq(ProductSellingStateType.PRICE_INPUT)))
+                .fetch();
+    }
+
+    @Override
+    public List<Product> findByProductSellingStateType(ProductSellingStateType productSellingStateType) {
+        return jpaQueryFactory
+                .selectFrom(product)
+                .leftJoin(productSellingState)
+                .on(product.id.eq(productSellingState.productId))
+                .where(sellingStateFilter(productSellingStateType))
                 .fetch();
     }
 }

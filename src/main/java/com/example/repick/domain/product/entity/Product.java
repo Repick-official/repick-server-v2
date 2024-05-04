@@ -70,4 +70,8 @@ public class Product extends BaseEntity {
     public void updatePrice(Long price) {
         this.price = price;
     }
+
+    public void updateDiscountRate(Long discountRate) {
+        this.discountRate = discountRate;
+    }
 }
