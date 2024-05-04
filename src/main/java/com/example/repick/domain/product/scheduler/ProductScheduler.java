@@ -10,14 +10,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class ProductScheduler {
 
     private final ProductRepository productRepository;
@@ -39,7 +37,6 @@ public class ProductScheduler {
         products.stream()
                 .filter(priceRange)
                 .forEach(p -> {
-                    log.info("Product id: " + p.getId() + " is updated");
                     long days = Duration.between(p.getCreatedDate(), LocalDateTime.now()).toDays();
                     if (days >= 30 && days < 60) p.updateDiscountRate(maxDiscountRate / 2);
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
