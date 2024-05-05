@@ -6,7 +6,8 @@ import com.example.repick.global.error.exception.ErrorCode;
 public enum Style {
 
     LUXURY(1, "럭셔리"),
-    CONTEMPORARY(2, "컨템포러리");
+    CONTEMPORARY(2, "컨템포러리"),
+    CASUAL(3, "캐주얼");
 
 
     private final int id;

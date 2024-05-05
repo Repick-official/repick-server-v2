@@ -158,8 +158,8 @@ public class ClothingSalesService {
             AtomicReference<Integer> soldQuantity = new AtomicReference<>(0);
 
             // 각각 상품들에 연결된 productSellingState 중 가장 id값이 높은 것들에 대해서,
-            // 상태가 SELLING인 경우 sellingQuentity를 증가시킨다.
-            // 상태가 SOLD_OUT인 경우, 해당 state의 createdDate가 7일 이후면 soldQuentity를 증가시키고, 7일 이전이면 pendingQuentity를 증가시킨다.
+            // 상태가 SELLING인 경우 sellingQuantity를 증가시킨다.
+            // 상태가 SOLD_OUT인 경우, 해당 state의 createdDate가 7일 이후면 soldQuantity를 증가시키고, 7일 이전이면 pendingQuantity를 증가시킨다.
             productList.forEach(product -> {
                 ProductSellingState productSellingState = productService.getProductSellingState(product.getId());
                 if (productSellingState.getProductSellingStateType().equals(ProductSellingStateType.SELLING)) {

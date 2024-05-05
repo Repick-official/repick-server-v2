@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -165,7 +166,7 @@ public class ProductService {
         return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductSellingStateType.SELLING);
     }
 
-    public List<GetProductThumbnail> getProducts(String type, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
+    public List<GetProductThumbnail> getProducts(String type, String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
@@ -174,16 +175,16 @@ public class ProductService {
 
         switch (type) {
             case "latest" -> {
-                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findLatestProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "lowest-price" -> {
-                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findLowestProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "highest-price" -> {
-                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findHighestProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "highest-discount" -> {
-                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findHighestDiscountProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             default -> throw new CustomException(INVALID_SORT_TYPE);
         }
@@ -252,5 +253,33 @@ public class ProductService {
                 .stream()
                 .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+    }
+
+    public List<GetType> getProductTypes(String type, String gender) {
+        List<GetType> types = new ArrayList<>();
+
+        if (type.equals("스타일")) {
+            for (Style style : Style.values()) {
+                types.add(GetType.of(style));
+            }
+        }
+
+        else if(type.equals("카테고리")) {
+            if (gender.equals("남성")) {
+                for (Category category : Category.values()) {
+                    if (category.name().charAt(3) == '7' || category.name().charAt(3) == '8') {
+                        types.add(GetType.of(category));
+                    }
+                }
+            } else if (gender.equals("여성")) {
+                for (Category category : Category.values()) {
+                    if (category.name().charAt(3) == '6' || category.name().charAt(3) == '8') {
+                        types.add(GetType.of(category));
+                    }
+                }
+            }
+        }
+
+        return types;
     }
 }

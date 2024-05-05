@@ -109,6 +109,7 @@ public class ProductController {
     @GetMapping("/{type}")
     public SuccessResponse<List<GetProductThumbnail>> getProducts(
             @Parameter(description = "조회 타입 (latest, lowest-price, highest-price, highest-discount)") @PathVariable String type,
+            @Parameter(description = "검색어") @RequestParam(required = false) String keyword,
             @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
@@ -120,7 +121,7 @@ public class ProductController {
             @Parameter(description = "1번째 페이지 조회시 null, " +
                     "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
             @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize){
-        return SuccessResponse.success(productService.getProducts(type, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
+        return SuccessResponse.success(productService.getProducts(type, keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
     }
 
     // TODO: !!ADMIN ACCESS REQUIRED!!
@@ -195,6 +196,25 @@ public class ProductController {
     @PostMapping("/validate-payment")
     public SuccessResponse<Boolean> validateOrder(@RequestBody PostPayment postPayment) {
         return SuccessResponse.createSuccess(paymentService.validatePayment(postPayment));
+    }
+
+    @Operation(summary = "상품 타입 조회",
+            description = """
+                    # 상품 타입을 조회합니다.
+                    
+                    ### 조회 가능 타입
+                    
+                    - 여성 카테고리
+                    - 남성 카테고리
+                    - 스타일
+                    
+                    """)
+    @GetMapping("/classifications")
+    public SuccessResponse<List<GetType>> getProductTypes(
+            @Parameter(description = "타입 종류 (카테고리, 스타일)") @RequestParam String type,
+            @Parameter(description = "성별 (남성 또는 여성)") @RequestParam(required = false) String gender
+    ) {
+        return SuccessResponse.success(productService.getProductTypes(type, gender));
     }
 
 }

@@ -11,6 +11,7 @@ import java.util.List;
 public interface ProductRepositoryCustom {
 
     List<GetProductThumbnail> findLatestProducts(
+            String keyword,
             String gender,
             String category,
             List<String> styles,
@@ -24,6 +25,7 @@ public interface ProductRepositoryCustom {
             Long userId);
 
     List<GetProductThumbnail> findLowestProducts(
+            String keyword,
             String gender,
             String category,
             List<String> styles,
@@ -37,6 +39,7 @@ public interface ProductRepositoryCustom {
             Long userId);
 
     List<GetProductThumbnail> findHighestProducts(
+            String keyword,
             String gender,
             String category,
             List<String> styles,
@@ -50,6 +53,7 @@ public interface ProductRepositoryCustom {
             Long userId);
 
     List<GetProductThumbnail> findHighestDiscountProducts(
+            String keyword,
             String gender,
             String category,
             List<String> styles,
