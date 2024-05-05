@@ -166,7 +166,7 @@ public class ProductService {
         return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductSellingStateType.SELLING);
     }
 
-    public List<GetProductThumbnail> getProducts(String type, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
+    public List<GetProductThumbnail> getProducts(String type, String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
@@ -175,16 +175,16 @@ public class ProductService {
 
         switch (type) {
             case "latest" -> {
-                return productRepository.findLatestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findLatestProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "lowest-price" -> {
-                return productRepository.findLowestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findLowestProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "highest-price" -> {
-                return productRepository.findHighestProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findHighestProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             case "highest-discount" -> {
-                return productRepository.findHighestDiscountProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
+                return productRepository.findHighestDiscountProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId);
             }
             default -> throw new CustomException(INVALID_SORT_TYPE);
         }

@@ -31,6 +31,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     private List<GetProductThumbnail> findProducts(
+            String keyword,
             String gender,
             String category,
             List<String> styles,
@@ -65,6 +66,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productSellingState)
                 .on(product.id.eq(productSellingState.productId))
                 .where(
+                        keywordFilter(keyword),
                         genderFilter(gender),
                         categoryFilter(category),
                         stylesFilter(styles),
@@ -85,30 +87,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     @Override
     public List<GetProductThumbnail> findLatestProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
             List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.id.desc());
+        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.id.desc());
     }
 
     @Override
     public List<GetProductThumbnail> findLowestProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
             List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.price.asc());
+        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.price.asc());
     }
 
     @Override
     public List<GetProductThumbnail> findHighestProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
             List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.price.desc());
+        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.price.desc());
     }
 
     @Override
     public List<GetProductThumbnail> findHighestDiscountProducts(
-            String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
+            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
             List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.discountRate.desc());
+        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.discountRate.desc());
     }
 
     @Override
@@ -174,6 +176,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression likeFilter(Long userId) {
         return productLike.userId.eq(userId);
+    }
+
+    private BooleanExpression keywordFilter(String keyword) {
+        return keyword != null ? product.productName.contains(keyword) : null;
     }
 
     private BooleanExpression genderFilter(String gender) {
