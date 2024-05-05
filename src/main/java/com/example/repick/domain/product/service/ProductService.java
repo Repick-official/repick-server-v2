@@ -295,9 +295,9 @@ public class ProductService {
 
         Boolean isLiked = productLikeRepository.existsByUserIdAndProductId(userId, productId);
 
-        List<ProductImage> productImageList = productImageRepository.findByProductId(productId);
+        List<ProductImage> productImageList = productImageRepository.findByProductIdAndIsDeleted(productId, false);
 
-        List<ProductCategory> productCategoryList = productCategoryRepository.findByProductId(productId);
+        List<ProductCategory> productCategoryList = productCategoryRepository.findByProductIdAndIsDeleted(productId, false);
 
         return GetProductDetail.of(product, productImageList, productCategoryList, isLiked);
 
