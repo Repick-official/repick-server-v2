@@ -5,6 +5,7 @@ import com.example.repick.domain.user.service.UserService;
 import com.example.repick.global.jwt.TokenResponse;
 import com.example.repick.global.oauth.AppleUserService;
 import com.example.repick.global.oauth.KakaoUserService;
+import com.example.repick.global.oauth.NaverUserService;
 import com.example.repick.global.response.SuccessResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +28,36 @@ public class UserController {
     private final UserService userService;
     private final KakaoUserService kakaoUserService;
     private final AppleUserService appleUserService;
+    private final NaverUserService naverUserService;
+    @Operation(summary = "네이버 엑세스 토큰으로 내부 토큰 발급하기",
+            description = """
+                    네이버 엑세스 토큰으로 내부 토큰을 발급합니다.
+                    
+                    **상태 코드에 따라 최초 회원가입, 기존 유저 로그인 여부를 알 수 있습니다.**
+                    - statusCode가 200인 경우: 기존 유저 로그인
+                    - statusCode가 201인 경우: 최초 회원가입
+                    
+                    개발용 유저 삭제 API를 통해 최초 회원가입이 정상적으로 처리되는지 확인할 수 있습니다.
+                  
+                    요청값:
+                    - (Query Parameter) accessToken: 네이버 인증서버에서 받은 토큰입니다.
+                    
+                    반환값:
+                    - accessToken: 서버 내부에서 발급한 토큰입니다.
+                    - refreshToken: 서버 내부에서 발급한 토큰입니다.
+                    """)
+    @GetMapping("/oauth/naver")
+    public SuccessResponse<TokenResponse> naverLogin(@Parameter(name = "accessToken", description = "네이버 인증서버에서 받은 토큰", required = true)
+                                        @RequestParam String accessToken) throws JsonProcessingException {
+        Pair<TokenResponse, Boolean> pair = naverUserService.naverLogin(accessToken);
+
+        if (pair.getRight()) {
+            return SuccessResponse.createSuccess(pair.getLeft());
+        } else {
+            return SuccessResponse.success(pair.getLeft());
+        }
+
+    }
 
     @Operation(summary = "카카오 액세스 토큰으로 내부 토큰 발급하기",
             description = """
