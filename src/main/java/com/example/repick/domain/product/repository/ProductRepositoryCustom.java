@@ -3,6 +3,7 @@ package com.example.repick.domain.product.repository;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
+import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductSellingStateType;
 
 import java.util.List;
@@ -68,4 +69,6 @@ public interface ProductRepositoryCustom {
     List<GetProductCart> findCartedProducts(Long cursorId, Integer pageSize, Long userId);
 
     List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long boxCollectId);
+
+    List<Product> findByProductSellingStateType(ProductSellingStateType productSellingStateType);
 }

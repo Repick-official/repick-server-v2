@@ -11,7 +11,8 @@ public enum ProductSellingStateType {
     SOLD_OUT(4, "판매완료"),
     SETTLEING(5, "정산중"),
     SETTLED(6, "정산완료"),
-    CANCELED(7, "판매취소");
+    CANCELED(7, "판매취소"),
+    EXPIRED(8, "판매종료");
 
     private final int id;
     private final String value;
