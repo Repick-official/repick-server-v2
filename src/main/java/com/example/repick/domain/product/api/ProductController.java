@@ -197,4 +197,23 @@ public class ProductController {
         return SuccessResponse.createSuccess(paymentService.validatePayment(postPayment));
     }
 
+    @Operation(summary = "상품 타입 조회",
+            description = """
+                    # 상품 타입을 조회합니다.
+                    
+                    ### 조회 가능 타입
+                    
+                    - 여성 카테고리
+                    - 남성 카테고리
+                    - 스타일
+                    
+                    """)
+    @GetMapping("/classifications")
+    public SuccessResponse<List<GetType>> getProductTypes(
+            @Parameter(description = "타입 종류 (카테고리, 스타일)") @RequestParam String type,
+            @Parameter(description = "성별 (남성 또는 여성)") @RequestParam(required = false) String gender
+    ) {
+        return SuccessResponse.success(productService.getProductTypes(type, gender));
+    }
+
 }

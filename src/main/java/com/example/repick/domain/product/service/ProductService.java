@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -252,5 +253,33 @@ public class ProductService {
                 .stream()
                 .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+    }
+
+    public List<GetType> getProductTypes(String type, String gender) {
+        List<GetType> types = new ArrayList<>();
+
+        if (type.equals("스타일")) {
+            for (Style style : Style.values()) {
+                types.add(GetType.of(style));
+            }
+        }
+
+        else if(type.equals("카테고리")) {
+            if (gender.equals("남성")) {
+                for (Category category : Category.values()) {
+                    if (category.name().charAt(3) == '7' || category.name().charAt(3) == '8') {
+                        types.add(GetType.of(category));
+                    }
+                }
+            } else if (gender.equals("여성")) {
+                for (Category category : Category.values()) {
+                    if (category.name().charAt(3) == '6' || category.name().charAt(3) == '8') {
+                        types.add(GetType.of(category));
+                    }
+                }
+            }
+        }
+
+        return types;
     }
 }
