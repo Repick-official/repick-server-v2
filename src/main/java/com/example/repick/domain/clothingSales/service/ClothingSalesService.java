@@ -5,8 +5,8 @@ import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.dto.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductSellingState;
-import com.example.repick.domain.product.entity.ProductSellingStateType;
+import com.example.repick.domain.product.entity.ProductState;
+import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -127,7 +127,7 @@ public class ClothingSalesService {
         Product product = productService.getProduct(postProductPrice.productId());
 
         clothingSalesValidator.productUserMatches(product, user);
-        clothingSalesValidator.validateProductState(product, ProductSellingStateType.PRICE_INPUT);
+        clothingSalesValidator.validateProductState(product, ProductStateType.PRICE_INPUT);
 
         productService.updatePrice(product, postProductPrice.price());
 
@@ -161,11 +161,11 @@ public class ClothingSalesService {
             // 상태가 SELLING인 경우 sellingQuantity를 증가시킨다.
             // 상태가 SOLD_OUT인 경우, 해당 state의 createdDate가 7일 이후면 soldQuantity를 증가시키고, 7일 이전이면 pendingQuantity를 증가시킨다.
             productList.forEach(product -> {
-                ProductSellingState productSellingState = productService.getProductSellingState(product.getId());
-                if (productSellingState.getProductSellingStateType().equals(ProductSellingStateType.SELLING)) {
+                ProductState productState = productService.getProductSellingState(product.getId());
+                if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
                     sellingQuantity.getAndSet(sellingQuantity.get() + 1);
-                } else if (productSellingState.getProductSellingStateType().equals(ProductSellingStateType.SOLD_OUT)) {
-                    if (productSellingState.getCreatedDate().plusDays(7).isBefore(LocalDateTime.now())) {
+                } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {
+                    if (productState.getCreatedDate().plusDays(7).isBefore(LocalDateTime.now())) {
                         soldQuantity.getAndSet(soldQuantity.get() + 1);
                     } else {
                         pendingQuantity.getAndSet(pendingQuantity.get() + 1);
@@ -190,11 +190,11 @@ public class ClothingSalesService {
             AtomicReference<Integer> soldQuantity = new AtomicReference<>(0);
 
             productList.forEach(product -> {
-                ProductSellingState productSellingState = productService.getProductSellingState(product.getId());
-                if (productSellingState.getProductSellingStateType().equals(ProductSellingStateType.SELLING)) {
+                ProductState productState = productService.getProductSellingState(product.getId());
+                if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
                     sellingQuantity.getAndSet(sellingQuantity.get() + 1);
-                } else if (productSellingState.getProductSellingStateType().equals(ProductSellingStateType.SOLD_OUT)) {
-                    if (productSellingState.getCreatedDate().plusDays(7).isBefore(LocalDateTime.now())) {
+                } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {
+                    if (productState.getCreatedDate().plusDays(7).isBefore(LocalDateTime.now())) {
                         soldQuantity.getAndSet(soldQuantity.get() + 1);
                     } else {
                         pendingQuantity.getAndSet(pendingQuantity.get() + 1);
@@ -259,7 +259,7 @@ public class ClothingSalesService {
     public Boolean changeProductPriceInputState(PostClothingSales postClothingSales) {
         List<Product> productList = productService.findByClothingSales(postClothingSales.isBoxCollect(), postClothingSales.clothingSalesId());
 
-        productList.forEach(product -> clothingSalesValidator.validateProductState(product, ProductSellingStateType.PREPARING));
+        productList.forEach(product -> clothingSalesValidator.validateProductState(product, ProductStateType.PREPARING));
         productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "가격입력중")));
 
         return true;

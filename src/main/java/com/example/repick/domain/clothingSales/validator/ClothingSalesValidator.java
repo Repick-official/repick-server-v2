@@ -4,9 +4,9 @@ import com.example.repick.domain.clothingSales.entity.BagInit;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
 import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductSellingState;
-import com.example.repick.domain.product.entity.ProductSellingStateType;
-import com.example.repick.domain.product.repository.ProductSellingStateRepository;
+import com.example.repick.domain.product.entity.ProductState;
+import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 public class ClothingSalesValidator {
 
     private final BagCollectRepository bagCollectRepository;
-    private final ProductSellingStateRepository productSellingStateRepository;
+    private final ProductStateRepository productSellingStateRepository;
 
     public void userBagInitMatches(Long userId, BagInit bagInit) {
         if (!userId.equals(bagInit.getUser().getId())) {
@@ -53,12 +53,12 @@ public class ClothingSalesValidator {
         }
     }
 
-    public void validateProductState(Product product, ProductSellingStateType productSellingStateType) {
-        List<ProductSellingState> productSellingStateList = productSellingStateRepository.findByProductId(product.getId());
+    public void validateProductState(Product product, ProductStateType productStateType) {
+        List<ProductState> productStateList = productSellingStateRepository.findByProductId(product.getId());
 
-        productSellingStateList.stream()
+        productStateList.stream()
                 .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
-                .filter(productSellingState -> productSellingState.getProductSellingStateType().equals(productSellingStateType))
+                .filter(productSellingState -> productSellingState.getProductStateType().equals(productStateType))
                 .orElseThrow(() -> new CustomException(PRODUCT_NOT_DESIRED_STATE));
     }
 

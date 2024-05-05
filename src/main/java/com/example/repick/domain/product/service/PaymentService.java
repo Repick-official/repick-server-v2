@@ -6,7 +6,7 @@ import com.example.repick.domain.product.dto.PostProductOrder;
 import com.example.repick.domain.product.entity.Payment;
 import com.example.repick.domain.product.entity.PaymentStatus;
 import com.example.repick.domain.product.entity.ProductOrder;
-import com.example.repick.domain.product.entity.ProductSellingStateType;
+import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.product.repository.ProductCartRepository;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
@@ -129,7 +129,7 @@ public class PaymentService {
         List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
         productOrders.forEach(productOrder -> {
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
-            productService.addProductSellingState(productOrder.getProductId(), ProductSellingStateType.SOLD_OUT);
+            productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
         });
 
         return true;

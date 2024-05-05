@@ -217,4 +217,15 @@ public class ProductController {
         return SuccessResponse.success(productService.getProductTypes(type, gender));
     }
 
+    @Operation(summary = "상품 상세 조회",
+            description = """
+                    # 상품 상세 조회하기
+                    
+                    """)
+    @GetMapping("/detail/{productId}")
+    public SuccessResponse<GetProductDetail> getProductDetail(
+            @Parameter(description = "상품ID", example = "3") @PathVariable Long productId) {
+        return SuccessResponse.success(productService.getProductDetail(productId));
+    }
+
 }
