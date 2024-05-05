@@ -219,7 +219,10 @@ public class ProductController {
 
     @Operation(summary = "상품 상세 조회",
             description = """
-                    # 상품 상세 조회하기
+                    상품 상세 조회를 합니다.
+                    
+                    - ProductState가 SELLING(판매중)인 상품들만 조회 가능합니다. 그 외엔 P029 에러가 발생합니다.
+                    - 로그인 하지 않은 유저는 isLiked 값이 항상 false 입니다.
                     
                     """)
     @GetMapping("/detail/{productId}")
