@@ -16,9 +16,4 @@ public class CustomException extends RuntimeException {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
-
-    public CustomException(String s) {
-        super(s);
-        this.errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-    }
 }

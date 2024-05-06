@@ -1,7 +1,6 @@
 package com.example.repick.global.jwt;
 
 import com.example.repick.domain.user.entity.User;
-import com.example.repick.global.error.exception.CustomException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
