@@ -47,11 +47,13 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(OAuthProvider oAuthProvider, String providerId, String email, String nickname, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+    public User(Long id, OAuthProvider oAuthProvider, String providerId, String email, String nickname, String phoneNumber, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+        this.id = id;
         this.oAuthProvider = oAuthProvider;
         this.providerId = providerId;
         this.email = email;
         this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
         this.defaultAddress = defaultAddress;
         this.defaultAccount = defaultAccount;
         this.topSize = topSize;
