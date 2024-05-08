@@ -7,24 +7,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED) @Getter
-public class ProductSellingState extends BaseEntity {
+public class ProductState extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long productId;
     @Enumerated(EnumType.STRING)
-    private ProductSellingStateType productSellingStateType;
+    private ProductStateType productStateType;
 
     @Builder
-    public ProductSellingState(Long productId, ProductSellingStateType productSellingStateType) {
+    public ProductState(Long productId, ProductStateType productStateType) {
         this.productId = productId;
-        this.productSellingStateType = productSellingStateType;
+        this.productStateType = productStateType;
     }
 
-    public static ProductSellingState of(Long productId, ProductSellingStateType productSellingStateType) {
-        return ProductSellingState.builder()
+    public static ProductState of(Long productId, ProductStateType productStateType) {
+        return ProductState.builder()
                 .productId(productId)
-                .productSellingStateType(productSellingStateType)
+                .productStateType(productStateType)
                 .build();
     }
 

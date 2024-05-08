@@ -1,11 +1,10 @@
 package com.example.repick.domain.product.scheduler;
 
 import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductSellingStateType;
+import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,7 @@ public class ProductScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateProducts() {
-        List<Product> sellingProducts = productRepository.findByProductSellingStateType(ProductSellingStateType.SELLING);
+        List<Product> sellingProducts = productRepository.findByProductSellingStateType(ProductStateType.SELLING);
 
         updateDiscountRate(sellingProducts, p -> p.getPrice() >= 300000, 60);
         updateDiscountRate(sellingProducts, p -> p.getPrice() >= 200000 && p.getPrice() < 300000, 70);
@@ -40,7 +39,7 @@ public class ProductScheduler {
                     long days = Duration.between(p.getCreatedDate(), LocalDateTime.now()).toDays();
                     if (days >= 30 && days < 60) p.updateDiscountRate(maxDiscountRate / 2);
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
-                    else if (days >= 90) productService.addProductSellingState(p.getId(), ProductSellingStateType.EXPIRED);
+                    else if (days >= 90) productService.addProductSellingState(p.getId(), ProductStateType.EXPIRED);
                 });
     }
 }

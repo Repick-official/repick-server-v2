@@ -4,7 +4,7 @@ import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductSellingStateType;
+import com.example.repick.domain.product.entity.ProductStateType;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public interface ProductRepositoryCustom {
             Integer pageSize,
             Long userId);
 
-    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductSellingStateType productSellingStateType);
+    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductStateType productStateType);
 
     List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId);
 
@@ -74,5 +74,5 @@ public interface ProductRepositoryCustom {
 
     List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long boxCollectId);
 
-    List<Product> findByProductSellingStateType(ProductSellingStateType productSellingStateType);
+    List<Product> findByProductSellingStateType(ProductStateType productStateType);
 }

@@ -3,7 +3,7 @@ package com.example.repick.domain.product.entity;
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
 
-public enum ProductSellingStateType {
+public enum ProductStateType {
 
     PREPARING(1, "판매준비중"),
     PRICE_INPUT(2, "가격입력중"),
@@ -17,7 +17,7 @@ public enum ProductSellingStateType {
     private final int id;
     private final String value;
 
-    ProductSellingStateType(int id, String value) {
+    ProductStateType(int id, String value) {
         this.id = id;
         this.value = value;
     }
@@ -30,19 +30,19 @@ public enum ProductSellingStateType {
         return value;
     }
 
-    public static ProductSellingStateType fromId(int id) {
-        for (ProductSellingStateType productSellingStateType : values()) {
-            if (productSellingStateType.getId() == id) {
-                return productSellingStateType;
+    public static ProductStateType fromId(int id) {
+        for (ProductStateType productStateType : values()) {
+            if (productStateType.getId() == id) {
+                return productStateType;
             }
         }
         throw new CustomException(ErrorCode.INVALID_SELLING_STATE_ID);
     }
 
-    public static ProductSellingStateType fromValue(String keyword) {
-        for (ProductSellingStateType productSellingStateType : values()) {
-            if (productSellingStateType.getValue().equals(keyword)) {
-                return productSellingStateType;
+    public static ProductStateType fromValue(String keyword) {
+        for (ProductStateType productStateType : values()) {
+            if (productStateType.getValue().equals(keyword)) {
+                return productStateType;
             }
         }
         throw new CustomException(ErrorCode.INVALID_SELLING_STATE_NAME);

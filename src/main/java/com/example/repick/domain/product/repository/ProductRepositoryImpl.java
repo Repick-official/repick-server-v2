@@ -19,7 +19,7 @@ import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
 import static com.example.repick.domain.product.entity.QProductLike.productLike;
-import static com.example.repick.domain.product.entity.QProductSellingState.productSellingState;
+import static com.example.repick.domain.product.entity.QProductState.productState;
 import static com.example.repick.domain.product.entity.QProductStyle.productStyle;
 
 @RequiredArgsConstructor
@@ -60,8 +60,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
-                .leftJoin(productSellingState)
-                .on(product.id.eq(productSellingState.productId))
+                .leftJoin(productState)
+                .on(product.id.eq(productState.productId))
                 .where(
                         keywordFilter(keyword),
                         genderFilter(gender),
@@ -73,7 +73,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(sizes),
                         ltProductId(cursorId),
                         deletedFilter(),
-                        sellingStateFilter(ProductSellingStateType.SELLING))
+                        sellingStateFilter(ProductStateType.SELLING))
                 .orderBy(orderBy)
                 .limit(pageSize)
                 .fetch()
@@ -207,18 +207,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.isDeleted.eq(false);
     }
 
-    private BooleanExpression sellingStateFilter(ProductSellingStateType productSellingStateType) {
-        if (productSellingStateType == null) {
+    private BooleanExpression sellingStateFilter(ProductStateType productStateType) {
+        if (productStateType == null) {
             return null;
         }
 
         return JPAExpressions
-                .select(productSellingState.id.max())
-                .from(productSellingState)
-                .where(productSellingState.productSellingStateType.eq(productSellingStateType)
-                        .and(productSellingState.productId.eq(product.id)))
-                .groupBy(productSellingState.productId)
-                .eq(productSellingState.id);
+                .select(productState.id.max())
+                .from(productState)
+                .where(productState.productStateType.eq(productStateType)
+                        .and(productState.productId.eq(product.id)))
+                .groupBy(productState.productId)
+                .eq(productState.id);
     }
 
     private BooleanExpression stylesFilter(List<String> styles) {
@@ -234,7 +234,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductSellingStateType productSellingStateType) {
+    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductStateType productStateType) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
@@ -249,12 +249,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productLike)
                 .on(product.id.eq(productLike.productId)
                         .and(productLike.userId.eq(userId)))
-                .leftJoin(productSellingState)
-                .on(product.id.eq(productSellingState.productId))
+                .leftJoin(productState)
+                .on(product.id.eq(productState.productId))
                 .where(ltProductId(cursorId),
                     genderFilter(gender),
                     deletedFilter(),
-                    sellingStateFilter(productSellingStateType))
+                    sellingStateFilter(productStateType))
                 .orderBy(product.id.desc())
                 .limit(pageSize)
                 .fetch()
@@ -278,27 +278,27 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.suggestedPrice,
                         product.price))
                 .from(product)
-                .leftJoin(productSellingState).on(product.id.eq(productSellingState.productId))
+                .leftJoin(productState).on(product.id.eq(productState.productId))
                 .where(product.isBoxCollect.eq(isBoxCollect)
                         .and(product.clothingSalesId.eq(clothingSalesId))
                         .and(product.isDeleted.isFalse())
                         .and(JPAExpressions
-                                .select(productSellingState.id.max())
-                                .from(productSellingState)
-                                .where(productSellingState.productId.eq(product.id))
-                                .groupBy(productSellingState.productId)
-                                .eq(productSellingState.id))
-                        .and(productSellingState.productSellingStateType.eq(ProductSellingStateType.PRICE_INPUT)))
+                                .select(productState.id.max())
+                                .from(productState)
+                                .where(productState.productId.eq(product.id))
+                                .groupBy(productState.productId)
+                                .eq(productState.id))
+                        .and(productState.productStateType.eq(ProductStateType.PRICE_INPUT)))
                 .fetch();
     }
 
     @Override
-    public List<Product> findByProductSellingStateType(ProductSellingStateType productSellingStateType) {
+    public List<Product> findByProductSellingStateType(ProductStateType productStateType) {
         return jpaQueryFactory
                 .selectFrom(product)
-                .leftJoin(productSellingState)
-                .on(product.id.eq(productSellingState.productId))
-                .where(sellingStateFilter(productSellingStateType))
+                .leftJoin(productState)
+                .on(product.id.eq(productState.productId))
+                .where(sellingStateFilter(productStateType))
                 .fetch();
     }
 }

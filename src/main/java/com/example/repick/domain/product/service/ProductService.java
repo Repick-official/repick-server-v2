@@ -30,7 +30,7 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductLikeRepository productLikeRepository;
     private final ProductCartRepository productCartRepository;
-    private final ProductSellingStateRepository productSellingStateRepository;
+    private final ProductStateRepository productSellingStateRepository;
     private final ProductValidator productValidator;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
@@ -66,8 +66,8 @@ public class ProductService {
         }
     }
 
-    public void addProductSellingState(Long productId, ProductSellingStateType productSellingStateType) {
-        productSellingStateRepository.save(ProductSellingState.of(productId, productSellingStateType));
+    public void addProductSellingState(Long productId, ProductStateType productStateType) {
+        productSellingStateRepository.save(ProductState.of(productId, productStateType));
     }
 
     @Transactional
@@ -92,7 +92,7 @@ public class ProductService {
         addStyle(postProduct.styles(), product);
 
         // productSellingState
-        addProductSellingState(product.getId(), ProductSellingStateType.PREPARING);
+        addProductSellingState(product.getId(), ProductStateType.PREPARING);
 
         return ProductResponse.fromProduct(product);
 
@@ -119,7 +119,7 @@ public class ProductService {
         productStyleRepository.findByProductId(product.getId()).forEach(ProductStyle::delete);
 
         // productSellingState
-        productSellingStateRepository.findByProductId(product.getId()).forEach(ProductSellingState::delete);
+        productSellingStateRepository.findByProductId(product.getId()).forEach(ProductState::delete);
 
         return ProductResponse.fromProduct(product);
     }
@@ -161,9 +161,9 @@ public class ProductService {
         if (pageSize == null) pageSize = 4;
 
         // non-login user
-        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, ProductSellingStateType.SELLING);
+        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, ProductStateType.SELLING);
 
-        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductSellingStateType.SELLING);
+        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getProducts(String type, String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){
@@ -231,7 +231,7 @@ public class ProductService {
     }
 
     public Boolean changeSellingState(PostProductSellingState postProductSellingState) {
-        addProductSellingState(postProductSellingState.productId(), ProductSellingStateType.fromValue(postProductSellingState.sellingState()));
+        addProductSellingState(postProductSellingState.productId(), ProductStateType.fromValue(postProductSellingState.sellingState()));
         return true;
     }
 
@@ -248,7 +248,7 @@ public class ProductService {
         return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
     }
 
-    public ProductSellingState getProductSellingState(Long productId) {
+    public ProductState getProductSellingState(Long productId) {
         return productSellingStateRepository.findByProductId(productId)
                 .stream()
                 .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
@@ -281,5 +281,25 @@ public class ProductService {
         }
 
         return types;
+    }
+
+    public GetProductDetail getProductDetail(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+
+        productValidator.validateProductState(productId, ProductStateType.SELLING);
+
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElse(null);
+        Long userId = user == null ? 0L : user.getId();  // non-login user 고려
+
+        Boolean isLiked = productLikeRepository.existsByUserIdAndProductId(userId, productId);
+
+        List<ProductImage> productImageList = productImageRepository.findByProductIdAndIsDeleted(productId, false);
+
+        List<ProductCategory> productCategoryList = productCategoryRepository.findByProductIdAndIsDeleted(productId, false);
+
+        return GetProductDetail.of(product, productImageList, productCategoryList, isLiked);
+
     }
 }
