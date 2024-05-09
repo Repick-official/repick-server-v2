@@ -255,32 +255,37 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
     }
 
-    public List<GetType> getProductTypes(String type, String gender) {
-        List<GetType> types = new ArrayList<>();
+    public List<GetClassificationEach> getProductStyleTypes() {
+        List<GetClassificationEach> types = new ArrayList<>();
 
-        if (type.equals("스타일")) {
-            for (Style style : Style.values()) {
-                types.add(GetType.of(style));
-            }
-        }
-
-        else if(type.equals("카테고리")) {
-            if (gender.equals("남성")) {
-                for (Category category : Category.values()) {
-                    if (category.name().charAt(3) == '7' || category.name().charAt(3) == '8') {
-                        types.add(GetType.of(category));
-                    }
-                }
-            } else if (gender.equals("여성")) {
-                for (Category category : Category.values()) {
-                    if (category.name().charAt(3) == '6' || category.name().charAt(3) == '8') {
-                        types.add(GetType.of(category));
-                    }
-                }
-            }
+        for (Style style : Style.values()) {
+            types.add(GetClassificationEach.of(style));
         }
 
         return types;
+    }
+
+    public GetClassification getProductCategoryTypes(String gender) {
+        List<GetClassificationEach> outer = new ArrayList<>();
+        List<GetClassificationEach> top = new ArrayList<>();
+        List<GetClassificationEach> bottom = new ArrayList<>();
+        List<GetClassificationEach> skirt = new ArrayList<>();
+        List<GetClassificationEach> onePiece = new ArrayList<>();
+
+        for (Category category : Category.values()) {
+            if (category.getGender().equals(gender) || category.getGender().equals("공용")) {
+                switch (category.getParent()) {
+                    case "아우터" -> outer.add(GetClassificationEach.of(category));
+                    case "상의" -> top.add(GetClassificationEach.of(category));
+                    case "하의" -> bottom.add(GetClassificationEach.of(category));
+                    case "스커트" -> skirt.add(GetClassificationEach.of(category));
+                    case "원피스" -> onePiece.add(GetClassificationEach.of(category));
+                }
+            }
+        }
+
+
+        return new GetClassification(outer, top, bottom, skirt, onePiece);
     }
 
     public GetProductDetail getProductDetail(Long productId) {
