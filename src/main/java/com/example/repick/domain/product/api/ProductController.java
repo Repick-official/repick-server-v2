@@ -198,23 +198,23 @@ public class ProductController {
         return SuccessResponse.createSuccess(paymentService.validatePayment(postPayment));
     }
 
-    @Operation(summary = "상품 타입 조회",
+    @Operation(summary = "상품 타입 조회: 스타일",
             description = """
-                    # 상품 타입을 조회합니다.
-                    
-                    ### 조회 가능 타입
-                    
-                    - 여성 카테고리
-                    - 남성 카테고리
-                    - 스타일
-                    
+                    - 상품 스타일 타입을 조회합니다.
                     """)
-    @GetMapping("/classifications")
-    public SuccessResponse<List<GetType>> getProductTypes(
-            @Parameter(description = "타입 종류 (카테고리, 스타일)") @RequestParam String type,
-            @Parameter(description = "성별 (남성 또는 여성)") @RequestParam(required = false) String gender
-    ) {
-        return SuccessResponse.success(productService.getProductTypes(type, gender));
+    @GetMapping("/classification/styles")
+    public SuccessResponse<List<GetClassificationEach>> getProductTypes() {
+        return SuccessResponse.success(productService.getProductStyleTypes());
+    }
+
+    @Operation(summary = "상품 타입 조회: 카테고리",
+            description = """
+                    - 상품 카테고리 타입을 조회합니다.
+                    """)
+    @GetMapping("/classification/categories")
+    public SuccessResponse<GetClassification> getProductTypes(
+            @Parameter(description = "성별 (남성 또는 여성)") @RequestParam(required = false) String gender) {
+        return SuccessResponse.success(productService.getProductCategoryTypes(gender));
     }
 
     @Operation(summary = "상품 상세 조회",
