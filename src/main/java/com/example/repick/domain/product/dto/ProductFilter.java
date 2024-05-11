@@ -1,8 +1,6 @@
 package com.example.repick.domain.product.dto;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
