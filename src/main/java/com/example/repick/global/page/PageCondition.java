@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public record PageCondition(
-        @Schema(title = "페이지 번호", defaultValue = "0", description = "test") Integer page,
+        @Schema(title = "페이지 번호", defaultValue = "0") Integer page,
         @Schema(title = "페이지 사이즈", defaultValue = "4") Integer size
 ) {
     public Integer page() {
