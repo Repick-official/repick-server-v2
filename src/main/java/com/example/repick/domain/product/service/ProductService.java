@@ -9,7 +9,9 @@ import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.page.PageCondition;
+import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -155,33 +157,34 @@ public class ProductService {
 
     }
 
-    public List<GetProductThumbnail> getMainPageRecommendation(String gender, PageCondition pageCondition) {
+    public PageResponse<List<GetProductThumbnail>> getMainPageRecommendation(String gender, PageCondition pageCondition) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
-        return productRepository.findMainPageRecommendation(pageCondition.toPageable(), userId, gender);
+        Page<GetProductThumbnail> products = productRepository.findMainPageRecommendation(pageCondition.toPageable(), userId, gender);
+        return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
-    public List<GetProductThumbnail> getProducts(String type, ProductFilter productFilter, PageCondition pageCondition) {
+    public PageResponse<List<GetProductThumbnail>> getProducts(String type, ProductFilter productFilter, PageCondition pageCondition) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
-        switch (type) {
-            case "latest" -> {
-                return productRepository.findLatestProducts(userId, productFilter, pageCondition.toPageable());
-            }
-            case "lowest-price" -> {
-                return productRepository.findLowestProducts(userId, productFilter, pageCondition.toPageable());
-            }
-            case "highest-price" -> {
-                return productRepository.findHighestProducts(userId, productFilter, pageCondition.toPageable());
-            }
-            case "highest-discount" -> {
-                return productRepository.findHighestDiscountProducts(userId, productFilter, pageCondition.toPageable());
-            }
-            default -> throw new CustomException(INVALID_SORT_TYPE);
-        }
+        Page<GetProductThumbnail> products = getProductsBasedOnType(type, userId, productFilter, pageCondition);
+        return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
 
+    }
+
+    private Page<GetProductThumbnail> getProductsBasedOnType(String type, Long userId, ProductFilter productFilter, PageCondition pageCondition) {
+        return switch (type) {
+            case "latest" -> productRepository.findLatestProducts(userId, productFilter, pageCondition.toPageable());
+            case "lowest-price" ->
+                    productRepository.findLowestProducts(userId, productFilter, pageCondition.toPageable());
+            case "highest-price" ->
+                    productRepository.findHighestProducts(userId, productFilter, pageCondition.toPageable());
+            case "highest-discount" ->
+                    productRepository.findHighestDiscountProducts(userId, productFilter, pageCondition.toPageable());
+            default -> throw new CustomException(INVALID_SORT_TYPE);
+        };
     }
 
     public Boolean toggleLike(Long productId) {
@@ -194,10 +197,11 @@ public class ProductService {
         return true;
     }
 
-    public List<GetProductThumbnail> getLiked(String category, PageCondition pageCondition) {
+    public PageResponse<List<GetProductThumbnail>> getLiked(String category, PageCondition pageCondition) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-        return productRepository.findLikedProducts(category, user.getId(), pageCondition.toPageable());
+        Page<GetProductThumbnail> products = productRepository.findLikedProducts(category, user.getId(), pageCondition.toPageable());
+        return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
     public Boolean toggleCart(Long productId) {
@@ -210,10 +214,11 @@ public class ProductService {
         return true;
     }
 
-    public List<GetProductCart> getCarted(PageCondition pageCondition) {
+    public PageResponse<List<GetProductCart>> getCarted(PageCondition pageCondition) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-        return productRepository.findCartedProducts(user.getId(), pageCondition.toPageable());
+        Page<GetProductCart> products = productRepository.findCartedProducts(user.getId(), pageCondition.toPageable());
+        return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
     public Boolean changeSellingState(PostProductSellingState postProductSellingState) {

@@ -4,6 +4,7 @@ import com.example.repick.domain.product.dto.*;
 import com.example.repick.domain.product.service.PaymentService;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.global.page.PageCondition;
+import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -93,7 +94,7 @@ public class ProductController {
                     새로 업데이트 된 의류를 무한스크롤 방식으로 페이지를 조회합니다.
                     """)
     @GetMapping("/recommendation")
-    public SuccessResponse<List<GetProductThumbnail>> getMainPageRecommendation(
+    public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getMainPageRecommendation(
             @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
             @ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(productService.getMainPageRecommendation(gender, pageCondition));
@@ -107,7 +108,7 @@ public class ProductController {
                     각각의 파라미터는 옵셔널입니다.
                     """)
     @GetMapping("/{type}")
-    public SuccessResponse<List<GetProductThumbnail>> getProducts(
+    public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getProducts(
             @Parameter(description = "조회 타입 (latest, lowest-price, highest-price, highest-discount)") @PathVariable String type,
             @ParameterObject ProductFilter productFilter,
             @ParameterObject PageCondition pageCondition){
@@ -139,7 +140,7 @@ public class ProductController {
                     사용자가 좋아요한 상품을 조회합니다. 무한스크롤 방식을 사용합니다.
                     """)
     @GetMapping("/liked")
-    public SuccessResponse<List<GetProductThumbnail>> getLikedProduct(
+    public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getLikedProduct(
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
             @ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(productService.getLiked(category, pageCondition));
@@ -160,7 +161,7 @@ public class ProductController {
                     사용자가 장바구니에 담은 상품을 조회합니다. 무한스크롤 방식을 사용합니다.
                     """)
     @GetMapping("/carted")
-    public SuccessResponse<List<GetProductCart>> getCartedProduct(
+    public SuccessResponse<PageResponse<List<GetProductCart>>> getCartedProduct(
             @ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(productService.getCarted(pageCondition));
     }

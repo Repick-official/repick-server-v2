@@ -5,19 +5,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public record PageCondition(
-        @Schema(description = "1번째 페이지 조회시 null, 2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id", defaultValue = "0") Integer cursorId,
-        @Schema(description = "한 페이지에 가져올 에피소드 개수", defaultValue = "4") Integer pageSize
+        @Schema(description = "페이지 번호", defaultValue = "0") Integer page,
+        @Schema(description = "페이지 사이즈", defaultValue = "4") Integer size
 ) {
-    public Integer cursorId() {
-        return cursorId == null ? 0 : cursorId;
+    public Integer page() {
+        return page == null ? 0 : page;
     }
 
-    public Integer pageSize() {
-        return pageSize == null ? 4 : pageSize;
+    public Integer size() {
+        return size == null ? 4 : size;
     }
 
     public Pageable toPageable() {
-        return PageRequest.of(cursorId(), pageSize());
+        return PageRequest.of(page(), size());
     }
-
 }
