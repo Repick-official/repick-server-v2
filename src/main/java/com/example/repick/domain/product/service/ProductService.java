@@ -265,7 +265,7 @@ public class ProductService {
         return types;
     }
 
-    public GetClassification getProductCategoryTypes(String gender) {
+    public List<GetClassification> getProductCategoryTypes(String gender) {
         List<GetClassificationEach> outer = new ArrayList<>();
         List<GetClassificationEach> top = new ArrayList<>();
         List<GetClassificationEach> bottom = new ArrayList<>();
@@ -284,8 +284,15 @@ public class ProductService {
             }
         }
 
+        List<GetClassification> result = new ArrayList<>();
 
-        return new GetClassification(outer, top, bottom, skirt, onePiece);
+        result.add(GetClassification.of("아우터", outer));
+        result.add(GetClassification.of("상의", top));
+        result.add(GetClassification.of("하의", bottom));
+        result.add(GetClassification.of("스커트", skirt));
+        result.add(GetClassification.of("원피스", onePiece));
+
+        return result;
     }
 
     public GetProductDetail getProductDetail(Long productId) {

@@ -212,7 +212,7 @@ public class ProductController {
                     - 상품 카테고리 타입을 조회합니다.
                     """)
     @GetMapping("/classification/categories")
-    public SuccessResponse<GetClassification> getProductTypes(
+    public SuccessResponse<List<GetClassification>> getProductTypes(
             @Parameter(description = "성별 (남성 또는 여성)") @RequestParam(required = false) String gender) {
         return SuccessResponse.success(productService.getProductCategoryTypes(gender));
     }
