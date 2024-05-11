@@ -6,38 +6,37 @@ import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.dto.ProductFilter;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ProductRepositoryCustom {
 
-    Page<GetProductThumbnail> findLatestProducts(
+    List<GetProductThumbnail> findLatestProducts(
             Long userId,
             ProductFilter productFilter,
             Pageable pageable);
 
-    Page<GetProductThumbnail> findLowestProducts(
+    List<GetProductThumbnail> findLowestProducts(
             Long userId,
             ProductFilter productFilter,
             Pageable pageable);
 
-    Page<GetProductThumbnail> findHighestProducts(
+    List<GetProductThumbnail> findHighestProducts(
             Long userId,
             ProductFilter productFilter,
             Pageable pageable);
 
-    Page<GetProductThumbnail> findHighestDiscountProducts(
+    List<GetProductThumbnail> findHighestDiscountProducts(
             Long userId,
             ProductFilter productFilter,
             Pageable pageable);
 
-    Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender);
+    List<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender);
 
-    Page<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable);
+    List<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable);
 
-    Page<GetProductCart> findCartedProducts(Long userId, Pageable pageable);
+    List<GetProductCart> findCartedProducts(Long userId, Pageable pageable);
 
     List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long boxCollectId);
 

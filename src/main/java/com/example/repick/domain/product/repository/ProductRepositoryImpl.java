@@ -31,12 +31,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    private Page<GetProductThumbnail> findProducts(
+    private List<GetProductThumbnail> findProducts(
             Long userId,
             ProductFilter productFilter,
             Pageable pageable,
             OrderSpecifier<?> orderBy) {
-        JPAQuery<GetProductThumbnail> query = jpaQueryFactory
+        return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -67,40 +67,38 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(productFilter.sizes()),
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING))
-                .orderBy(orderBy);
-
-        long total = query.stream().count();
-        List<GetProductThumbnail> content = query
+                .orderBy(orderBy)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-
-        return new PageImpl<>(content, pageable, total);
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<GetProductThumbnail> findLatestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+    public List<GetProductThumbnail> findLatestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
         return findProducts(userId, productFilter, pageable, product.id.desc());
     }
 
     @Override
-    public Page<GetProductThumbnail> findLowestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+    public List<GetProductThumbnail> findLowestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
         return findProducts(userId, productFilter, pageable, product.price.asc());
     }
 
     @Override
-    public Page<GetProductThumbnail> findHighestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+    public List<GetProductThumbnail> findHighestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
         return findProducts(userId, productFilter, pageable, product.price.desc());
     }
 
     @Override
-    public Page<GetProductThumbnail> findHighestDiscountProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+    public List<GetProductThumbnail> findHighestDiscountProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
         return findProducts(userId, productFilter, pageable, product.discountRate.desc());
     }
 
     @Override
-    public Page<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable) {
-        JPAQuery<GetProductThumbnail> query = jpaQueryFactory
+    public List<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable) {
+        return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -120,19 +118,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         likeFilter(userId),
                         categoryFilter(category),
                         deletedFilter())
-                .orderBy(productLike.id.desc());
-        long total = query.stream().count();
-        List<GetProductThumbnail> content = query
+                .orderBy(productLike.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-
-        return new PageImpl<>(content, pageable, total);
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Page<GetProductCart> findCartedProducts(Long userId, Pageable pageable) {
-        JPAQuery<GetProductCart> query = jpaQueryFactory
+    public List<GetProductCart> findCartedProducts(Long userId, Pageable pageable) {
+        return jpaQueryFactory
                 .select(Projections.constructor(GetProductCart.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -147,15 +144,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(
                         cartFilter(userId),
                         deletedFilter())
-                .orderBy(productCart.id.desc());
-
-        long total = query.stream().count();
-        List<GetProductCart> content = query
+                .orderBy(productCart.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-
-        return new PageImpl<>(content, pageable, total);
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private BooleanExpression cartFilter(Long userId) {
@@ -225,8 +220,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender) {
-        JPAQuery<GetProductThumbnail> query =  jpaQueryFactory
+    public List<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender) {
+        return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -246,14 +241,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                     genderFilter(gender),
                     deletedFilter(),
                     sellingStateFilter(ProductStateType.SELLING))
-                .orderBy(product.id.desc());
-        long total = query.stream().count();
-        List<GetProductThumbnail> content = query
+                .orderBy(product.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-
-        return new PageImpl<>(content, pageable, total);
+                .fetch()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override

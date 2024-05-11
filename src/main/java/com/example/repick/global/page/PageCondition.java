@@ -5,18 +5,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public record PageCondition(
-        @Schema(description = "페이지 번호", defaultValue = "0") Integer page,
-        @Schema(description = "페이지 사이즈", defaultValue = "4") Integer size
+        @Schema(description = "페이지 번호", defaultValue = "0") Integer cursorId,
+        @Schema(description = "페이지 사이즈", defaultValue = "4") Integer pageSize
 ) {
-    public Integer page() {
-        return page == null ? 0 : page;
+    public Integer cursorId() {
+        return cursorId == null ? 0 : cursorId;
     }
 
-    public Integer size() {
-        return size == null ? 4 : size;
+    public Integer pageSize() {
+        return pageSize == null ? 4 : pageSize;
     }
 
     public Pageable toPageable() {
-        return PageRequest.of(page(), size());
+        return PageRequest.of(cursorId(), pageSize());
     }
+
 }
