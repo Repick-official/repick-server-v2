@@ -3,14 +3,19 @@ package com.example.repick.domain.product.repository;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
+import com.example.repick.domain.product.dto.ProductFilter;
 import com.example.repick.domain.product.entity.*;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,22 +32,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    private List<GetProductThumbnail> findProducts(
-            String keyword,
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
+    private Page<GetProductThumbnail> findProducts(
             Long userId,
+            ProductFilter productFilter,
+            Pageable pageable,
             OrderSpecifier<?> orderBy) {
-
-        return jpaQueryFactory
+        JPAQuery<GetProductThumbnail> query = jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -63,56 +58,50 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productState)
                 .on(product.id.eq(productState.productId))
                 .where(
-                        keywordFilter(keyword),
-                        genderFilter(gender),
-                        categoryFilter(category),
-                        stylesFilter(styles),
-                        priceFilter(minPrice, maxPrice),
-                        brandFilter(brandNames),
-                        qualityFilter(qualityRates),
-                        sizesFilter(sizes),
-                        ltProductId(cursorId),
+                        keywordFilter(productFilter.keyword()),
+                        genderFilter(productFilter.gender()),
+                        categoryFilter(productFilter.category()),
+                        stylesFilter(productFilter.styles()),
+                        priceFilter(productFilter.minPrice(), productFilter.maxPrice()),
+                        brandFilter(productFilter.brandNames()),
+                        qualityFilter(productFilter.qualityRates()),
+                        sizesFilter(productFilter.sizes()),
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING))
-                .orderBy(orderBy)
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+                .orderBy(orderBy);
+
+        long total = query.stream().count();
+        List<GetProductThumbnail> content = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override
-    public List<GetProductThumbnail> findLatestProducts(
-            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.id.desc());
+    public Page<GetProductThumbnail> findLatestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+        return findProducts(userId, productFilter, pageable, product.id.desc());
     }
 
     @Override
-    public List<GetProductThumbnail> findLowestProducts(
-            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.price.asc());
+    public Page<GetProductThumbnail> findLowestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+        return findProducts(userId, productFilter, pageable, product.price.asc());
     }
 
     @Override
-    public List<GetProductThumbnail> findHighestProducts(
-            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.price.desc());
+    public Page<GetProductThumbnail> findHighestProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+        return findProducts(userId, productFilter, pageable, product.price.desc());
     }
 
     @Override
-    public List<GetProductThumbnail> findHighestDiscountProducts(
-            String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames,
-            List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize, Long userId) {
-        return findProducts(keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize, userId, product.discountRate.desc());
+    public Page<GetProductThumbnail> findHighestDiscountProducts(Long userId, ProductFilter productFilter, Pageable pageable) {
+        return findProducts(userId, productFilter, pageable, product.discountRate.desc());
     }
 
     @Override
-    public List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId) {
-        return jpaQueryFactory
+    public Page<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable) {
+        JPAQuery<GetProductThumbnail> query = jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -131,19 +120,20 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(
                         likeFilter(userId),
                         categoryFilter(category),
-                        ltProductId(cursorId),
                         deletedFilter())
-                .orderBy(productLike.id.desc())
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+                .orderBy(productLike.id.desc());
+        long total = query.stream().count();
+        List<GetProductThumbnail> content = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override
-    public List<GetProductCart> findCartedProducts(Long cursorId, Integer pageSize, Long userId) {
-        return jpaQueryFactory
+    public Page<GetProductCart> findCartedProducts(Long userId, Pageable pageable) {
+        JPAQuery<GetProductCart> query = jpaQueryFactory
                 .select(Projections.constructor(GetProductCart.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -157,14 +147,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productCart.productId))
                 .where(
                         cartFilter(userId),
-                        ltProductId(cursorId),
                         deletedFilter())
-                .orderBy(productCart.id.desc())
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
+                .orderBy(productCart.id.desc());
+
+        long total = query.stream().count();
+        List<GetProductCart> content = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     private BooleanExpression cartFilter(Long userId) {
@@ -234,8 +226,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductStateType productStateType) {
-        return jpaQueryFactory
+    public Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender) {
+        JPAQuery<GetProductThumbnail> query =  jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -251,20 +243,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(productLike.userId.eq(userId)))
                 .leftJoin(productState)
                 .on(product.id.eq(productState.productId))
-                .where(ltProductId(cursorId),
+                .where(
                     genderFilter(gender),
                     deletedFilter(),
-                    sellingStateFilter(productStateType))
-                .orderBy(product.id.desc())
-                .limit(pageSize)
-                .fetch()
-                .stream()
-                .distinct()
-                .collect(Collectors.toList());
-    }
+                    sellingStateFilter(ProductStateType.SELLING))
+                .orderBy(product.id.desc());
+        long total = query.stream().count();
+        List<GetProductThumbnail> content = query
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
-    private BooleanExpression ltProductId(Long cursorId) {
-        return cursorId != null ? product.id.lt(cursorId) : Expressions.asBoolean(true).isTrue();
+        return new PageImpl<>(content, pageable, total);
     }
 
     @Override
