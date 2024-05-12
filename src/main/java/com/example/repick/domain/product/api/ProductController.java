@@ -204,6 +204,15 @@ public class ProductController {
         return SuccessResponse.success(productService.getProductCategoryTypes(gender));
     }
 
+    @Operation(summary = "상품 타입 조회: 브랜드",
+            description = """
+                    - 상품 브랜드 타입을 조회합니다.
+                    """)
+    @GetMapping("/classification/brands")
+    public SuccessResponse<List<GetBrandList>> getProductBrandTypes() {
+        return SuccessResponse.success(productService.getProductBrandTypes());
+    }
+
     @Operation(summary = "상품 상세 조회",
             description = """
                     상품 상세 조회를 합니다.

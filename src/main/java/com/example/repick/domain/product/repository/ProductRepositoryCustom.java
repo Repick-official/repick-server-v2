@@ -4,6 +4,7 @@ import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.dto.ProductFilter;
+import com.example.repick.domain.product.dto.GetBrandList;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
 import org.springframework.data.domain.Page;
@@ -42,4 +43,6 @@ public interface ProductRepositoryCustom {
     List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long boxCollectId);
 
     List<Product> findByProductSellingStateType(ProductStateType productStateType);
+
+    List<GetBrandList> getBrandList();
 }
