@@ -286,6 +286,10 @@ public class ProductService {
         return result;
     }
 
+    public List<GetBrandList> getProductBrandTypes() {
+        return productRepository.getBrandList();
+    }
+
     public GetProductDetail getProductDetail(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));

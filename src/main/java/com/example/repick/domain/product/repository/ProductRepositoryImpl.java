@@ -1,6 +1,7 @@
 package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
+import com.example.repick.domain.product.dto.GetBrandList;
 import com.example.repick.domain.product.dto.GetProductCart;
 import com.example.repick.domain.product.dto.GetProductThumbnail;
 import com.example.repick.domain.product.dto.ProductFilter;
@@ -288,6 +289,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productState)
                 .on(product.id.eq(productState.productId))
                 .where(sellingStateFilter(productStateType))
+                .fetch();
+    }
+
+    @Override
+    public List<GetBrandList> getBrandList() {
+        return jpaQueryFactory
+                .select(Projections.constructor(GetBrandList.class, product.brandName))
+                .from(product)
+                .groupBy(product.brandName)
                 .fetch();
     }
 }
