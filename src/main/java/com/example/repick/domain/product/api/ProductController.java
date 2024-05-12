@@ -3,12 +3,15 @@ package com.example.repick.domain.product.api;
 import com.example.repick.domain.product.dto.*;
 import com.example.repick.domain.product.service.PaymentService;
 import com.example.repick.domain.product.service.ProductService;
+import com.example.repick.global.page.PageCondition;
+import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,12 +94,10 @@ public class ProductController {
                     새로 업데이트 된 의류를 무한스크롤 방식으로 페이지를 조회합니다.
                     """)
     @GetMapping("/recommendation")
-    public SuccessResponse<List<GetProductThumbnail>> getMainPageRecommendation(
+    public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getMainPageRecommendation(
             @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getMainPageRecommendation(gender, cursorId, pageSize));
+            @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productService.getMainPageRecommendation(gender, pageCondition));
     }
 
     @Operation(summary = "상품 조회",
@@ -107,21 +108,11 @@ public class ProductController {
                     각각의 파라미터는 옵셔널입니다.
                     """)
     @GetMapping("/{type}")
-    public SuccessResponse<List<GetProductThumbnail>> getProducts(
+    public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getProducts(
             @Parameter(description = "조회 타입 (latest, lowest-price, highest-price, highest-discount)") @PathVariable String type,
-            @Parameter(description = "검색어") @RequestParam(required = false) String keyword,
-            @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
-            @Parameter(description = "카테고리") @RequestParam(required = false) String category,
-            @Parameter(description = "스타일") @RequestParam(required = false) List<String> styles,
-            @Parameter(description = "최소 가격") @RequestParam(required = false) Long minPrice,
-            @Parameter(description = "최대 가격") @RequestParam(required = false) Long maxPrice,
-            @Parameter(description = "브랜드") @RequestParam(required = false) List<String> brandNames,
-            @Parameter(description = "상품등급") @RequestParam(required = false) List<String> qualityRates,
-            @Parameter(description = "사이즈") @RequestParam(required = false) List<String> sizes,
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize){
-        return SuccessResponse.success(productService.getProducts(type, keyword, gender, category, styles, minPrice, maxPrice, brandNames, qualityRates, sizes, cursorId, pageSize));
+            @ParameterObject ProductFilter productFilter,
+            @ParameterObject PageCondition pageCondition){
+        return SuccessResponse.success(productService.getProducts(type, productFilter, pageCondition));
     }
 
     // TODO: !!ADMIN ACCESS REQUIRED!!
@@ -149,12 +140,10 @@ public class ProductController {
                     사용자가 좋아요한 상품을 조회합니다. 무한스크롤 방식을 사용합니다.
                     """)
     @GetMapping("/liked")
-    public SuccessResponse<List<GetProductThumbnail>> getLikedProduct(
+    public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getLikedProduct(
             @Parameter(description = "카테고리") @RequestParam(required = false) String category,
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getLiked(category, cursorId, pageSize));
+            @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productService.getLiked(category, pageCondition));
     }
 
     @Operation(summary = "장바구니 토글",
@@ -172,11 +161,9 @@ public class ProductController {
                     사용자가 장바구니에 담은 상품을 조회합니다. 무한스크롤 방식을 사용합니다.
                     """)
     @GetMapping("/carted")
-    public SuccessResponse<List<GetProductCart>> getCartedProduct(
-            @Parameter(description = "1번째 페이지 조회시 null, " +
-                    "2번째 이상 페이지 조회시 직전 페이지의 마지막 episode id") @RequestParam(required = false) Long cursorId,
-            @Parameter(description = "한 페이지에 가져올 에피소드 개수, 기본값 4") @RequestParam(required = false) Integer pageSize) {
-        return SuccessResponse.success(productService.getCarted(cursorId, pageSize));
+    public SuccessResponse<PageResponse<List<GetProductCart>>> getCartedProduct(
+            @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productService.getCarted(pageCondition));
     }
 
     @Operation(summary = "결제 사전 검증",
