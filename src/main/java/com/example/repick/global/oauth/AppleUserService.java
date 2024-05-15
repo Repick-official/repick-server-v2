@@ -2,6 +2,7 @@ package com.example.repick.global.oauth;
 
 import com.example.repick.domain.user.dto.ApplePublicKeyResponse;
 import com.example.repick.domain.user.dto.AppleUserDto;
+import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -20,7 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +33,7 @@ import java.security.spec.RSAPublicKeySpec;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.example.repick.global.error.exception.ErrorCode.APPLE_LOGIN_FAILED;
@@ -53,6 +57,7 @@ public class AppleUserService {
 
 
 
+    @Transactional
     public Pair<TokenResponse, Boolean> appleLogin(String id_token) {
         validate(id_token);
 
@@ -64,6 +69,7 @@ public class AppleUserService {
 
         return Pair.of(securityService.usersAuthorizationInput(authentication), appleUser.getRight());
     }
+
 
     public AppleUserDto getUserInfo(String idToken) {
         try {
@@ -89,28 +95,25 @@ public class AppleUserService {
     }
 
     private Pair<User, Boolean> registerAppleUserIfNeed (AppleUserDto appleUserDto) {
-
-        String appleEmail = appleUserDto.getEmail();
-        User appleUser = userRepository.findByProviderId(appleEmail)
-                .orElse(null);
-
-        if (appleUser == null) {
-
+        Optional<User> appleUser = userRepository.findByProviderId(appleUserDto.getId());
+        if(appleUser.isPresent()){
+            return Pair.of(appleUser.get(), false);
+        }
+        else{
             String password = UUID.randomUUID().toString();
 
-            appleUser = User.builder()
-                    .email(appleEmail)
+            User newUser = User.builder()
+                    .oAuthProvider(OAuthProvider.APPLE)
+                    .providerId(appleUserDto.getId())
+                    .email(appleUserDto.getEmail())
                     .role(Role.USER)
                     .password(password)
                     .pushAllow(false)
                     .build();
-
-            userRepository.save(appleUser);
-
-            return Pair.of(appleUser, true);
-
+            userRepository.save(newUser);
+            System.out.println("providerId = " + newUser.getProviderId());
+            return Pair.of(newUser, true);
         }
-        return Pair.of(appleUser, false);
     }
 
     private ApplePublicKeyResponse getApplePublicKey() {
