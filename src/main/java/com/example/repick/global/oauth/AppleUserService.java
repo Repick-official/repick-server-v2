@@ -111,7 +111,6 @@ public class AppleUserService {
                     .pushAllow(false)
                     .build();
             userRepository.save(newUser);
-            System.out.println("providerId = " + newUser.getProviderId());
             return Pair.of(newUser, true);
         }
     }
