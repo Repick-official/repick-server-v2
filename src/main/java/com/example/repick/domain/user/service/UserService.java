@@ -127,7 +127,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        userSmsVerificationInfoRepository.deleteById(user.getId().toString());
+        userSmsVerificationInfoRepository.deleteById(userSmsVerificationInfo.getId());
 
         return true;
     }
