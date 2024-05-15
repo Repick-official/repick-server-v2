@@ -143,12 +143,15 @@ public class ClothingSalesService {
 
         List<BoxCollect> boxCollectList = boxService.getBoxCollectByUser(user.getId())
                 // boxCollectStateType이 SELLING인 것만 가져온다.
-                .stream().filter(boxCollect -> boxCollect.getBoxCollectStateList().stream().anyMatch(boxCollectState -> boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)))
+                .stream()
+                .filter(boxCollect -> boxCollect.getBoxCollectStateList().stream().anyMatch(boxCollectState -> boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)))
                 .toList();
 
         List<BagInit> bagInitList = bagService.getBagInitByUser(user.getId())
                 // bagCollectStateType이 SELLING인 것만 가져온다.
-                .stream().filter(bagInit -> bagInit.getBagCollect().getBagCollectStateList().stream().anyMatch(bagCollectState -> bagCollectState.getBagCollectStateType().equals(BagCollectStateType.SELLING)))
+                .stream()
+                .filter(bagInit -> bagInit.getBagCollect() != null)
+                .filter(bagInit -> bagInit.getBagCollect().getBagCollectStateList().stream().anyMatch(bagCollectState -> bagCollectState.getBagCollectStateType().equals(BagCollectStateType.SELLING)))
                 .toList();
 
         boxCollectList.forEach(boxCollect -> {
