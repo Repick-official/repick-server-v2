@@ -5,6 +5,7 @@ import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
+import com.example.repick.domain.product.service.PaymentService;
 import com.example.repick.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +22,7 @@ public class ProductScheduler {
 
     private final ProductRepository productRepository;
     private final ProductOrderRepository productOrderRepository;
+    private final PaymentService paymentService;
     private final ProductService productService;
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -52,6 +54,7 @@ public class ProductScheduler {
         productOrders.forEach(po -> {
             if (Duration.between(po.getCreatedDate(), LocalDateTime.now()).toDays() >= 7) {
                 po.confirmOrder();
+                paymentService.addPointToSeller(po);
             }
         });
         productOrderRepository.saveAll(productOrders);

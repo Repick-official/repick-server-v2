@@ -3,10 +3,7 @@ package com.example.repick.domain.product.service;
 import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
 import com.example.repick.domain.product.dto.productOrder.PostPayment;
 import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
-import com.example.repick.domain.product.entity.Payment;
-import com.example.repick.domain.product.entity.PaymentStatus;
-import com.example.repick.domain.product.entity.ProductOrder;
-import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.product.repository.ProductCartRepository;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
@@ -147,6 +144,34 @@ public class PaymentService {
         productOrder.confirmOrder();
         productOrderRepository.save(productOrder);
 
+        addPointToSeller(productOrder);
+
         return true;
     }
+
+    public void addPointToSeller(ProductOrder productOrder){
+        long profit = productOrder.getPayment().getAmount().longValue();
+        if (profit >= 300000) {
+            profit *= 0.8;
+        } else if (profit >= 200000) {
+            profit *= 0.7;
+        } else if (profit >= 100000) {
+            profit *= 0.6;
+        } else if (profit >= 50000) {
+            profit *= 0.5;
+        } else if (profit >= 30000) {
+            profit *= 0.4;
+        } else if (profit >= 10000) {
+            profit *= 0.3;
+        } else {
+            profit *= 0.2;
+        }
+
+        User seller = productRepository.findById(productOrder.getProductId())
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID))
+                .getUser();
+        seller.addPoint(profit);
+        userRepository.save(seller);
+    }
+
 }
