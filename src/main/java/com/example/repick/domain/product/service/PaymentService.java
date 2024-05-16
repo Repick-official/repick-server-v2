@@ -1,8 +1,8 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.GetProductOrderPreparation;
-import com.example.repick.domain.product.dto.PostPayment;
-import com.example.repick.domain.product.dto.PostProductOrder;
+import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
+import com.example.repick.domain.product.dto.productOrder.PostPayment;
+import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
 import com.example.repick.domain.product.entity.Payment;
 import com.example.repick.domain.product.entity.PaymentStatus;
 import com.example.repick.domain.product.entity.ProductOrder;

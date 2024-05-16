@@ -1,4 +1,4 @@
-package com.example.repick.domain.product.dto;
+package com.example.repick.domain.product.dto.productOrder;
 
 import com.example.repick.domain.product.entity.Payment;
 import com.example.repick.domain.product.entity.PaymentStatus;

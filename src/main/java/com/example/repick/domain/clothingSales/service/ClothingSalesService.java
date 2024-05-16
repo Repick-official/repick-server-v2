@@ -3,7 +3,7 @@ package com.example.repick.domain.clothingSales.service;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
-import com.example.repick.domain.product.dto.PostProductSellingState;
+import com.example.repick.domain.product.dto.product.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;

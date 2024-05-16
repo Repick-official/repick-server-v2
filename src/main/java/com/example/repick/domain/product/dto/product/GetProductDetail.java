@@ -1,4 +1,4 @@
-package com.example.repick.domain.product.dto;
+package com.example.repick.domain.product.dto.product;
 
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductCategory;

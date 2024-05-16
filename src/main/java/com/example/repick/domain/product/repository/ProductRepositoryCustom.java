@@ -1,10 +1,10 @@
 package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
-import com.example.repick.domain.product.dto.GetProductCart;
-import com.example.repick.domain.product.dto.GetProductThumbnail;
-import com.example.repick.domain.product.dto.ProductFilter;
-import com.example.repick.domain.product.dto.GetBrandList;
+import com.example.repick.domain.product.dto.productOrder.GetProductCart;
+import com.example.repick.domain.product.dto.product.GetProductThumbnail;
+import com.example.repick.domain.product.dto.product.ProductFilter;
+import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
 import org.springframework.data.domain.Page;
