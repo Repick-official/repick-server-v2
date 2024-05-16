@@ -66,7 +66,7 @@ public enum ErrorCode {
     USER_SMS_VERIFICATION_NOT_FOUND(404, "A001", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "A002", "인증번호가 만료되었습니다."),
     // Apple OAuth
-    APPLE_LOGIN_FAILED(400, "A011", "인증 코드가 올바르지 않거나 만료되었습니다."),
+    APPLE_LOGIN_FAILED(400, "A011", "유효하지 않은 id 토큰입니다"),
     //FCM
     USER_FCM_TOKEN_NOT_FOUND(404, "A021", "존재하지 않는 FCM 토큰입니다."),
     // Advertisement
