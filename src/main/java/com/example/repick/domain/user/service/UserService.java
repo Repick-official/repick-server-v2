@@ -91,6 +91,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional
     public Boolean initSmsVerification(PostInitSmsVerification postInitSmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -110,6 +111,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional
     public Boolean verifySmsVerification(PostVerifySmsVerification postVerifySmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -127,7 +129,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        userSmsVerificationInfoRepository.deleteById(userSmsVerificationInfo.getId());
+        userSmsVerificationInfoRepository.deleteAllByUserId(user.getId());
 
         return true;
     }
