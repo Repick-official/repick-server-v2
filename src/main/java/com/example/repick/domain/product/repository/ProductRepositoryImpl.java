@@ -9,6 +9,7 @@ import com.example.repick.domain.product.entity.*;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productName,
                         product.price,
                         product.discountRate,
+                        Expressions.numberTemplate(BigDecimal.class, "({0} * (1 - {1} / 100))",
+                                product.price, product.discountRate),
                         product.brandName,
                         product.qualityRate.stringValue(),
                         productLike.id.isNotNull()))
