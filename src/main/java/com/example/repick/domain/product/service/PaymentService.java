@@ -14,7 +14,6 @@ import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.error.exception.CustomException;
-import com.example.repick.global.util.PriceUtil;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
@@ -51,7 +50,7 @@ public class PaymentService {
         String merchantUid = user.getProviderId() + System.currentTimeMillis();
         BigDecimal totalPrice = postProductOrder.productIds().stream()
                 .map(productId -> productRepository.findById(productId).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID)))
-                .map(product -> PriceUtil.calculateDiscountPrice(product.getPrice(), product.getDiscountRate()))
+                .map(product -> BigDecimal.valueOf(product.getPrice() * (1 - product.getDiscountRate() / 100.0)))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
         try{

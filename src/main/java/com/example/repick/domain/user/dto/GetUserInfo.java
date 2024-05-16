@@ -1,7 +1,6 @@
 package com.example.repick.domain.user.dto;
 
 import com.example.repick.domain.user.entity.User;
-import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record GetUserInfo (
@@ -12,9 +11,8 @@ public record GetUserInfo (
         @Schema(description = "유저 등급", example = "아직 설정되지 않음") String userClass,
         @Schema(description = "휴대폰 번호", example = "010-1234-5678") String phoneNumber,
         @Schema(description = "상의 사이즈", example = "M") String topSize,
-        @Schema(description = "하의 사이즈", example = "M") String bottomSize,
-        @Schema(description = "주소 정보") Address address
-        ) {
+        @Schema(description = "하의 사이즈", example = "M") String bottomSize
+) {
     public static GetUserInfo of(User user) {
         return new GetUserInfo(
                 user.getEmail(),
@@ -24,8 +22,7 @@ public record GetUserInfo (
                 user.getUserClass().getValue(),
                 user.getPhoneNumber(),
                 user.getTopSize(),
-                user.getBottomSize(),
-                user.getDefaultAddress()
+                user.getBottomSize()
         );
     }
 }
