@@ -19,7 +19,9 @@ public class Product extends BaseEntity {
     private Long price;
     private Long predictPrice; // 예측정가
     private Long suggestedPrice; // 제안가
+    private Long discountPrice; // 할인가
     private Long discountRate;
+    private Long predictPriceDiscountRate; // 예측정가 대비 할인율
     private String brandName;
     private String description;
     private String size;
@@ -33,13 +35,31 @@ public class Product extends BaseEntity {
     private String thumbnailImageUrl;
 
     @Builder
-    public Product(User user, String productName, Long price, Long predictPrice, Long suggestedPrice, Long discountRate, String brandName, String description, String size, QualityRate qualityRate, String thumbnailImageUrl, Gender gender, Boolean isBoxCollect, Long clothingSalesId) {
+    public Product(
+            User user,
+            String productName,
+            Long price,
+            Long predictPrice,
+            Long suggestedPrice,
+            Long discountPrice,
+            Long discountRate,
+            Long predictPriceDiscountRate,
+            String brandName,
+            String description,
+            String size,
+            QualityRate qualityRate,
+            String thumbnailImageUrl,
+            Gender gender,
+            Boolean isBoxCollect,
+            Long clothingSalesId) {
         this.user = user;
         this.productName = productName;
         this.price = price;
         this.predictPrice = predictPrice;
         this.suggestedPrice = suggestedPrice;
+        this.discountPrice = discountPrice;
         this.discountRate = discountRate;
+        this.predictPriceDiscountRate = predictPriceDiscountRate;
         this.brandName = brandName;
         this.description = description;
         this.size = size;
@@ -56,7 +76,9 @@ public class Product extends BaseEntity {
         this.price = product.price;
         this.predictPrice = product.predictPrice;
         this.suggestedPrice = product.suggestedPrice;
+        this.discountPrice = product.discountPrice;
         this.discountRate = product.discountRate;
+        this.predictPriceDiscountRate = product.predictPriceDiscountRate;
         this.brandName = product.brandName;
         this.description = product.description;
         this.size = product.size;
@@ -69,6 +91,12 @@ public class Product extends BaseEntity {
     }
     public void updatePrice(Long price) {
         this.price = price;
+    }
+    public void updateDiscountPrice(Long discountPrice) {
+        this.discountPrice = discountPrice;
+    }
+    public void updatePredictDiscountRate(Long predictPriceDiscountRate) {
+        this.predictPriceDiscountRate = predictPriceDiscountRate;
     }
 
     public void updateDiscountRate(Long discountRate) {

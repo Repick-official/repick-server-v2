@@ -241,7 +241,10 @@ public class ClothingSalesService {
         List<Product> productList = productService.findByClothingSales(true, boxCollectId);
 
         productList.forEach(clothingSalesValidator::productPriceNotSet);
-        productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중")));
+        productList.forEach(product -> {
+            productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
+        });
 
         boxService.updateBoxCollectState(new PostBoxCollectState(boxCollectId, "판매진행"));
     }
@@ -254,7 +257,10 @@ public class ClothingSalesService {
         List<Product> productList = productService.findByClothingSales(false, bagInitId);
 
         productList.forEach(clothingSalesValidator::productPriceNotSet);
-        productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중")));
+        productList.forEach(product -> {
+            productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
+        });
 
         bagService.updateBagCollectState(new PostBagCollectState(bagInit.getBagCollect().getId(), "판매진행"));
     }

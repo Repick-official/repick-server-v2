@@ -43,7 +43,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.thumbnailImageUrl,
                         product.productName,
                         product.price,
+                        product.discountPrice,
                         product.discountRate,
+                        product.predictPriceDiscountRate,
                         product.brandName,
                         product.qualityRate.stringValue(),
                         productLike.id.isNotNull()))
@@ -107,7 +109,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.thumbnailImageUrl,
                         product.productName,
                         product.price,
+                        product.discountPrice,
                         product.discountRate,
+                        product.predictPriceDiscountRate,
                         product.brandName,
                         product.qualityRate.stringValue(),
                         productLike.id.isNotNull()))
@@ -141,7 +145,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productName,
                         product.size,
                         product.price,
-                        product.discountRate))
+                        product.discountPrice,
+                        product.discountRate,
+                        product.predictPriceDiscountRate))
                 .from(product)
                 .leftJoin(productCart)
                 .on(product.id.eq(productCart.productId))
@@ -233,7 +239,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.thumbnailImageUrl,
                         product.productName,
                         product.price,
+                        product.discountPrice,
                         product.discountRate,
+                        product.predictPriceDiscountRate,
                         product.brandName,
                         product.qualityRate.stringValue(),
                         productLike.id.isNotNull()))
@@ -266,7 +274,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productName,
                         product.brandName,
                         product.suggestedPrice,
-                        product.price))
+                        product.price,
+                        product.discountPrice,
+                        product.discountRate,
+                        product.predictPriceDiscountRate))
                 .from(product)
                 .leftJoin(productState).on(product.id.eq(productState.productId))
                 .where(product.isBoxCollect.eq(isBoxCollect)

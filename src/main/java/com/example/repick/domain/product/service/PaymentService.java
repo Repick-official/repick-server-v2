@@ -28,7 +28,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_PAYMENT_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,8 +49,9 @@ public class PaymentService {
         String merchantUid = user.getProviderId() + System.currentTimeMillis();
         BigDecimal totalPrice = postProductOrder.productIds().stream()
                 .map(productId -> productRepository.findById(productId).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID)))
-                .map(product -> BigDecimal.valueOf(product.getPrice() * (1 - product.getDiscountRate() / 100.0)))
+                .map(product -> BigDecimal.valueOf(product.getDiscountPrice()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
         try{
             // 사전 결제 검증 요청

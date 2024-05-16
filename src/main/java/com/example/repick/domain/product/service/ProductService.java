@@ -10,6 +10,7 @@ import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
+import com.example.repick.global.util.PriceUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -224,6 +225,12 @@ public class ProductService {
     public Boolean changeSellingState(PostProductSellingState postProductSellingState) {
         addProductSellingState(postProductSellingState.productId(), ProductStateType.fromValue(postProductSellingState.sellingState()));
         return true;
+    }
+
+    public void calculateDiscountPriceAndPredictDiscountRateAndSave(Product product) {
+        product.updateDiscountPrice(PriceUtil.calculateDiscountPrice(product.getPrice(), product.getDiscountRate()));
+        product.updatePredictDiscountRate(PriceUtil.calculateDiscountRate(product.getPredictPrice(), product.getDiscountPrice()));
+        productRepository.save(product);
     }
 
     public Product getProduct(Long productId) {
