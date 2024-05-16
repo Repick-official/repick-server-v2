@@ -134,4 +134,19 @@ public class PaymentService {
 
         return true;
     }
+
+    @Transactional
+    public Boolean confirmProductOrder(Long productOrderId){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+
+        if (productOrder.isConfirmed()) {
+            throw new CustomException(PRODUCT_ORDER_ALREADY_CONFIRMED);
+        }
+
+        productOrder.confirmOrder();
+        productOrderRepository.save(productOrder);
+
+        return true;
+    }
 }

@@ -20,6 +20,8 @@ public class ProductOrder extends BaseEntity{
 
     private Long productId;
 
+    private boolean isConfirmed;
+
     @ManyToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
@@ -29,6 +31,7 @@ public class ProductOrder extends BaseEntity{
         this.userId = userId;
         this.productId = productId;
         this.payment = payment;
+        this.isConfirmed = false;
     }
 
     public static ProductOrder of(Long userId, Long productId, Payment payment) {
@@ -37,5 +40,9 @@ public class ProductOrder extends BaseEntity{
                 .productId(productId)
                 .payment(payment)
                 .build();
+    }
+
+    public void confirmOrder() {
+        this.isConfirmed = true;
     }
 }

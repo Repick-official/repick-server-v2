@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long> {
     List<ProductOrder> findByPaymentId(Long paymentId);
+
+    List<ProductOrder> findByConfirmed(boolean isConfirmed);
+
 }

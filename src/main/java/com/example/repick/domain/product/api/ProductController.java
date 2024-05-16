@@ -189,6 +189,16 @@ public class ProductController {
         return SuccessResponse.createSuccess(paymentService.validatePayment(postPayment));
     }
 
+    @Operation(summary = "상품 구매 확정",
+            description = """
+                    구매를 확정합니다.
+                    판매자에게 정산금이 입금되고, 구매자는 이후 환불이 불가합니다.
+                    """)
+    @PostMapping("/confirm/{productOrderID}")
+    public SuccessResponse<Boolean> confirmOrder(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID) {
+        return SuccessResponse.createSuccess(paymentService.confirmProductOrder(productOrderID));
+    }
+
     @Operation(summary = "상품 타입 조회: 스타일",
             description = """
                     - 상품 스타일 타입을 조회합니다.
