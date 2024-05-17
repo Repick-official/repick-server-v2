@@ -34,7 +34,7 @@ public class ProductScheduler {
         updateDiscountRate(sellingProducts, p -> p.getPrice() >= 100000 && p.getPrice() < 200000, 80);
         updateDiscountRate(sellingProducts, p -> p.getPrice() < 100000, 90);
 
-        productRepository.saveAll(sellingProducts);
+        sellingProducts.forEach(productService::calculateDiscountPriceAndPredictDiscountRateAndSave);
     }
 
     private void updateDiscountRate(List<Product> products, Predicate<Product> priceRange, long maxDiscountRate) {
