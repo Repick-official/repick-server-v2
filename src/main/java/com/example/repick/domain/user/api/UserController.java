@@ -218,6 +218,13 @@ public class UserController {
         return SuccessResponse.success(userService.verifySmsVerification(postVerifySmsVerification));
     }
 
-
+    @Operation(summary = "마이페이지",
+            description = """
+                    유저 닉네임, 포인트, 배송 정보를 불러옵니다.
+                    """)
+    @GetMapping("/mypage")
+    public SuccessResponse<GetMyPage> getMyPage() {
+        return SuccessResponse.success(userService.getMyPage());
+    }
 
 }

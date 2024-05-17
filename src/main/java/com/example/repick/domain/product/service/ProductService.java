@@ -2,7 +2,6 @@ package com.example.repick.domain.product.service;
 
 import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
-import com.example.repick.domain.product.dto.productOrder.ProductOrderInformation;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
@@ -36,7 +35,6 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final ProductCartRepository productCartRepository;
     private final ProductStateRepository productSellingStateRepository;
-    private final ProductOrderRepository productOrderRepository;
     private final ProductValidator productValidator;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
@@ -313,15 +311,4 @@ public class ProductService {
 
     }
 
-    public ProductOrderInformation getProductOrderInformation(){
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        long preparing = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.SHIPPING_PREPARING).size();
-        long shipping = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.SHIPPING).size();
-        long delivered = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.DELIVERED).size();
-        long scheduled = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.PAYMENT_COMPLETED).size();
-
-        return ProductOrderInformation.of(preparing, shipping, delivered, scheduled);
-    }
 }

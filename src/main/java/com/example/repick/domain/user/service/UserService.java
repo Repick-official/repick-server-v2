@@ -1,6 +1,8 @@
 package com.example.repick.domain.user.service;
 
 import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
+import com.example.repick.domain.product.entity.ProductOrderState;
+import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.entity.UserSmsVerificationInfo;
@@ -37,6 +39,8 @@ public class UserService {
     private final MessageService messageService;
     private final UserSmsVerificationInfoRepository userSmsVerificationInfoRepository;
     private final TokenService tokenService;
+    private final ProductOrderRepository productOrderRepository;
+
 
     public GetUserInfo getUserInfo() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -145,5 +149,16 @@ public class UserService {
         String accessToken = tokenService.createAccessToken(new UserDetailsImpl(user));
 
         return new TokenResponse(accessToken, postTokenRefresh.refreshToken());
+    }
+
+    public GetMyPage getMyPage() {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        long preparing = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.SHIPPING_PREPARING).size();
+        long shipping = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.SHIPPING).size();
+        long delivered = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.DELIVERED).size();
+        long scheduled = productOrderRepository.findByUserIdAAndProductOrderState(user.getId(), ProductOrderState.PAYMENT_COMPLETED).size();
+        // 닉네임, 포인트, 배송 정보
+        return GetMyPage.of(user.getNickname(), user.getPoint(), preparing, shipping, delivered, scheduled);
     }
 }
