@@ -60,7 +60,7 @@ public class PaymentService {
 
             // ProductOrder 저장
             List<ProductOrder> productOrders  = postProductOrder.productIds().stream()
-                    .map(productId -> ProductOrder.of(user.getId(), productId, payment))
+                    .map(productId -> ProductOrder.of(user.getId(), productId, payment, ProductOrderState.DEFAULT))
                     .toList();
             productOrderRepository.saveAll(productOrders);
 
@@ -122,9 +122,10 @@ public class PaymentService {
         payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
         paymentRepository.save(payment);
 
-        // 장바구니 삭제 및 ProductSellingState 추가
-        List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
+        // ProductOrderState 업데이트, 장바구니 삭제, ProductSellingState 추가
+        List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
         productOrders.forEach(productOrder -> {
+            productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
             productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
         });

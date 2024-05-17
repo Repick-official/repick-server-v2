@@ -22,27 +22,36 @@ public class ProductOrder extends BaseEntity{
 
     private boolean isConfirmed;
 
+    private ProductOrderState productOrderState;
+
     @ManyToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
     @Builder
-    public ProductOrder(Long userId, Long productId, Payment payment) {
+    public ProductOrder(Long userId, Long productId, Payment payment, boolean isConfirmed, ProductOrderState productOrderState) {
         this.userId = userId;
         this.productId = productId;
         this.payment = payment;
-        this.isConfirmed = false;
+        this.isConfirmed = isConfirmed;
+        this.productOrderState = productOrderState;
     }
 
-    public static ProductOrder of(Long userId, Long productId, Payment payment) {
+    public static ProductOrder of(Long userId, Long productId, Payment payment, ProductOrderState productOrderState) {
         return ProductOrder.builder()
                 .userId(userId)
                 .productId(productId)
                 .payment(payment)
+                .isConfirmed(false)
+                .productOrderState(productOrderState)
                 .build();
     }
 
     public void confirmOrder() {
         this.isConfirmed = true;
+    }
+
+    public void updateProductOrderState(ProductOrderState productOrderState) {
+        this.productOrderState = productOrderState;
     }
 }
