@@ -7,11 +7,11 @@ public record GetMyPage(
         @Schema(description = "리픽 포인트") long point,
         @Schema(description = "배송 준비") long preparing,
         @Schema(description = "배송 중") long shipping,
-        @Schema(description = "배송 완료") long delivered,
-        @Schema(description = "배송 예정") long scheduled
+        @Schema(description = "도착") long delivered,
+        @Schema(description = "구매 확정") long confirmed
         ) {
 
-        public static GetMyPage of(String nickname, long point, long preparing, long shipping, long delivered, long scheduled) {
-                return new GetMyPage(nickname, point, preparing, shipping, delivered, scheduled);
+        public static GetMyPage of(String nickname, long point, long preparing, long shipping, long delivered, long confirmed) {
+                return new GetMyPage(nickname, point, preparing, shipping, delivered, confirmed);
         }
 }

@@ -1,6 +1,7 @@
 package com.example.repick.domain.user.service;
 
 import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
+import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductOrderState;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.user.dto.*;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.TOKEN_EXPIRED;
 
@@ -156,11 +158,26 @@ public class UserService {
     public GetMyPage getMyPage() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        long preparing = productOrderRepository.findByUserIdAndProductOrderState(user.getId(), ProductOrderState.SHIPPING_PREPARING).size();
-        long shipping = productOrderRepository.findByUserIdAndProductOrderState(user.getId(), ProductOrderState.SHIPPING).size();
-        long delivered = productOrderRepository.findByUserIdAndProductOrderState(user.getId(), ProductOrderState.DELIVERED).size();
-        long scheduled = productOrderRepository.findByUserIdAndProductOrderState(user.getId(), ProductOrderState.PAYMENT_COMPLETED).size();
+
+        List<ProductOrder> productOrders = productOrderRepository.findByUserId(user.getId());
+        long preparing = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.PAYMENT_COMPLETED ||
+                        productOrder.getProductOrderState() == ProductOrderState.SHIPPING_PREPARING)
+                .count();
+
+        long shipping = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.SHIPPING)
+                .count();
+
+        long delivered = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.DELIVERED && !productOrder.isConfirmed())
+                .count();
+
+        long confirmed = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.DELIVERED && productOrder.isConfirmed())
+                .count();
+
         // 닉네임, 포인트, 배송 정보
-        return GetMyPage.of(user.getNickname(), user.getPoint(), preparing, shipping, delivered, scheduled);
+        return GetMyPage.of(user.getNickname(), user.getPoint(), preparing, shipping, delivered, confirmed);
     }
 }
