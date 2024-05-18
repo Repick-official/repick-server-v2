@@ -1,4 +1,4 @@
-package com.example.repick.domain.product.dto;
+package com.example.repick.domain.product.dto.productOrder;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
