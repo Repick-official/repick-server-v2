@@ -187,6 +187,17 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return category != null ? productCategory.category.eq(Category.fromValue(category)) : null;
     }
 
+
+    private BooleanExpression subCategoryFilter(List<String> subCategories) {
+        if (subCategories != null && !subCategories.isEmpty()) {
+            List<Category> categoryEnums = subCategories.stream()
+                    .map(Category::fromValue) // String 값을 Category enum으로 변환
+                    .collect(Collectors.toList());
+            return productCategory.category.in(categoryEnums);
+        }
+        return null;
+    }
+
     private BooleanExpression priceFilter(Long minPrice, Long maxPrice) {
         return (minPrice != null && maxPrice != null) ? product.price.between(minPrice, maxPrice) : null;
     }
@@ -234,7 +245,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductStateType productStateType) {
+    public List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, List<String> subCategories, ProductStateType productStateType) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
@@ -249,10 +260,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productLike)
                 .on(product.id.eq(productLike.productId)
                         .and(productLike.userId.eq(userId)))
+                .leftJoin(productStyle)
+                .on(product.id.eq(productStyle.product.id))
+                .leftJoin(productCategory)
+                .on(product.id.eq(productCategory.product.id))
                 .leftJoin(productState)
                 .on(product.id.eq(productState.productId))
                 .where(ltProductId(cursorId),
                     genderFilter(gender),
+                    subCategoryFilter(subCategories),
                     deletedFilter(),
                     sellingStateFilter(productStateType))
                 .orderBy(product.id.desc())

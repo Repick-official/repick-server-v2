@@ -8,6 +8,7 @@ import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -154,16 +157,30 @@ public class ProductService {
 
     }
 
-    public List<GetProductThumbnail> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize) {
+    public List<GetProductThumbnail> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize, String parentCategory) throws CustomException {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
 
         if (pageSize == null) pageSize = 4;
 
-        // non-login user
-        if (user == null) return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, ProductStateType.SELLING);
+        // 상위 카테고리를 기반으로 하위 카테고리 리스트 생성
+        List<String> subCategories = new ArrayList<>();
+        if (parentCategory != null) {
+            //상위 카테고리 유효성 검사
+            if (!Category.PARENT_CATEGORIES.contains(parentCategory))
+                throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME); // 예외 처리
+            subCategories = Arrays.stream(Category.values())
+                    .filter(category -> category.getParent().equals(parentCategory))
+                    .map(Category::getValue)
+                    .collect(Collectors.toList());
+        }
 
-        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, ProductStateType.SELLING);
+        // non-login user
+        if (user == null) {
+            return productRepository.findMainPageRecommendation(cursorId, pageSize, 0L, gender, subCategories, ProductStateType.SELLING);
+        }
+
+        return productRepository.findMainPageRecommendation(cursorId, pageSize, user.getId(), gender, subCategories, ProductStateType.SELLING);
     }
 
     public List<GetProductThumbnail> getProducts(String type, String keyword, String gender, String category, List<String> styles, Long minPrice, Long maxPrice, List<String> brandNames, List<String> qualityRates, List<String> sizes, Long cursorId, Integer pageSize){

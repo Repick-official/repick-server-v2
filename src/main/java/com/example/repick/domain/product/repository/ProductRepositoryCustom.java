@@ -66,7 +66,7 @@ public interface ProductRepositoryCustom {
             Integer pageSize,
             Long userId);
 
-    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, ProductStateType productStateType);
+    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, List<String> subCategories, ProductStateType productStateType);
 
     List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId);
 
