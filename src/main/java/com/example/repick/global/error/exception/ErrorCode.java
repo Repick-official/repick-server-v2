@@ -35,6 +35,7 @@ public enum ErrorCode {
     PRICE_NOT_EXISTS(400, "P028", "가격이 설정되지 않은 상품이 존재합니다."),
     PRODUCT_NOT_DESIRED_STATE(400, "P029", "정상적인 접근이 아닙니다."),
     PRODUCT_STATE_NOT_FOUND(400, "P030", "상품 상태가 존재하지 않습니다."),
+    DUPLICATE_PRODUCT_CART(400, "P031", "이미 장바구니에 담긴 상품입니다."),
     // BagInit
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -206,12 +207,27 @@ public class ProductService {
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
-    public Boolean toggleCart(Long productId) {
+    public Boolean addCart(Long productId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        productCartRepository.findByUserIdAndProductId(user.getId(), productId)
-                .ifPresentOrElse(productCartRepository::delete, () -> productCartRepository.save(ProductCart.of(user.getId(), productId)));
+        Optional<ProductCart> productCartOptional = productCartRepository.findByUserIdAndProductId(user.getId(), productId);
+
+        if (productCartOptional.isPresent()) {
+            throw new CustomException(DUPLICATE_PRODUCT_CART);
+        } else {
+            productCartRepository.save(ProductCart.of(user.getId(), productId));
+        }
+
+        return true;
+    }
+
+    @Transactional
+    public Boolean deleteCart(Long productId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        productCartRepository.deleteByUserIdAndProductId(user.getId(), productId);
 
         return true;
     }
