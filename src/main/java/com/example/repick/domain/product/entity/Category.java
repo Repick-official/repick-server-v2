@@ -39,7 +39,7 @@ public enum Category {
     private final String gender;
 
     //유효한 상위 카테고리 목록
-    public static final List<String> PARENT_CATEGORIES = Arrays.asList("전체", "아우터", "상의", "하의");
+    public static final List<String> PARENT_CATEGORIES = Arrays.asList("아우터", "상의", "하의");
 
     public static Category fromId(int id) {
         for (Category category : values()) {

@@ -166,11 +166,30 @@ public class ProductService {
         // 상위 카테고리를 기반으로 하위 카테고리 리스트 생성
         List<String> subCategories = new ArrayList<>();
         if (parentCategory != null) {
-            //상위 카테고리 유효성 검사
-            if (!Category.PARENT_CATEGORIES.contains(parentCategory))
+            // 상위 카테고리 유효성 검사
+            if (!Category.PARENT_CATEGORIES.contains(parentCategory)) {
                 throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME); // 예외 처리
+            }
             subCategories = Arrays.stream(Category.values())
                     .filter(category -> category.getParent().equals(parentCategory))
+                    .map(Category::getValue)
+                    .collect(Collectors.toList());
+
+            // 추가 로직: "하의"인 경우 스커트 포함, "상의"인 경우 원피스 포함
+            if (parentCategory.equals("하의")) {
+                subCategories.addAll(Arrays.stream(Category.values())
+                        .filter(category -> category.getParent().equals("스커트"))
+                        .map(Category::getValue)
+                        .collect(Collectors.toList()));
+            } else if (parentCategory.equals("상의")) {
+                subCategories.addAll(Arrays.stream(Category.values())
+                        .filter(category -> category.getParent().equals("원피스"))
+                        .map(Category::getValue)
+                        .collect(Collectors.toList()));
+            }
+        } else {
+            // parentCategory가 없을 경우 모든 카테고리를 포함
+            subCategories = Arrays.stream(Category.values())
                     .map(Category::getValue)
                     .collect(Collectors.toList());
         }
