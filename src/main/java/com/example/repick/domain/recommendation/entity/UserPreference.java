@@ -13,8 +13,8 @@ import java.util.List;
 @DynamoDBTable(tableName = "userPreference")
 public class UserPreference {
     private Long userId;
-    private List<Long> categoryPreference;
-    private List<Long> stylePreference;
+    private List<Double> categoryPreference;
+    private List<Double> stylePreference;
 
     @DynamoDBHashKey
     public Long getUserId() {
@@ -24,13 +24,13 @@ public class UserPreference {
     public UserPreference(Long userId) {
         this.userId = userId;
 
-        List<Long> categoryPreference = new ArrayList<>();
+        List<Double> categoryPreference = new ArrayList<>();
         for (int i = 0; i < 28; i++) {
-            categoryPreference.add(0L);
+            categoryPreference.add(1D);
         }
         this.categoryPreference = categoryPreference;
 
-        this.stylePreference = List.of(0L, 0L, 0L);
+        this.stylePreference = List.of(1D, 1D, 1D);
     }
 
 }

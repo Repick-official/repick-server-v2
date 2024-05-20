@@ -5,6 +5,7 @@ import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
+import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -37,6 +38,7 @@ public class ProductService {
     private final ProductCartRepository productCartRepository;
     private final ProductStateRepository productSellingStateRepository;
     private final ProductValidator productValidator;
+    private final RecommendationService recommendationService;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
         String thumbnailGeneratedUrl = null;
@@ -308,6 +310,8 @@ public class ProductService {
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
 
+        handleUserPreference(userId, product);
+
         Boolean isLiked = productLikeRepository.existsByUserIdAndProductId(userId, productId);
 
         List<ProductImage> productImageList = productImageRepository.findByProductIdAndIsDeleted(productId, false);
@@ -315,6 +319,13 @@ public class ProductService {
         List<ProductCategory> productCategoryList = productCategoryRepository.findByProductIdAndIsDeleted(productId, false);
 
         return GetProductDetail.of(product, productImageList, productCategoryList, isLiked);
+
+    }
+
+    private void handleUserPreference(Long userId, Product product) {
+        if (userId == 0L) return;
+
+        recommendationService.adjustUserPreference(userId, product);
 
     }
 

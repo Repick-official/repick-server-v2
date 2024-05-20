@@ -1,5 +1,7 @@
 package com.example.repick;
 
+import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.dynamodb.UserPreferenceRepository;
 import org.junit.jupiter.api.Test;
@@ -15,11 +17,29 @@ class RepickApplicationTests {
 	@Autowired
 	private UserPreferenceRepository userPreferenceRepository;
 
+	@Autowired
+	private ProductRepository productRepository;
+
 	@Test
 	void test() {
 		recommendationService.registerUserPreference(1L);
 
 		System.out.println("RepickApplicationTests.test");
+
+		userPreferenceRepository.findById(1L).ifPresent(userPreference -> {
+			System.out.println(userPreference.getUserId());
+			System.out.println("userPreference.getCategoryPreference() = " + userPreference.getCategoryPreference());
+		});
+
+	}
+
+
+	@Test
+	void test_adjust() {
+
+		Product product = productRepository.findById(3L).get();
+
+		recommendationService.adjustUserPreference(1L, product);
 
 		userPreferenceRepository.findById(1L).ifPresent(userPreference -> {
 			System.out.println(userPreference.getUserId());
