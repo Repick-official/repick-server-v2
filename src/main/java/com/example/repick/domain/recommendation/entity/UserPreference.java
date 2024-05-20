@@ -25,7 +25,7 @@ public class UserPreference {
         this.userId = userId;
 
         List<Long> categoryPreference = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 28; i++) {
             categoryPreference.add(0L);
         }
         this.categoryPreference = categoryPreference;
