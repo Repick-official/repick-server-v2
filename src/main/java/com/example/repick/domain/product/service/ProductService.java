@@ -325,7 +325,7 @@ public class ProductService {
     private void handleUserPreference(Long userId, Product product) {
         if (userId == 0L) return;
 
-        recommendationService.adjustUserPreference(userId, product);
+        recommendationService.adjustUserPreferenceOnDetail(userId, product);
 
     }
 
