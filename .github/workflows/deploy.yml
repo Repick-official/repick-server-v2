@@ -2,7 +2,7 @@ name: Push to ECR
 
 on:
   push:
-    branches: [ "bug/cicd-image" ]
+    branches: [ "develop" ]
 
 env:
   AWS_REGION: ap-northeast-2
