@@ -1,5 +1,6 @@
 package com.example.repick.global.oauth;
 
+import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.ApplePublicKeyResponse;
 import com.example.repick.domain.user.dto.AppleUserDto;
 import com.example.repick.domain.user.entity.OAuthProvider;
@@ -43,6 +44,7 @@ public class AppleUserService {
 
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final RecommendationService recommendationService;
 
     @Value("${oauth.apple.client-id}")
     private String clientId;
@@ -110,6 +112,10 @@ public class AppleUserService {
                     .password(password)
                     .pushAllow(false)
                     .build();
+
+            // create user preference
+            recommendationService.registerUserPreference(newUser.getId());
+
             userRepository.save(newUser);
             return Pair.of(newUser, true);
         }
