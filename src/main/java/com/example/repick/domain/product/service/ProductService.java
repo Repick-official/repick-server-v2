@@ -157,7 +157,7 @@ public class ProductService {
 
     }
 
-    public List<GetProductThumbnail> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize, String parentCategory) throws CustomException {
+    public List<GetProductThumbnail> getMainPageRecommendation(String gender, Long cursorId, Integer pageSize, String parentCategory) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
 
