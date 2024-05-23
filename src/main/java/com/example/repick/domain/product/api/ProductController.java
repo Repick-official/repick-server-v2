@@ -96,12 +96,15 @@ public class ProductController {
     @Operation(summary = "새로 업데이트 된 의류 한눈에 보기",
             description = """
                     새로 업데이트 된 의류를 무한스크롤 방식으로 페이지를 조회합니다.
+                    이 API는 전체, 아우터, 상의, 하의 4가지 카테고리로 신상품을 조회할 수 있습니다. (추후 확장 가능성 있음) 
+                    파라미터가 없을 경우 전체 카테고리를 출력하도록 합니다. 
                     """)
     @GetMapping("/recommendation")
     public SuccessResponse<PageResponse<List<GetProductThumbnail>>> getMainPageRecommendation(
             @Parameter(description = "조회 의류 성별") @RequestParam(required = false) String gender,
+            @Parameter(description = "조회 의류 카테고리 4종류, 전체, 아우터, 상의, 하의") @RequestParam(required = false) String parentCategory,
             @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(productService.getMainPageRecommendation(gender, pageCondition));
+        return SuccessResponse.success(productService.getMainPageRecommendation(gender, pageCondition, parentCategory));
     }
 
     @Operation(summary = "상품 조회",

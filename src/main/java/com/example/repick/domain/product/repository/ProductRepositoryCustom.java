@@ -34,7 +34,7 @@ public interface ProductRepositoryCustom {
             ProductFilter productFilter,
             Pageable pageable);
 
-    Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender);
+    Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender, List<String> subCategories);
 
     Page<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable);
 

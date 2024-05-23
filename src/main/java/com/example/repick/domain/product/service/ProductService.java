@@ -9,6 +9,7 @@ import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.error.exception.ErrorCode;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.util.PriceUtil;
@@ -21,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -160,11 +163,43 @@ public class ProductService {
 
     }
 
-    public PageResponse<List<GetProductThumbnail>> getMainPageRecommendation(String gender, PageCondition pageCondition) {
+    public PageResponse<List<GetProductThumbnail>> getMainPageRecommendation(String gender, PageCondition pageCondition, String parentCategory) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
-        Page<GetProductThumbnail> products = productRepository.findMainPageRecommendation(pageCondition.toPageable(), userId, gender);
+  
+          // 상위 카테고리를 기반으로 하위 카테고리 리스트 생성
+        List<String> subCategories = new ArrayList<>();
+        if (parentCategory != null) {
+            // 상위 카테고리 유효성 검사
+            if (!Category.PARENT_CATEGORIES.contains(parentCategory)) {
+                throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME); // 예외 처리
+            }
+            subCategories = Arrays.stream(Category.values())
+                    .filter(category -> category.getParent().equals(parentCategory))
+                    .map(Category::getValue)
+                    .collect(Collectors.toList());
+
+            // 추가 로직: "하의"인 경우 스커트 포함, "상의"인 경우 원피스 포함
+            if (parentCategory.equals("하의")) {
+                subCategories.addAll(Arrays.stream(Category.values())
+                        .filter(category -> category.getParent().equals("스커트"))
+                        .map(Category::getValue)
+                        .collect(Collectors.toList()));
+            } else if (parentCategory.equals("상의")) {
+                subCategories.addAll(Arrays.stream(Category.values())
+                        .filter(category -> category.getParent().equals("원피스"))
+                        .map(Category::getValue)
+                        .collect(Collectors.toList()));
+            }
+        } else {
+            // parentCategory가 없을 경우 모든 카테고리를 포함
+            subCategories = Arrays.stream(Category.values())
+                    .map(Category::getValue)
+                    .collect(Collectors.toList());
+        }
+  
+        Page<GetProductThumbnail> products = productRepository.findMainPageRecommendation(pageCondition.toPageable(), userId, gender, subCategories);
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
