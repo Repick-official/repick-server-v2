@@ -2,9 +2,9 @@ package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
-import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.dto.product.GetProductThumbnail;
 import com.example.repick.domain.product.dto.product.ProductFilter;
+import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -26,6 +26,7 @@ import static com.example.repick.domain.product.entity.QProductCategory.productC
 import static com.example.repick.domain.product.entity.QProductLike.productLike;
 import static com.example.repick.domain.product.entity.QProductState.productState;
 import static com.example.repick.domain.product.entity.QProductStyle.productStyle;
+import static com.example.repick.domain.recommendation.entity.QUserPreferenceProduct.userPreferenceProduct;
 
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
@@ -311,4 +312,32 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .groupBy(product.brandName)
                 .fetch();
     }
+
+    @Override
+    public List<Product> findRecommendation(Long userId) {
+        return jpaQueryFactory
+                .selectFrom(product)
+                .leftJoin(productState)
+                .on(product.id.eq(productState.productId))
+                .leftJoin(userPreferenceProduct)
+                .on(product.id.eq(userPreferenceProduct.productId))
+                .where(
+                        deletedFilter(),
+                        sellingStateFilter(ProductStateType.SELLING),
+                        notExistsUserPreferenceProduct(userId))
+                .limit(10)
+                .fetch();
+    }
+
+    private BooleanExpression notExistsUserPreferenceProduct(Long userId) {
+
+        return JPAExpressions
+                .selectFrom(userPreferenceProduct)
+                .where(
+                        userPreferenceProduct.userId.eq(userId),
+                        userPreferenceProduct.productId.eq(QProduct.product.id)
+                )
+                .notExists();
+    }
+
 }
