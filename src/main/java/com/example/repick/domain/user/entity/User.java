@@ -34,6 +34,7 @@ public class User extends BaseEntity {
     private Account defaultAccount;
     private String topSize;
     private String bottomSize;
+    private long point;
 
     // 푸시알림 허용 여부
     private Boolean pushAllow;
@@ -58,6 +59,7 @@ public class User extends BaseEntity {
         this.defaultAccount = defaultAccount;
         this.topSize = topSize;
         this.bottomSize = bottomSize;
+        this.point = 0L;
         this.profileImage = profileImage;
         this.password = password;
         this.role = role;
@@ -88,5 +90,9 @@ public class User extends BaseEntity {
 
     public void updateClass(UserClass userClass) {
         this.userClass = userClass;
+    }
+
+    public void addPoint(long point) {
+        this.point += point;
     }
 }

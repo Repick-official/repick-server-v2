@@ -1,8 +1,11 @@
 package com.example.repick.domain.product.scheduler;
 
 import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
+import com.example.repick.domain.product.service.PaymentService;
 import com.example.repick.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,10 +21,12 @@ import java.util.function.Predicate;
 public class ProductScheduler {
 
     private final ProductRepository productRepository;
+    private final ProductOrderRepository productOrderRepository;
+    private final PaymentService paymentService;
     private final ProductService productService;
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void updateProducts() {
+    public void updateProductDiscountRate() {
         List<Product> sellingProducts = productRepository.findByProductSellingStateType(ProductStateType.SELLING);
 
         updateDiscountRate(sellingProducts, p -> p.getPrice() >= 300000, 60);
@@ -29,7 +34,7 @@ public class ProductScheduler {
         updateDiscountRate(sellingProducts, p -> p.getPrice() >= 100000 && p.getPrice() < 200000, 80);
         updateDiscountRate(sellingProducts, p -> p.getPrice() < 100000, 90);
 
-        productRepository.saveAll(sellingProducts);
+        sellingProducts.forEach(productService::calculateDiscountPriceAndPredictDiscountRateAndSave);
     }
 
     private void updateDiscountRate(List<Product> products, Predicate<Product> priceRange, long maxDiscountRate) {
@@ -41,5 +46,17 @@ public class ProductScheduler {
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
                     else if (days >= 90) productService.addProductSellingState(p.getId(), ProductStateType.EXPIRED);
                 });
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void confirmProductOrder() {
+        List<ProductOrder> productOrders = productOrderRepository.findByIsConfirmed(false);
+        productOrders.forEach(po -> {
+            if (Duration.between(po.getCreatedDate(), LocalDateTime.now()).toDays() >= 7) {
+                po.confirmOrder();
+                paymentService.addPointToSeller(po);
+            }
+        });
+        productOrderRepository.saveAll(productOrders);
     }
 }

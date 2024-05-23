@@ -108,7 +108,7 @@ public class UserController {
                     개발용 유저 삭제 API를 통해 최초 회원가입이 정상적으로 처리되는지 확인할 수 있습니다.
                   
                     요청값:
-                    - (Query Parameter) code: 애플 인증서버에서 받은 인증 코드
+                    - (Query Parameter) id_token: 애플 인증서버에서 받은 id_token
                     
                     반환값:
                     - accessToken: 서버 내부에서 발급한 토큰입니다.
@@ -117,7 +117,6 @@ public class UserController {
     @PostMapping("/oauth/apple")
     public SuccessResponse<TokenResponse> callback(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
                                                    @RequestParam String id_token) {
-        System.out.println("id_token = " + id_token);
 
         Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
 
@@ -217,6 +216,15 @@ public class UserController {
     @PostMapping("/verify-sms-verification")
     public SuccessResponse<Boolean> verifySmsVerification(@RequestBody PostVerifySmsVerification postVerifySmsVerification) {
         return SuccessResponse.success(userService.verifySmsVerification(postVerifySmsVerification));
+    }
+
+    @Operation(summary = "마이페이지",
+            description = """
+                    유저 닉네임, 포인트, 배송 정보를 불러옵니다.
+                    """)
+    @GetMapping("/mypage")
+    public SuccessResponse<GetMyPage> getMyPage() {
+        return SuccessResponse.success(userService.getMyPage());
     }
 
 }

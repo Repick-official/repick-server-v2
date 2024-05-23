@@ -35,6 +35,7 @@ public enum ErrorCode {
     PRICE_NOT_EXISTS(400, "P028", "가격이 설정되지 않은 상품이 존재합니다."),
     PRODUCT_NOT_DESIRED_STATE(400, "P029", "정상적인 접근이 아닙니다."),
     PRODUCT_STATE_NOT_FOUND(400, "P030", "상품 상태가 존재하지 않습니다."),
+    DUPLICATE_PRODUCT_CART(400, "P031", "이미 장바구니에 담긴 상품입니다."),
     // BagInit
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect
@@ -62,11 +63,13 @@ public enum ErrorCode {
     WRONG_PAYMENT_AMOUNT(409, "P043", "결제 금액이 일치하지 않습니다."),
     INVALID_PAYMENT_ID(400, "P044", "존재하지 않는 결제 고유번호입니다."),
     INVALID_PAYMENT_STATUS(400, "P045", "결제 상태가 존재하지 않거나, 미결제, 결제취소, 결제실패 중 하나입니다."),
+    PRODUCT_ORDER_NOT_FOUND(404, "P046", "존재하지 않는 상품 주문 ID입니다."),
+    PRODUCT_ORDER_ALREADY_CONFIRMED(400, "P047", "이미 구매를 확정한 상품입니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "A001", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "A002", "인증번호가 만료되었습니다."),
     // Apple OAuth
-    APPLE_LOGIN_FAILED(400, "A011", "인증 코드가 올바르지 않거나 만료되었습니다."),
+    APPLE_LOGIN_FAILED(400, "A011", "유효하지 않은 id 토큰입니다"),
     //FCM
     USER_FCM_TOKEN_NOT_FOUND(404, "A021", "존재하지 않는 FCM 토큰입니다."),
     // Advertisement

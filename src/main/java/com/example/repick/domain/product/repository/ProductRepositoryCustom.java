@@ -1,78 +1,48 @@
 package com.example.repick.domain.product.repository;
 
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
-import com.example.repick.domain.product.dto.GetProductCart;
-import com.example.repick.domain.product.dto.GetProductThumbnail;
+import com.example.repick.domain.product.dto.productOrder.GetProductCart;
+import com.example.repick.domain.product.dto.product.GetProductThumbnail;
+import com.example.repick.domain.product.dto.product.ProductFilter;
+import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ProductRepositoryCustom {
 
-    List<GetProductThumbnail> findLatestProducts(
-            String keyword,
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId);
+    Page<GetProductThumbnail> findLatestProducts(
+            Long userId,
+            ProductFilter productFilter,
+            Pageable pageable);
 
-    List<GetProductThumbnail> findLowestProducts(
-            String keyword,
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId);
+    Page<GetProductThumbnail> findLowestProducts(
+            Long userId,
+            ProductFilter productFilter,
+            Pageable pageable);
 
-    List<GetProductThumbnail> findHighestProducts(
-            String keyword,
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId);
+    Page<GetProductThumbnail> findHighestProducts(
+            Long userId,
+            ProductFilter productFilter,
+            Pageable pageable);
 
-    List<GetProductThumbnail> findHighestDiscountProducts(
-            String keyword,
-            String gender,
-            String category,
-            List<String> styles,
-            Long minPrice,
-            Long maxPrice,
-            List<String> brandNames,
-            List<String> qualityRates,
-            List<String> sizes,
-            Long cursorId,
-            Integer pageSize,
-            Long userId);
+    Page<GetProductThumbnail> findHighestDiscountProducts(
+            Long userId,
+            ProductFilter productFilter,
+            Pageable pageable);
 
-    List<GetProductThumbnail> findMainPageRecommendation(Long cursorId, Integer pageSize, Long userId, String gender, List<String> subCategories, ProductStateType productStateType);
+    Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender, List<String> subCategories);
 
-    List<GetProductThumbnail> findLikedProducts(String category, Long cursorId, Integer pageSize, Long userId);
+    Page<GetProductThumbnail> findLikedProducts(String category, Long userId, Pageable pageable);
 
-    List<GetProductCart> findCartedProducts(Long cursorId, Integer pageSize, Long userId);
+    Page<GetProductCart> findCartedProducts(Long userId, Pageable pageable);
 
     List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long boxCollectId);
 
     List<Product> findByProductSellingStateType(ProductStateType productStateType);
+
+    List<GetBrandList> getBrandList();
 }

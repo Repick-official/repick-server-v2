@@ -3,7 +3,7 @@ package com.example.repick.domain.clothingSales.service;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
-import com.example.repick.domain.product.dto.PostProductSellingState;
+import com.example.repick.domain.product.dto.product.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
@@ -143,12 +143,15 @@ public class ClothingSalesService {
 
         List<BoxCollect> boxCollectList = boxService.getBoxCollectByUser(user.getId())
                 // boxCollectStateType이 SELLING인 것만 가져온다.
-                .stream().filter(boxCollect -> boxCollect.getBoxCollectStateList().stream().anyMatch(boxCollectState -> boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)))
+                .stream()
+                .filter(boxCollect -> boxCollect.getBoxCollectStateList().stream().anyMatch(boxCollectState -> boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)))
                 .toList();
 
         List<BagInit> bagInitList = bagService.getBagInitByUser(user.getId())
                 // bagCollectStateType이 SELLING인 것만 가져온다.
-                .stream().filter(bagInit -> bagInit.getBagCollect().getBagCollectStateList().stream().anyMatch(bagCollectState -> bagCollectState.getBagCollectStateType().equals(BagCollectStateType.SELLING)))
+                .stream()
+                .filter(bagInit -> bagInit.getBagCollect() != null)
+                .filter(bagInit -> bagInit.getBagCollect().getBagCollectStateList().stream().anyMatch(bagCollectState -> bagCollectState.getBagCollectStateType().equals(BagCollectStateType.SELLING)))
                 .toList();
 
         boxCollectList.forEach(boxCollect -> {
@@ -238,7 +241,10 @@ public class ClothingSalesService {
         List<Product> productList = productService.findByClothingSales(true, boxCollectId);
 
         productList.forEach(clothingSalesValidator::productPriceNotSet);
-        productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중")));
+        productList.forEach(product -> {
+            productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
+        });
 
         boxService.updateBoxCollectState(new PostBoxCollectState(boxCollectId, "판매진행"));
     }
@@ -251,7 +257,10 @@ public class ClothingSalesService {
         List<Product> productList = productService.findByClothingSales(false, bagInitId);
 
         productList.forEach(clothingSalesValidator::productPriceNotSet);
-        productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중")));
+        productList.forEach(product -> {
+            productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
+        });
 
         bagService.updateBagCollectState(new PostBagCollectState(bagInit.getBagCollect().getId(), "판매진행"));
     }

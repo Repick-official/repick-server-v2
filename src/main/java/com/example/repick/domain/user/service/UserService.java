@@ -1,6 +1,9 @@
 package com.example.repick.domain.user.service;
 
 import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
+import com.example.repick.domain.product.entity.ProductOrder;
+import com.example.repick.domain.product.entity.ProductOrderState;
+import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.entity.UserSmsVerificationInfo;
@@ -24,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.TOKEN_EXPIRED;
 
@@ -37,6 +41,8 @@ public class UserService {
     private final MessageService messageService;
     private final UserSmsVerificationInfoRepository userSmsVerificationInfoRepository;
     private final TokenService tokenService;
+    private final ProductOrderRepository productOrderRepository;
+
 
     public GetUserInfo getUserInfo() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -91,6 +97,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional
     public Boolean initSmsVerification(PostInitSmsVerification postInitSmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -110,6 +117,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional
     public Boolean verifySmsVerification(PostVerifySmsVerification postVerifySmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -127,7 +135,7 @@ public class UserService {
 
         userRepository.save(user);
 
-        userSmsVerificationInfoRepository.deleteById(user.getId().toString());
+        userSmsVerificationInfoRepository.deleteAllByUserId(user.getId());
 
         return true;
     }
@@ -145,5 +153,31 @@ public class UserService {
         String accessToken = tokenService.createAccessToken(new UserDetailsImpl(user));
 
         return new TokenResponse(accessToken, postTokenRefresh.refreshToken());
+    }
+
+    public GetMyPage getMyPage() {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<ProductOrder> productOrders = productOrderRepository.findByUserId(user.getId());
+        long preparing = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.PAYMENT_COMPLETED ||
+                        productOrder.getProductOrderState() == ProductOrderState.SHIPPING_PREPARING)
+                .count();
+
+        long shipping = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.SHIPPING)
+                .count();
+
+        long delivered = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.DELIVERED && !productOrder.isConfirmed())
+                .count();
+
+        long confirmed = productOrders.stream()
+                .filter(productOrder -> productOrder.getProductOrderState() == ProductOrderState.DELIVERED && productOrder.isConfirmed())
+                .count();
+
+        // 닉네임, 포인트, 배송 정보
+        return GetMyPage.of(user.getNickname(), user.getPoint(), preparing, shipping, delivered, confirmed);
     }
 }

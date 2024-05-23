@@ -1,12 +1,9 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.GetProductOrderPreparation;
-import com.example.repick.domain.product.dto.PostPayment;
-import com.example.repick.domain.product.dto.PostProductOrder;
-import com.example.repick.domain.product.entity.Payment;
-import com.example.repick.domain.product.entity.PaymentStatus;
-import com.example.repick.domain.product.entity.ProductOrder;
-import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
+import com.example.repick.domain.product.dto.productOrder.PostPayment;
+import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
+import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.product.repository.ProductCartRepository;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
@@ -28,7 +25,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_PAYMENT_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,8 +46,9 @@ public class PaymentService {
         String merchantUid = user.getProviderId() + System.currentTimeMillis();
         BigDecimal totalPrice = postProductOrder.productIds().stream()
                 .map(productId -> productRepository.findById(productId).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID)))
-                .map(product -> BigDecimal.valueOf(product.getPrice() * (1 - product.getDiscountRate() / 100.0)))
+                .map(product -> BigDecimal.valueOf(product.getDiscountPrice()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
         try{
             // 사전 결제 검증 요청
@@ -63,7 +60,7 @@ public class PaymentService {
 
             // ProductOrder 저장
             List<ProductOrder> productOrders  = postProductOrder.productIds().stream()
-                    .map(productId -> ProductOrder.of(user.getId(), productId, payment))
+                    .map(productId -> ProductOrder.of(user.getId(), productId, payment, ProductOrderState.DEFAULT))
                     .toList();
             productOrderRepository.saveAll(productOrders);
 
@@ -125,13 +122,57 @@ public class PaymentService {
         payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
         paymentRepository.save(payment);
 
-        // 장바구니 삭제 및 ProductSellingState 추가
-        List<ProductOrder> productOrders = productOrderRepository.findByPaymentId(payment.getId());
+        // ProductOrderState 업데이트, 장바구니 삭제, ProductSellingState 추가
+        List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
         productOrders.forEach(productOrder -> {
+            productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
             productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
         });
 
         return true;
     }
+
+    @Transactional
+    public Boolean confirmProductOrder(Long productOrderId){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+
+        if (productOrder.isConfirmed()) {
+            throw new CustomException(PRODUCT_ORDER_ALREADY_CONFIRMED);
+        }
+
+        productOrder.confirmOrder();
+        productOrderRepository.save(productOrder);
+
+        addPointToSeller(productOrder);
+
+        return true;
+    }
+
+    public void addPointToSeller(ProductOrder productOrder){
+        long profit = productOrder.getPayment().getAmount().longValue();
+        if (profit >= 300000) {
+            profit *= 0.8;
+        } else if (profit >= 200000) {
+            profit *= 0.7;
+        } else if (profit >= 100000) {
+            profit *= 0.6;
+        } else if (profit >= 50000) {
+            profit *= 0.5;
+        } else if (profit >= 30000) {
+            profit *= 0.4;
+        } else if (profit >= 10000) {
+            profit *= 0.3;
+        } else {
+            profit *= 0.2;
+        }
+
+        User seller = productRepository.findById(productOrder.getProductId())
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID))
+                .getUser();
+        seller.addPoint(profit);
+        userRepository.save(seller);
+    }
+
 }
