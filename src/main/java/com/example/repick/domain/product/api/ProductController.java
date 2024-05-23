@@ -150,15 +150,25 @@ public class ProductController {
         return SuccessResponse.success(productService.getLiked(category, pageCondition));
     }
 
-    @Operation(summary = "장바구니 토글",
+    @Operation(summary = "장바구니 담기",
             description = """
-                    상품을 장바구니에 담거나 장바구니에서 제거합니다.
-                    **이미 장바구니에 담은 경우 장바구니에서 제거합니다.**
+                    상품을 장바구니에 담습니다.
+                    이미 담겨있는 상품의 경우 에러를 반환합니다.
                     """)
-    @GetMapping("/cart")
-    public SuccessResponse<Boolean> toggleCart(@RequestParam Long productId) {
-        return SuccessResponse.createSuccess(productService.toggleCart(productId));
+    @PostMapping("/cart/{productId}")
+    public SuccessResponse<Boolean> addCart(@PathVariable Long productId) {
+        return SuccessResponse.createSuccess(productService.addCart(productId));
     }
+
+    @Operation(summary = "장바구니 제거",
+            description = """
+                    상품을 장바구니에서 제거합니다.
+                    """)
+    @DeleteMapping("/cart/{productId}")
+    public SuccessResponse<Boolean> deleteCart(@PathVariable Long productId) {
+        return SuccessResponse.success(productService.deleteCart(productId));
+    }
+
 
     @Operation(summary = "장바구니에 담은 상품 보기",
             description = """
