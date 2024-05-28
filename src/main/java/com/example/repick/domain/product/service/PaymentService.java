@@ -138,6 +138,7 @@ public class PaymentService {
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
             productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
         });
+        productOrderRepository.saveAll(productOrders);
 
         return true;
     }
@@ -202,6 +203,58 @@ public class PaymentService {
                 .getUser();
         seller.addPoint(profit);
         userRepository.save(seller);
+    }
+
+
+    // 동시성 테스트용 간소화 서비스
+    @Transactional(noRollbackFor = CustomException.class)
+    public Boolean validatePaymentForTest(PostPayment postPayment){
+        Payment payment = paymentRepository.findByMerchantUid(postPayment.merchantUid())
+                .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
+
+        // Pessimistic Lock - 이 트랜잭션이 끝날 때까지 다른 트랜잭션에서 해당 데이터(products)에 대한 접근을 막음
+        // 이미 처리된 주문인지 확인 (동시 결제 방지)
+        List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
+        List<Long> productIds = productOrders.stream().map(ProductOrder::getProductId).toList();
+
+        long startTime = System.currentTimeMillis();
+        System.out.println("Thread " + Thread.currentThread().getName() + " is trying to lock products: " + productIds);
+        List<Product> products = productRepository.findAllByIdWithLock(productIds);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Thread " + Thread.currentThread().getName() + " has locked products: " + productIds + ". Wait time: " + (endTime - startTime) + "ms");
+
+        products.forEach(product -> {
+            try{
+                productValidator.validateProductState(product.getId(), ProductStateType.SELLING);
+            }
+            catch (CustomException e){
+                if(e.getErrorCode() == PRODUCT_NOT_DESIRED_STATE){
+                    throw new CustomException(PRODUCT_SOLD_OUT);
+                }
+                throw e;
+            }
+        });
+
+        // 이미 처리된 결제번호인지 확인
+        if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
+            throw new CustomException(DUPLICATE_PAYMENT);
+        }
+
+        // 유효한 결제 -> Payment 저장
+        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
+        paymentRepository.save(payment);
+
+        System.out.println("Thread " + Thread.currentThread().getName() + "processing transaction...");
+        // ProductOrderState 업데이트, 장바구니 삭제, ProductSellingState 추가
+        productOrders.forEach(productOrder -> {
+            productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
+            productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
+        });
+        productOrderRepository.saveAll(productOrders);
+
+        System.out.println("Thread " + Thread.currentThread().getName() + " has completed transaction.");
+
+        return true;
     }
 
 }
