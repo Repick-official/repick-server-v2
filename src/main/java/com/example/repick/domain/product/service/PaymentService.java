@@ -88,6 +88,7 @@ public class PaymentService {
             ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
                     .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
             if(productState.getProductStateType() != ProductStateType.SELLING){
+                cancelPayment(payment);
                 throw new CustomException(PRODUCT_SOLD_OUT);
             }
         });
