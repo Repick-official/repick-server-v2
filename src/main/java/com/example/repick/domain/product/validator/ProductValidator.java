@@ -11,7 +11,6 @@ import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;

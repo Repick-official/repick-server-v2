@@ -34,7 +34,6 @@ public class PaymentService {
     private final ProductOrderRepository productOrderRepository;
     private final ProductCartRepository productCartRepository;
     private final IamportClient iamportClient;
-    private final ProductService productService;
     private final ProductValidator productValidator;
     private final ProductStateRepository productStateRepository;
 
