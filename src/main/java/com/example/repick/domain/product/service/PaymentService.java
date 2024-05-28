@@ -4,10 +4,7 @@ import com.example.repick.domain.product.dto.productOrder.GetProductOrderPrepara
 import com.example.repick.domain.product.dto.productOrder.PostPayment;
 import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
 import com.example.repick.domain.product.entity.*;
-import com.example.repick.domain.product.repository.PaymentRepository;
-import com.example.repick.domain.product.repository.ProductCartRepository;
-import com.example.repick.domain.product.repository.ProductOrderRepository;
-import com.example.repick.domain.product.repository.ProductRepository;
+import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -19,6 +16,7 @@ import com.siot.IamportRestClient.request.PrepareData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -38,6 +36,7 @@ public class PaymentService {
     private final IamportClient iamportClient;
     private final ProductService productService;
     private final ProductValidator productValidator;
+    private final ProductStateRepository productStateRepository;
 
     @Transactional
     public GetProductOrderPreparation prepareProductOrder(PostProductOrder postProductOrder) {
@@ -76,7 +75,7 @@ public class PaymentService {
     }
 
 
-    @Transactional(noRollbackFor = CustomException.class)
+    @Transactional(isolation = Isolation.READ_COMMITTED, noRollbackFor = CustomException.class)
     public Boolean validatePayment(PostPayment postPayment){
         Payment payment = paymentRepository.findByMerchantUid(postPayment.merchantUid())
                 .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
@@ -86,15 +85,10 @@ public class PaymentService {
         List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
         List<Product> products = productRepository.findAllByIdWithLock(productOrders.stream().map(ProductOrder::getProductId).toList());
         products.forEach(product -> {
-            try{
-                productValidator.validateProductState(product.getId(), ProductStateType.SELLING);
-            }
-            catch (CustomException e){
-                if(e.getErrorCode() == PRODUCT_NOT_DESIRED_STATE){
-                    cancelPayment(payment);
-                    throw new CustomException(PRODUCT_SOLD_OUT);
-                }
-                throw e;
+            ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(product.getId())
+                    .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
+            if(productState.getProductStateType() != ProductStateType.SELLING){
+                throw new CustomException(PRODUCT_SOLD_OUT);
             }
         });
 
@@ -136,7 +130,7 @@ public class PaymentService {
         productOrders.forEach(productOrder -> {
             productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
-            productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
+            productStateRepository.save(ProductState.of(productOrder.getProductId(), ProductStateType.SOLD_OUT));
         });
         productOrderRepository.saveAll(productOrders);
 
@@ -206,14 +200,12 @@ public class PaymentService {
     }
 
 
-    // 동시성 테스트용 간소화 서비스
-    @Transactional(noRollbackFor = CustomException.class)
+    // 동시성 테스트용 서비스 (iamportClient 통신 부분 제외)
+    @Transactional(isolation = Isolation.READ_COMMITTED, noRollbackFor = CustomException.class)
     public Boolean validatePaymentForTest(PostPayment postPayment){
         Payment payment = paymentRepository.findByMerchantUid(postPayment.merchantUid())
                 .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
 
-        // Pessimistic Lock - 이 트랜잭션이 끝날 때까지 다른 트랜잭션에서 해당 데이터(products)에 대한 접근을 막음
-        // 이미 처리된 주문인지 확인 (동시 결제 방지)
         List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
         List<Long> productIds = productOrders.stream().map(ProductOrder::getProductId).toList();
 
@@ -224,36 +216,27 @@ public class PaymentService {
         System.out.println("Thread " + Thread.currentThread().getName() + " has locked products: " + productIds + ". Wait time: " + (endTime - startTime) + "ms");
 
         products.forEach(product -> {
-            try{
-                productValidator.validateProductState(product.getId(), ProductStateType.SELLING);
-            }
-            catch (CustomException e){
-                if(e.getErrorCode() == PRODUCT_NOT_DESIRED_STATE){
-                    throw new CustomException(PRODUCT_SOLD_OUT);
-                }
-                throw e;
+            ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(product.getId())
+                    .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
+            if(productState.getProductStateType() != ProductStateType.SELLING){
+                throw new CustomException(PRODUCT_SOLD_OUT);
             }
         });
 
-        // 이미 처리된 결제번호인지 확인
         if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
             throw new CustomException(DUPLICATE_PAYMENT);
         }
 
-        // 유효한 결제 -> Payment 저장
         payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
         paymentRepository.save(payment);
 
-        System.out.println("Thread " + Thread.currentThread().getName() + "processing transaction...");
-        // ProductOrderState 업데이트, 장바구니 삭제, ProductSellingState 추가
         productOrders.forEach(productOrder -> {
             productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
-            productService.addProductSellingState(productOrder.getProductId(), ProductStateType.SOLD_OUT);
+            productStateRepository.save(ProductState.of(productOrder.getProductId(), ProductStateType.SOLD_OUT));
         });
         productOrderRepository.saveAll(productOrders);
 
         System.out.println("Thread " + Thread.currentThread().getName() + " has completed transaction.");
-
         return true;
     }
 

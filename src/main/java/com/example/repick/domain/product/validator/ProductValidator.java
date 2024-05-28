@@ -10,7 +10,6 @@ import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;

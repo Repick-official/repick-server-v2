@@ -60,6 +60,18 @@ public class PaymentServiceTest {
         productStateRepository.save(productState1);
         productStateRepository.save(productState2);
     }
+
+    @AfterEach
+    public void cleanup() {
+        productRepository.delete(product1);
+        productRepository.delete(product2);
+        productStateRepository.deleteAll(productStateRepository.findByProductId(product1.getId()));
+        productStateRepository.deleteAll(productStateRepository.findByProductId(product2.getId()));
+        productOrderRepository.deleteAll();
+        paymentRepository.deleteAll();
+    }
+
+
     @Test
     public void testConcurrentPayments() throws InterruptedException {
         int numberOfThreads = 3;
@@ -96,7 +108,7 @@ public class PaymentServiceTest {
                     productOrderRepository.save(productOrder2);
 
                     PostPayment postPayment = new PostPayment("iamportUid" + userId, "merchantUid" + userId, new Address());
-                    return paymentService.validatePaymentForTest(postPayment);  // iamportClient 통신 부분 제외한 테스트용 코드 작성
+                    return paymentService.validatePaymentForTest(postPayment);  // 테스트용 서비스
                 } catch (Exception e) {
                     System.out.println("Exception occurred while processing payment: " + userId + "\n" + e.getMessage());
                     return false;
