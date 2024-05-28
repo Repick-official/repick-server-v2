@@ -22,6 +22,8 @@ public class RecommendationController {
 
     @Operation(summary = "리픽 추천 상품 가져오기", description = """
             리픽 추천 상품을 가져옵니다.
+            
+            **한 요청에 상품을 3개씩 가져옵니다.**
             """)
     @GetMapping
     public SuccessResponse<List<GetRecommendation>> getRecommendation() {
@@ -30,6 +32,7 @@ public class RecommendationController {
 
     @Operation(summary = "상품 건너뛰기", description = """
             상품 건너뛰기 API입니다.
+            
             건너뛴 상품은 다시 리픽 추천에 나오지 않습니다.
             """)
     @GetMapping("/skip")
