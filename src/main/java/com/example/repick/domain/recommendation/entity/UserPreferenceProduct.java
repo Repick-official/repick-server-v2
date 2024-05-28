@@ -15,4 +15,9 @@ public class UserPreferenceProduct {
     private Long userId;
     private Long productId;
 
+    public UserPreferenceProduct(Long userId, Long productId) {
+        this.userId = userId;
+        this.productId = productId;
+    }
+
 }

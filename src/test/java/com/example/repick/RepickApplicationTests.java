@@ -39,7 +39,7 @@ class RepickApplicationTests {
 
 		Product product = productRepository.findById(3L).get();
 
-		recommendationService.adjustUserPreferenceOnDetail(1L, product);
+		recommendationService.adjustUserPreferenceOnDetail(1L, product, new double[]{1.03, 1.01, 0.99});
 
 		userPreferenceRepository.findById(1L).ifPresent(userPreference -> {
 			System.out.println(userPreference.getUserId());

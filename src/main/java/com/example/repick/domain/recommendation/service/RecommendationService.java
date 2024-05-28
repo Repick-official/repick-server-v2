@@ -8,6 +8,8 @@ import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.product.repository.ProductStyleRepository;
 import com.example.repick.domain.recommendation.dto.GetRecommendation;
 import com.example.repick.domain.recommendation.entity.UserPreference;
+import com.example.repick.domain.recommendation.entity.UserPreferenceProduct;
+import com.example.repick.domain.recommendation.repository.UserPreferenceProductRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.dynamodb.UserPreferenceRepository;
@@ -17,13 +19,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
-import static com.example.repick.global.error.exception.ErrorCode.USER_PREFERENCE_NOT_FOUND;
+import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service @RequiredArgsConstructor
 public class RecommendationService {
@@ -33,12 +32,13 @@ public class RecommendationService {
     private final ProductStyleRepository productStyleRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final UserPreferenceProductRepository userPreferenceProductRepository;
 
     public void registerUserPreference(Long userId) {
         userPreferenceRepository.save(new UserPreference(userId));
     }
 
-    public void adjustUserPreferenceOnDetail(Long userId, Product product) {
+    public void adjustUserPreferenceOnDetail(Long userId, Product product, double[] weights) {
         UserPreference userPreference = userPreferenceRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(USER_PREFERENCE_NOT_FOUND));
 
@@ -48,14 +48,14 @@ public class RecommendationService {
         productCategoryRepository.findByProductId(product.getId()).forEach(productCategory -> {
             Category category = productCategory.getCategory();
             int categoryId = category.getId();
-            categoryPreferenceList.set(categoryId, categoryPreferenceList.get(categoryId) * 1.03);
+            categoryPreferenceList.set(categoryId, categoryPreferenceList.get(categoryId) * weights[0]);
 
              for (Category categoryEach : Category.values()) {
                  if (categoryEach.getParent().equals(category.getParent())) {
                     int categoryIdEach = categoryEach.getId();
-                    categoryPreferenceList.set(categoryIdEach, categoryPreferenceList.get(categoryIdEach) * 1.01);
+                    categoryPreferenceList.set(categoryIdEach, categoryPreferenceList.get(categoryIdEach) * weights[1]);
                  } else {
-                    categoryPreferenceList.set(categoryEach.getId(), categoryPreferenceList.get(categoryEach.getId()) * 0.99);
+                    categoryPreferenceList.set(categoryEach.getId(), categoryPreferenceList.get(categoryEach.getId()) * weights[2]);
                  }
              }
         });
@@ -64,7 +64,7 @@ public class RecommendationService {
 
         productStyleRepository.findByProductId(product.getId()).forEach(productStyle -> {
             int styleId = productStyle.getStyle().getId();
-            stylePreferenceList.set(styleId, stylePreferenceList.get(styleId) * 1.03);
+            stylePreferenceList.set(styleId, stylePreferenceList.get(styleId) * weights[0]);
         });
 
         userPreference.setStylePreference(stylePreferenceList);
@@ -142,6 +142,19 @@ public class RecommendationService {
     }
 
 
+    public Boolean skipProduct(Long productId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
+        skipProduct(user.getId(), productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+        adjustUserPreferenceOnDetail(user.getId(), product, new double[]{0.7, 0.9, 1.5});
 
+        return true;
+    }
+
+    public void skipProduct(Long userId, Long productId) {
+        userPreferenceProductRepository.save(new UserPreferenceProduct(userId, productId));
+    }
 }

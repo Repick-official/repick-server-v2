@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -25,5 +26,14 @@ public class RecommendationController {
     @GetMapping
     public SuccessResponse<List<GetRecommendation>> getRecommendation() {
         return SuccessResponse.success(recommendationService.getRecommendation());
+    }
+
+    @Operation(summary = "상품 건너뛰기", description = """
+            상품 건너뛰기 API입니다.
+            건너뛴 상품은 다시 리픽 추천에 나오지 않습니다.
+            """)
+    @GetMapping("/skip")
+    public SuccessResponse<Boolean> skipProduct(@RequestParam Long productId) {
+        return SuccessResponse.success(recommendationService.skipProduct(productId));
     }
 }

@@ -196,7 +196,14 @@ public class ProductService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         productLikeRepository.findByUserIdAndProductId(user.getId(), productId)
-                .ifPresentOrElse(productLikeRepository::delete, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
+                .ifPresentOrElse(productLike -> {
+                    productLikeRepository.delete(productLike);
+
+                    Product product = productRepository.findById(productId)
+                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                    recommendationService.adjustUserPreferenceOnDetail(user.getId(), product, new double[]{1.2, 1.05, 0.8});
+
+                }, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
 
         return true;
     }
@@ -325,7 +332,7 @@ public class ProductService {
     private void handleUserPreference(Long userId, Product product) {
         if (userId == 0L) return;
 
-        recommendationService.adjustUserPreferenceOnDetail(userId, product);
+        recommendationService.adjustUserPreferenceOnDetail(userId, product, new double[]{1.03, 1.01, 0.99});
 
     }
 

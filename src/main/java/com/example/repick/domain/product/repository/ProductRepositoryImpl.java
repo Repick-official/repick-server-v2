@@ -317,14 +317,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<Product> findRecommendation(Long userId) {
         return jpaQueryFactory
                 .selectFrom(product)
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
-                .leftJoin(userPreferenceProduct)
-                .on(product.id.eq(userPreferenceProduct.productId))
+                .leftJoin(productState).on(product.id.eq(productState.productId))
+                .leftJoin(userPreferenceProduct).on(product.id.eq(userPreferenceProduct.productId))
+                .leftJoin(productLike).on(product.id.eq(productLike.productId))
+                .leftJoin(productCart).on(product.id.eq(productCart.productId))
                 .where(
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING),
-                        notExistsUserPreferenceProduct(userId))
+                        notExistsUserPreferenceProduct(userId),
+                        productLike.id.isNull(),
+                        productCart.id.isNull())
                 .limit(10)
                 .fetch();
     }
