@@ -39,7 +39,7 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductLikeRepository productLikeRepository;
     private final ProductCartRepository productCartRepository;
-    private final ProductStateRepository productSellingStateRepository;
+    private final ProductStateRepository productStateRepository;
     private final ProductValidator productValidator;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
@@ -76,7 +76,7 @@ public class ProductService {
     }
 
     public void addProductSellingState(Long productId, ProductStateType productStateType) {
-        productSellingStateRepository.save(ProductState.of(productId, productStateType));
+        productStateRepository.save(ProductState.of(productId, productStateType));
     }
 
     @Transactional
@@ -128,7 +128,7 @@ public class ProductService {
         productStyleRepository.findByProductId(product.getId()).forEach(ProductStyle::delete);
 
         // productSellingState
-        productSellingStateRepository.findByProductId(product.getId()).forEach(ProductState::delete);
+        productStateRepository.findByProductId(product.getId()).forEach(ProductState::delete);
 
         return ProductResponse.fromProduct(product);
     }
@@ -296,13 +296,6 @@ public class ProductService {
 
     public List<Product> findByClothingSales(Boolean isBoxCollect, Long clothingSlaesId) {
         return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
-    }
-
-    public ProductState getProductSellingState(Long productId) {
-        return productSellingStateRepository.findByProductId(productId)
-                .stream()
-                .max((o1, o2) -> (int) (o1.getId() - o2.getId()))
-                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
     }
 
     public List<GetClassificationEach> getProductStyleTypes() {

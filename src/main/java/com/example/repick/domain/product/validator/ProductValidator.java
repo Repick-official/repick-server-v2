@@ -10,7 +10,9 @@ import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.global.error.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -23,15 +25,9 @@ public class ProductValidator {
     private final BoxCollectRepository boxCollectRepository;
 
     public void validateProductState(Long productId, ProductStateType productStateType) {
-
-        // find the most recently created product state
-        ProductState productStateList = productStateRepository.findByProductId(productId)
-                .stream()
-                .reduce((first, second) -> second)
+        ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(productId)
                 .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
-
-
-        if (productStateList.getProductStateType() != productStateType) {
+        if (productState.getProductStateType() != productStateType) {
             throw new CustomException(PRODUCT_NOT_DESIRED_STATE);
         }
     }
