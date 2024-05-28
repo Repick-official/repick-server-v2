@@ -85,7 +85,7 @@ public class PaymentService {
         List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
         List<Product> products = productRepository.findAllByIdWithLock(productOrders.stream().map(ProductOrder::getProductId).toList());
         products.forEach(product -> {
-            ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(product.getId())
+            ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
                     .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
             if(productState.getProductStateType() != ProductStateType.SELLING){
                 throw new CustomException(PRODUCT_SOLD_OUT);
@@ -216,7 +216,7 @@ public class PaymentService {
         System.out.println("Thread " + Thread.currentThread().getName() + " has locked products: " + productIds + ". Wait time: " + (endTime - startTime) + "ms");
 
         products.forEach(product -> {
-            ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(product.getId())
+            ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
                     .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
             if(productState.getProductStateType() != ProductStateType.SELLING){
                 throw new CustomException(PRODUCT_SOLD_OUT);

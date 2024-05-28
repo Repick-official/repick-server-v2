@@ -167,7 +167,7 @@ public class ClothingSalesService {
             // 상태가 SELLING인 경우 sellingQuantity를 증가시킨다.
             // 상태가 SOLD_OUT인 경우, 해당 state의 createdDate가 7일 이후면 soldQuantity를 증가시키고, 7일 이전이면 pendingQuantity를 증가시킨다.
             productList.forEach(product -> {
-                ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                 if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
                     sellingQuantity.getAndSet(sellingQuantity.get() + 1);
                 } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {
@@ -196,7 +196,7 @@ public class ClothingSalesService {
             AtomicReference<Integer> soldQuantity = new AtomicReference<>(0);
 
             productList.forEach(product -> {
-                ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                 if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
                     sellingQuantity.getAndSet(sellingQuantity.get() + 1);
                 } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {

@@ -10,5 +10,5 @@ public interface ProductStateRepository extends JpaRepository<ProductState, Long
 
     List<ProductState> findByProductId(Long id);
 
-    Optional<ProductState> findFirstByProductIdOrderByIdDesc(Long productId);
+    Optional<ProductState> findFirstByProductIdOrderByCreatedDateDesc(Long productId);
 }

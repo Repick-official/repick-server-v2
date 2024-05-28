@@ -24,7 +24,7 @@ public class ProductValidator {
     private final BoxCollectRepository boxCollectRepository;
 
     public void validateProductState(Long productId, ProductStateType productStateType) {
-        ProductState productState = productStateRepository.findFirstByProductIdOrderByIdDesc(productId)
+        ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(productId)
                 .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
         if (productState.getProductStateType() != productStateType) {
             throw new CustomException(PRODUCT_NOT_DESIRED_STATE);
