@@ -282,15 +282,6 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public Product getProduct(Long productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-    }
-
-    public void updatePrice(Product product, Long price) {
-        product.updatePrice(price);
-    }
-
     public List<Product> findByClothingSales(Boolean isBoxCollect, Long clothingSlaesId) {
         return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
     }
