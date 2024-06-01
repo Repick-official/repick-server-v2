@@ -7,6 +7,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record PostPayment(
         @Schema(description = "결제 고유번호") String iamportUid,
-        @Schema(description = "주문 아이디") String merchantUid,
-        Address address) {
+        @Schema(description = "주문 아이디") String merchantUid) {
 }

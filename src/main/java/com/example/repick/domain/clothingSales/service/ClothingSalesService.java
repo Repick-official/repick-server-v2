@@ -7,6 +7,7 @@ import com.example.repick.domain.product.dto.product.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
@@ -34,6 +35,7 @@ public class ClothingSalesService {
     private final BoxService boxService;
     private final ProductService productService;
     private final ClothingSalesValidator clothingSalesValidator;
+    private final ProductRepository productRepository;
     private final ProductStateRepository productStateRepository;
 
     public List<GetPendingClothingSales> getPendingClothingSales() {
@@ -127,12 +129,13 @@ public class ClothingSalesService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        Product product = productService.getProduct(postProductPrice.productId());
+        Product product = productRepository.findById(postProductPrice.productId())
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
 
         clothingSalesValidator.productUserMatches(product, user);
         clothingSalesValidator.validateProductState(product, ProductStateType.PRICE_INPUT);
 
-        productService.updatePrice(product, postProductPrice.price());
+        product.updatePrice(postProductPrice.price());
 
         return GetProductByClothingSalesDto.of(product);
 

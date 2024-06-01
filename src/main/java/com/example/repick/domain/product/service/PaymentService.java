@@ -61,7 +61,7 @@ public class PaymentService {
         }
 
         // Payment 저장
-        Payment payment = Payment.of(user.getId(), merchantUid, totalPrice);
+        Payment payment = Payment.of(user.getId(), merchantUid, totalPrice, postProductOrder.address());
         paymentRepository.save(payment);
 
         // ProductOrder 저장
@@ -108,7 +108,7 @@ public class PaymentService {
         switch (paymentResponse.getStatus().toUpperCase()) {
             case "READY", "CANCELLED", "FAILED"  -> {
                 // 가상계좌 발급한다면 "READY" case 수정
-                payment.completePayment(PaymentStatus.fromValue(paymentResponse.getStatus().toUpperCase()), postPayment.iamportUid(), postPayment.address());
+                payment.completePayment(PaymentStatus.fromValue(paymentResponse.getStatus().toUpperCase()), postPayment.iamportUid());
                 paymentRepository.save(payment);
                 throw new CustomException(INVALID_PAYMENT_STATUS);
             }
@@ -123,7 +123,7 @@ public class PaymentService {
         }
 
         // 유효한 결제 -> Payment 저장
-        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
+        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid());
         paymentRepository.save(payment);
 
         // ProductOrderState 업데이트, 장바구니 삭제, ProductSellingState 추가
@@ -227,7 +227,7 @@ public class PaymentService {
             throw new CustomException(DUPLICATE_PAYMENT);
         }
 
-        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid(), postPayment.address());
+        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid());
         paymentRepository.save(payment);
 
         productOrders.forEach(productOrder -> {
