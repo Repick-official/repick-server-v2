@@ -21,11 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -316,33 +313,22 @@ public class ProductService {
     }
 
     public List<GetClassification> getProductCategoryTypes(String gender) {
-        List<GetClassificationEach> outer = new ArrayList<>();
-        List<GetClassificationEach> top = new ArrayList<>();
-        List<GetClassificationEach> bottom = new ArrayList<>();
-        List<GetClassificationEach> skirt = new ArrayList<>();
-        List<GetClassificationEach> onePiece = new ArrayList<>();
-
-        for (Category category : Category.values()) {
+        Map<String, List<Category>> categoryMap = new LinkedHashMap<>();
+        for(Category category : Category.values()) {
             if (category.getGender().equals(gender) || category.getGender().equals("공용")) {
-                switch (category.getParent()) {
-                    case "아우터" -> outer.add(GetClassificationEach.of(category));
-                    case "상의" -> top.add(GetClassificationEach.of(category));
-                    case "하의" -> bottom.add(GetClassificationEach.of(category));
-                    case "스커트" -> skirt.add(GetClassificationEach.of(category));
-                    case "원피스" -> onePiece.add(GetClassificationEach.of(category));
-                }
+                categoryMap.computeIfAbsent(category.getParent(), k -> new ArrayList<>()).add(category);
             }
         }
 
         List<GetClassification> result = new ArrayList<>();
-
-        result.add(GetClassification.of("아우터", outer));
-        result.add(GetClassification.of("상의", top));
-        result.add(GetClassification.of("하의", bottom));
-        result.add(GetClassification.of("스커트", skirt));
-        result.add(GetClassification.of("원피스", onePiece));
-
+        for(String mainCategory : categoryMap.keySet()) {
+            result.add(GetClassification.of(
+                    mainCategory,
+                    categoryMap.get(mainCategory).stream().map(GetClassificationEach::of).collect(Collectors.toList())
+            ));
+        }
         return result;
+
     }
 
     public List<GetBrandList> getProductBrandTypes() {
