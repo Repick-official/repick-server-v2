@@ -42,12 +42,13 @@ public class Payment extends BaseEntity {
         this.address = address;
     }
 
-    public static Payment of(Long userId, String merchantUid, BigDecimal amount) {
+    public static Payment of(Long userId, String merchantUid, BigDecimal amount, Address address) {
         return Payment.builder()
                 .userId(userId)
                 .paymentStatus(PaymentStatus.READY)
                 .merchantUid(merchantUid)
                 .amount(amount)
+                .address(address)
                 .build();
     }
 
@@ -55,10 +56,9 @@ public class Payment extends BaseEntity {
         this.paymentStatus = paymentStatus;
     }
 
-    public void completePayment(PaymentStatus paymentStatus, String iamportUid, Address address) {
+    public void completePayment(PaymentStatus paymentStatus, String iamportUid) {
         this.paymentStatus = paymentStatus;
         this.iamportUid = iamportUid;
-        this.address = address;
     }
 
 
