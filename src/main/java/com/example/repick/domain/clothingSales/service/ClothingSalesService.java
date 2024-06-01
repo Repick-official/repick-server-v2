@@ -8,6 +8,7 @@ import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductRepository;
+import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -35,6 +36,7 @@ public class ClothingSalesService {
     private final ProductService productService;
     private final ClothingSalesValidator clothingSalesValidator;
     private final ProductRepository productRepository;
+    private final ProductStateRepository productStateRepository;
 
     public List<GetPendingClothingSales> getPendingClothingSales() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -168,7 +170,7 @@ public class ClothingSalesService {
             // 상태가 SELLING인 경우 sellingQuantity를 증가시킨다.
             // 상태가 SOLD_OUT인 경우, 해당 state의 createdDate가 7일 이후면 soldQuantity를 증가시키고, 7일 이전이면 pendingQuantity를 증가시킨다.
             productList.forEach(product -> {
-                ProductState productState = productService.getProductSellingState(product.getId());
+                ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                 if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
                     sellingQuantity.getAndSet(sellingQuantity.get() + 1);
                 } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {
@@ -197,7 +199,7 @@ public class ClothingSalesService {
             AtomicReference<Integer> soldQuantity = new AtomicReference<>(0);
 
             productList.forEach(product -> {
-                ProductState productState = productService.getProductSellingState(product.getId());
+                ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                 if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
                     sellingQuantity.getAndSet(sellingQuantity.get() + 1);
                 } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {

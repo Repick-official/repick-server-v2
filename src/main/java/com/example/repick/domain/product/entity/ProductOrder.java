@@ -22,6 +22,7 @@ public class ProductOrder extends BaseEntity{
 
     private boolean isConfirmed;
 
+    @Enumerated(EnumType.STRING)
     private ProductOrderState productOrderState;
 
     @ManyToOne

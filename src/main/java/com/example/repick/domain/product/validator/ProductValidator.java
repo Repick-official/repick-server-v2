@@ -23,15 +23,9 @@ public class ProductValidator {
     private final BoxCollectRepository boxCollectRepository;
 
     public void validateProductState(Long productId, ProductStateType productStateType) {
-
-        // find the most recently created product state
-        ProductState productStateList = productStateRepository.findByProductId(productId)
-                .stream()
-                .reduce((first, second) -> second)
+        ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(productId)
                 .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
-
-
-        if (productStateList.getProductStateType() != productStateType) {
+        if (productState.getProductStateType() != productStateType) {
             throw new CustomException(PRODUCT_NOT_DESIRED_STATE);
         }
     }
