@@ -46,16 +46,6 @@ public class AppleUserService {
 
     @Value("${oauth.apple.client-id}")
     private String clientId;
-    @Value("${oauth.apple.redirect-uri}")
-    private String redirectUri;
-    @Value("${oauth.apple.team-id}")
-    private String teamId;
-    @Value("${oauth.apple.key-id}")
-    private String keyId;
-    @Value("${oauth.apple.key-path}")
-    private String keyPath;
-
-
 
     @Transactional
     public Pair<TokenResponse, Boolean> appleLogin(String id_token) {

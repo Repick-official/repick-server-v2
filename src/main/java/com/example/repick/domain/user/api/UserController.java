@@ -14,9 +14,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 
@@ -31,6 +35,10 @@ public class UserController {
     private final AppleUserService appleUserService;
     private final NaverUserService naverUserService;
     private final GoogleUserService googleUserService;
+
+    @Value("${oauth.apple.flutter-package-name}")
+    private String flutterPackageName;
+
     @Operation(summary = "구글 엑세스 토큰으로 내부 토큰 발급하기",
             description = """
                     구글 엑세스 토큰으로 내부 토큰을 발급합니다.
@@ -81,7 +89,6 @@ public class UserController {
     public SuccessResponse<TokenResponse> naverLogin(@Parameter(name = "accessToken", description = "네이버 인증서버에서 받은 토큰", required = true)
                                         @RequestParam String accessToken) throws JsonProcessingException {
         Pair<TokenResponse, Boolean> pair = naverUserService.naverLogin(accessToken);
-
         if (pair.getRight()) {
             return SuccessResponse.createSuccess(pair.getLeft());
         } else {
@@ -111,7 +118,6 @@ public class UserController {
     public SuccessResponse<TokenResponse> kakaoLogin(@Parameter(name = "accessToken", description = "카카오 인증서버에서 받은 토큰", required = true)
                                         @RequestParam String accessToken) throws JsonProcessingException {
         Pair<TokenResponse, Boolean> pair = kakaoUserService.kakaoLogin(accessToken);
-
         if (pair.getRight()) {
             return SuccessResponse.createSuccess(pair.getLeft());
         } else {
@@ -146,16 +152,25 @@ public class UserController {
                     - refreshToken: 서버 내부에서 발급한 토큰입니다.
                     """)
     @PostMapping("/oauth/apple")
-    public SuccessResponse<TokenResponse> callback(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
+    public RedirectView appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
                                                    @RequestParam String id_token) {
 
         Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
-
-        if (pair.getRight()) {
-            return SuccessResponse.createSuccess(pair.getLeft());
+        String redirection = String.format(
+                "intent://callback?"
+                + "accessToken=%s&"
+                + "refreshToken=%s"
+                + "#Intent;package=%s;"
+                + "scheme=signinwithapple;end",
+                pair.getLeft().accessToken(), pair.getLeft().refreshToken(), flutterPackageName);
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl(redirection);
+        if(pair.getRight()) {
+            redirectView.setStatusCode(HttpStatus.CREATED);
         } else {
-            return SuccessResponse.success(pair.getLeft());
+            redirectView.setStatusCode(HttpStatus.OK);
         }
+        return redirectView;
     }
 
     @Operation(summary = "유저 정보 조회하기",
