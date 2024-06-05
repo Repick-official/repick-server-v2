@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -157,7 +156,7 @@ public class UserController {
 
         Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
         String redirection = String.format(
-                "intent://callback?"
+                "repick.signinwithapple://callback?"
                 + "accessToken=%s&"
                 + "refreshToken=%s"
                 + "#Intent;package=%s;"
