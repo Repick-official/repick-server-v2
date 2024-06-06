@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +33,6 @@ public class UserController {
     private final AppleUserService appleUserService;
     private final NaverUserService naverUserService;
     private final GoogleUserService googleUserService;
-
-    @Value("${oauth.apple.flutter-package-name}")
-    private String flutterPackageName;
 
     @Operation(summary = "구글 엑세스 토큰으로 내부 토큰 발급하기",
             description = """
@@ -151,20 +147,16 @@ public class UserController {
                     - refreshToken: 서버 내부에서 발급한 토큰입니다.
                     """)
     @PostMapping("/oauth/apple")
-    public ResponseEntity<String> appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
-                                                   @RequestParam String id_token) {
-
+    public ResponseEntity<String> appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true) @RequestParam String id_token) {
         Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
         String htmlResponse = String.format(
                 "<div><BR><BR><BR><a style=\"text-align:center;font-size:24pt;font-weight:bold;\"href=\""
-                + "intent://callback?"
+                + "repick.oauth://signinwithapple?"
                 + "accessToken=%s&"
                 + "refreshToken=%s"
-                + "#Intent;package=%s;end"
                 + "\"/>리픽으로 돌아가기</a></div>",
                 pair.getLeft().accessToken(),
-                pair.getLeft().refreshToken(),
-                flutterPackageName);
+                pair.getLeft().refreshToken());
 
         return ResponseEntity.status(pair.getRight() ? HttpStatus.CREATED : HttpStatus.OK)
                 .contentType(MediaType.TEXT_HTML)

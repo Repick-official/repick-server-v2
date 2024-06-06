@@ -22,7 +22,7 @@ public class FaqController {
     @Operation(summary = "FAQ 등록")
     @PostMapping
     public SuccessResponse<Boolean> postFaq(@RequestBody PostFaq postFaq) {
-        return SuccessResponse.success(faqService.createFaq(postFaq));
+        return SuccessResponse.createSuccess(faqService.createFaq(postFaq));
     }
 
     @Operation(summary = "FAQ 전체 조회")
