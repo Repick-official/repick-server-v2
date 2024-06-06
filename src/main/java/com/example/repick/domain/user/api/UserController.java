@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 
 @Tag(name = "User", description = "유저 관련 API")
@@ -159,7 +160,7 @@ public class UserController {
                 pair.getLeft().refreshToken());
 
         return ResponseEntity.status(pair.getRight() ? HttpStatus.CREATED : HttpStatus.OK)
-                .contentType(MediaType.TEXT_HTML)
+                .contentType((new MediaType("text", "html", StandardCharsets.UTF_8)))
                 .body(htmlResponse);
     }
 
