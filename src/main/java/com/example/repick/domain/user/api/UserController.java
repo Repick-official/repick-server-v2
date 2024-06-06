@@ -17,9 +17,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 
@@ -151,25 +151,24 @@ public class UserController {
                     - refreshToken: 서버 내부에서 발급한 토큰입니다.
                     """)
     @PostMapping("/oauth/apple")
-    public RedirectView appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
+    public ResponseEntity<String> appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
                                                    @RequestParam String id_token) {
 
         Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
-        String redirection = String.format(
-                "repick.signinwithapple://callback?"
+        String htmlResponse = String.format(
+                "<div><BR><BR><BR><a style=\"text-align:center;font-size:24pt;font-weight:bold;\"href=\""
+                + "intent://callback?"
                 + "accessToken=%s&"
                 + "refreshToken=%s"
-                + "#Intent;package=%s;"
-                + "scheme=signinwithapple;end",
-                pair.getLeft().accessToken(), pair.getLeft().refreshToken(), flutterPackageName);
-        RedirectView redirectView = new RedirectView();
-        redirectView.setUrl(redirection);
-        if(pair.getRight()) {
-            redirectView.setStatusCode(HttpStatus.CREATED);
-        } else {
-            redirectView.setStatusCode(HttpStatus.OK);
-        }
-        return redirectView;
+                + "#Intent;package=%s;end"
+                + "\"/>리픽으로 돌아가기</a></div>",
+                pair.getLeft().accessToken(),
+                pair.getLeft().refreshToken(),
+                flutterPackageName);
+
+        return ResponseEntity.status(pair.getRight() ? HttpStatus.CREATED : HttpStatus.OK)
+                .contentType(MediaType.TEXT_HTML)
+                .body(htmlResponse);
     }
 
     @Operation(summary = "유저 정보 조회하기",
