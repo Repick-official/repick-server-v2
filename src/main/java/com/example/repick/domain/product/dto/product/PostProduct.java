@@ -3,6 +3,7 @@ package com.example.repick.domain.product.dto.product;
 import com.example.repick.domain.product.entity.Gender;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.QualityRate;
+import com.example.repick.domain.product.entity.Size;
 import com.example.repick.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,15 +21,22 @@ public record PostProduct (
         @Schema(description = "할인율",example = "30") Long discountRate,
         @Schema(description = "브랜드 이름", example = "무인양품") String brandName,
         @Schema(description = "상품 설명", example = "바람이 잘 통하는 시원한 오버핏 셔츠입니다.") String description,
-        @Schema(description = "사이즈 (XXS, XS, S, M, L, XL, XXL)", example = "XXS") String size,
+        @Schema(description = "총장") Double totalLength,
+        @Schema(description = "어깨") Double shoulder,
+        @Schema(description = "가슴") Double chest,
+        @Schema(description = "팔") Double arm,
+        @Schema(description = "허리") Double waist,
+        @Schema(description = "엉덩이") Double hip,
+        @Schema(description = "허벅지") Double thigh,
+        @Schema(description = "밑위") Double rise,
         @Schema(description = "상품 품질 등급 (S, A, B)", example = "S") String qualityRate,
         @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender,
         @Schema(description = "박스 수거 여부, true: 박스 수거 false: 백 수거", example = "true") Boolean isBoxCollect,
         @Schema(description = "수거 ID", example = "3") Long clothingSalesId
 
-) {
+        ) {
 
-    public Product toProduct(User user) {
+    public Product toProduct(User user, String size) {
         return Product.builder()
                 .user(user)
                 .productName(this.productName())
@@ -37,7 +45,8 @@ public record PostProduct (
                 .discountRate(this.discountRate())
                 .brandName(this.brandName())
                 .description(this.description())
-                .size(this.size())
+                .size(size)
+                .sizeInfo(Size.ofValues(this.totalLength(), this.shoulder(), this.chest(), this.arm(), this.waist(), this.hip(), this.thigh(), this.rise()))
                 .qualityRate(QualityRate.fromValue(this.qualityRate()))
                 .gender(Gender.fromValue(this.gender()))
                 .isBoxCollect(this.isBoxCollect())

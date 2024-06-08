@@ -85,7 +85,8 @@ public class ProductService {
         productValidator.validateClothingSales(postProduct.isBoxCollect(), postProduct.clothingSalesId(), user.getId());
 
         // product
-        Product product = productRepository.save(postProduct.toProduct(user));
+        String size  = convertSizeInfo(Category.fromName(postProduct.categories().get(0)), postProduct.chest(), postProduct.waist());
+        Product product = productRepository.save(postProduct.toProduct(user, size));
 
         // productImage
         String thumbnailGeneratedUrl = uploadImage(postProduct.images(), product);
@@ -103,6 +104,32 @@ public class ProductService {
         return ProductResponse.fromProduct(product);
 
     }
+
+    private String convertSizeInfo(Category category, Double chest, Double waist) {
+        if (category.getParent().equals("상의") || category.getParent().equals("아우터")) {
+            if (chest <= 78) return "XXS";
+            else if (chest <= 82) return "XS";
+            else if (chest <= 90) return "S";
+            else if (chest <= 98) return "M";
+            else if (chest <= 107) return "L";
+            else if (chest <= 119) return "XL";
+            else return "XXL";
+        }
+        else if (category.getParent().equals("하의") || category.getParent().equals("스커트") || category.getParent().equals("원피스")) {
+            if (waist <= 62) return "XXS";
+            else if (waist <= 66) return "XS";
+            else if (waist <= 74) return "S";
+            else if (waist <= 82.5) return "M";
+            else if (waist <= 93) return "L";
+            else if (waist <= 105) return "XL";
+            else return "XXL";
+        }
+        else {
+            return "FREE";
+        }
+    }
+
+
 
     @Transactional
     public ProductResponse deleteProduct(Long productId) {

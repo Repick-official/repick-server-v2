@@ -25,6 +25,8 @@ public class Product extends BaseEntity {
     private String brandName;
     private String description;
     private String size;
+    @Embedded
+    private Size sizeInfo;
     private Boolean isBoxCollect;
     private Long clothingSalesId;
     @Enumerated(EnumType.STRING)
@@ -33,6 +35,7 @@ public class Product extends BaseEntity {
     private Gender gender;
     @Column(length = 1000)
     private String thumbnailImageUrl;
+
 
     @Builder
     public Product(
@@ -47,6 +50,7 @@ public class Product extends BaseEntity {
             String brandName,
             String description,
             String size,
+            Size sizeInfo,
             QualityRate qualityRate,
             String thumbnailImageUrl,
             Gender gender,
@@ -63,6 +67,7 @@ public class Product extends BaseEntity {
         this.brandName = brandName;
         this.description = description;
         this.size = size;
+        this.sizeInfo = sizeInfo;
         this.qualityRate = qualityRate;
         this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
@@ -81,7 +86,7 @@ public class Product extends BaseEntity {
         this.predictPriceDiscountRate = product.predictPriceDiscountRate;
         this.brandName = product.brandName;
         this.description = product.description;
-        this.size = product.size;
+        this.sizeInfo = product.sizeInfo;
         this.qualityRate = product.qualityRate;
         this.gender = product.gender;
     }
