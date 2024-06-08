@@ -146,15 +146,11 @@ public class RecommendationService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        skipProduct(user.getId(), productId);
+        userPreferenceProductRepository.save(new UserPreferenceProduct(userId, productId));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
         adjustUserPreferenceOnDetail(user.getId(), product, new double[]{0.7, 0.9, 1.5});
 
         return true;
-    }
-
-    public void skipProduct(Long userId, Long productId) {
-        userPreferenceProductRepository.save(new UserPreferenceProduct(userId, productId));
     }
 }
