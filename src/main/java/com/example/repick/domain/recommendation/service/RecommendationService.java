@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
 import static com.example.repick.global.error.exception.ErrorCode.USER_PREFERENCE_NOT_FOUND;
+import static java.util.Collections.shuffle;
 
 @Service @RequiredArgsConstructor
 public class RecommendationService {
@@ -111,6 +112,8 @@ public class RecommendationService {
         if (topRecommendedProducts.size() < 3) {
             topRecommendedProducts = productRecommendation.stream().limit(3).collect(Collectors.toList());
         }
+
+        shuffle(topRecommendedProducts);
 
         return topRecommendedProducts.stream()
                 .map(GetRecommendation::new)
