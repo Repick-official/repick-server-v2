@@ -196,14 +196,10 @@ public class ProductService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         productLikeRepository.findByUserIdAndProductId(user.getId(), productId)
-                .ifPresentOrElse(productLike -> {
-                    productLikeRepository.delete(productLike);
-
-                    Product product = productRepository.findById(productId)
-                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-                    recommendationService.adjustUserPreferenceOnDetail(user.getId(), product, new double[]{1.2, 1.05, 0.8});
-
-                }, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
+                .ifPresentOrElse(productLikeRepository::delete, () -> {
+                    productLikeRepository.save(ProductLike.of(user.getId(), productId));
+                    recommendationService.adjustUserPreferenceOnDetail(user.getId(), productId, new double[]{1.2, 1.05, 0.8});
+                });
 
         return true;
     }
@@ -317,7 +313,7 @@ public class ProductService {
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
 
-        handleUserPreference(userId, product);
+        handleUserPreference(userId, product.getId());
 
         Boolean isLiked = productLikeRepository.existsByUserIdAndProductId(userId, productId);
 
@@ -329,10 +325,10 @@ public class ProductService {
 
     }
 
-    private void handleUserPreference(Long userId, Product product) {
+    private void handleUserPreference(Long userId, Long productId) {
         if (userId == 0L) return;
 
-        recommendationService.adjustUserPreferenceOnDetail(userId, product, new double[]{1.03, 1.01, 0.99});
+        recommendationService.adjustUserPreferenceOnDetail(userId, productId, new double[]{1.03, 1.01, 0.99});
 
     }
 

@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.repick.global.error.exception.ErrorCode.*;
+import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
+import static com.example.repick.global.error.exception.ErrorCode.USER_PREFERENCE_NOT_FOUND;
 
 @Service @RequiredArgsConstructor
 public class RecommendationService {
@@ -38,14 +39,14 @@ public class RecommendationService {
         userPreferenceRepository.save(new UserPreference(userId));
     }
 
-    public void adjustUserPreferenceOnDetail(Long userId, Product product, double[] weights) {
+    public void adjustUserPreferenceOnDetail(Long userId, Long productId, double[] weights) {
         UserPreference userPreference = userPreferenceRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(USER_PREFERENCE_NOT_FOUND));
 
         List<Double> categoryPreferenceList = userPreference.getCategoryPreference();
         List<Double> stylePreferenceList = userPreference.getStylePreference();
 
-        productCategoryRepository.findByProductId(product.getId()).forEach(productCategory -> {
+        productCategoryRepository.findByProductId(productId).forEach(productCategory -> {
             Category category = productCategory.getCategory();
             int categoryId = category.getId();
             categoryPreferenceList.set(categoryId, categoryPreferenceList.get(categoryId) * weights[0]);
@@ -62,7 +63,7 @@ public class RecommendationService {
 
         userPreference.setCategoryPreference(categoryPreferenceList);
 
-        productStyleRepository.findByProductId(product.getId()).forEach(productStyle -> {
+        productStyleRepository.findByProductId(productId).forEach(productStyle -> {
             int styleId = productStyle.getStyle().getId();
             stylePreferenceList.set(styleId, stylePreferenceList.get(styleId) * weights[0]);
         });
@@ -146,10 +147,8 @@ public class RecommendationService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        userPreferenceProductRepository.save(new UserPreferenceProduct(userId, productId));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-        adjustUserPreferenceOnDetail(user.getId(), product, new double[]{0.7, 0.9, 1.5});
+        userPreferenceProductRepository.save(new UserPreferenceProduct(user.getId(), productId));
+        adjustUserPreferenceOnDetail(user.getId(), productId, new double[]{0.7, 0.9, 1.5});
 
         return true;
     }
