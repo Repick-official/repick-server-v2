@@ -207,9 +207,24 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
+        List<String> sizes = productFilter.sizes();
+        if (productFilter.isMySize()) {
+            sizes = getUserSizesForCategory(user, Category.fromValue(productFilter.category()));
+        }
+        productFilter = new ProductFilter(
+                productFilter.keyword(),
+                productFilter.gender(),
+                productFilter.category(),
+                productFilter.styles(),
+                productFilter.minPrice(),
+                productFilter.maxPrice(),
+                productFilter.brandNames(),
+                productFilter.qualityRates(),
+                sizes,
+                productFilter.isMySize()
+        );
         Page<GetProductThumbnail> products = getProductsBasedOnType(type, userId, productFilter, pageCondition);
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
-
     }
 
     private Page<GetProductThumbnail> getProductsBasedOnType(String type, Long userId, ProductFilter productFilter, PageCondition pageCondition) {
@@ -223,6 +238,16 @@ public class ProductService {
                     productRepository.findHighestDiscountProducts(userId, productFilter, pageCondition.toPageable());
             default -> throw new CustomException(INVALID_SORT_TYPE);
         };
+    }
+
+    private List<String> getUserSizesForCategory(User user, Category category) {
+        List<String> sizes = new ArrayList<>();
+        if (category.getParent().equals("상의") || category.getParent().equals("아우터") || category.getParent().equals("원피스")) {
+            sizes.add(user.getTopSize());
+        } else if (category.getParent().equals("하의") || category.getParent().equals("스커트")) {
+            sizes.add(user.getBottomSize());
+        }
+        return sizes;
     }
 
     public Boolean toggleLike(Long productId) {

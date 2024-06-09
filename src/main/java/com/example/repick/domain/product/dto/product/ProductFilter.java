@@ -13,6 +13,11 @@ public record ProductFilter(
         @Schema(description = "최대 가격") Long maxPrice,
         @Schema(description = "브랜드") List<String> brandNames,
         @Schema(description = "상품등급") List<String> qualityRates,
-        @Schema(description = "사이즈") List<String> sizes
+        @Schema(description = "사이즈") List<String> sizes,
+        @Schema(description = "내 사이즈 여부") Boolean isMySize
 ) {
+    public Boolean isMySize() {
+        return isMySize != null ? isMySize : false;
+    }
+
 }
