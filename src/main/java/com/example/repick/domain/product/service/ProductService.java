@@ -210,19 +210,19 @@ public class ProductService {
         List<String> sizes = productFilter.sizes();
         if (productFilter.isMySize()) {
             sizes = getUserSizesForCategory(user, Category.fromValue(productFilter.category()));
+            productFilter = new ProductFilter(
+                    productFilter.keyword(),
+                    productFilter.gender(),
+                    productFilter.category(),
+                    productFilter.styles(),
+                    productFilter.minPrice(),
+                    productFilter.maxPrice(),
+                    productFilter.brandNames(),
+                    productFilter.qualityRates(),
+                    sizes,
+                    productFilter.isMySize()
+            );
         }
-        productFilter = new ProductFilter(
-                productFilter.keyword(),
-                productFilter.gender(),
-                productFilter.category(),
-                productFilter.styles(),
-                productFilter.minPrice(),
-                productFilter.maxPrice(),
-                productFilter.brandNames(),
-                productFilter.qualityRates(),
-                sizes,
-                productFilter.isMySize()
-        );
         Page<GetProductThumbnail> products = getProductsBasedOnType(type, userId, productFilter, pageCondition);
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
