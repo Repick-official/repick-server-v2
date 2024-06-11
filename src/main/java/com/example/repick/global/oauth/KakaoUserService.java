@@ -1,5 +1,6 @@
 package com.example.repick.global.oauth;
 
+import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.KakaoUserDto;
 import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
@@ -29,6 +30,7 @@ public class KakaoUserService {
 
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final RecommendationService recommendationService;
 
     @Value("${oauth.kakao.client-id}")
     private String clientId;
@@ -74,9 +76,7 @@ public class KakaoUserService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
-        System.out.println("KakaoUserService.handleKakaoResponse");
         String id = jsonNode.get("id").asText();
-        System.out.println("KakaoUserService.handleKakaoResponse");
 
         String email = jsonNode.get("kakao_account").get("email").asText();
 
@@ -107,6 +107,9 @@ public class KakaoUserService {
                     .build();
 
             userRepository.save(kakaoUser);
+
+            // create user preference
+            recommendationService.registerUserPreference(kakaoUser.getId());
 
             return Pair.of(kakaoUser, true);
 
