@@ -221,13 +221,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             return null;
         }
 
-        return JPAExpressions
-                .select(productState.id.max())
-                .from(productState)
-                .where(productState.productStateType.eq(productStateType)
-                        .and(productState.productId.eq(product.id)))
-                .groupBy(productState.productId)
-                .eq(productState.id);
+        QProductState subProductState = new QProductState("subProductState");
+
+        return productState.id.in(
+                JPAExpressions
+                        .select(subProductState.id)
+                        .from(subProductState)
+                        .where(subProductState.id.in(
+                                JPAExpressions
+                                        .select(productState.id.max())
+                                        .from(productState)
+                                        .groupBy(productState.productId)
+                        ).and(subProductState.productStateType.eq(ProductStateType.SELLING)))
+        );
     }
 
     private BooleanExpression stylesFilter(List<String> styles) {
