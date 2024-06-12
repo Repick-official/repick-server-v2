@@ -75,28 +75,22 @@ public class Product extends BaseEntity {
         this.clothingSalesId = clothingSalesId;
     }
 
-    public void update(Product product) {
-        this.user = product.user;
-        this.productName = product.productName;
-        this.price = product.price;
-        this.predictPrice = product.predictPrice;
-        this.suggestedPrice = product.suggestedPrice;
-        this.discountPrice = product.discountPrice;
-        this.discountRate = product.discountRate;
-        this.predictPriceDiscountRate = product.predictPriceDiscountRate;
-        this.brandName = product.brandName;
-        this.description = product.description;
-        this.sizeInfo = product.sizeInfo;
-        this.qualityRate = product.qualityRate;
-        this.gender = product.gender;
+    public void updateProductName(String productName) {
+        this.productName = productName;
     }
 
-    public void updateThumbnailImageUrl(String thumbnailImageUrl) {
-        this.thumbnailImageUrl = thumbnailImageUrl;
-    }
     public void updatePrice(Long price) {
         this.price = price;
     }
+
+    public void updatePredictPrice(Long predictPrice) {
+        this.predictPrice = predictPrice;
+    }
+
+    public void updateSuggestedPrice(Long suggestedPrice) {
+        this.suggestedPrice = suggestedPrice;
+    }
+
     public void updateDiscountPrice(Long discountPrice) {
         this.discountPrice = discountPrice;
     }
@@ -106,5 +100,34 @@ public class Product extends BaseEntity {
 
     public void updateDiscountRate(Long discountRate) {
         this.discountRate = discountRate;
+    }
+
+    public void updateBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public void updateDescription(String description) {
+        this.description = description;
+    }
+
+    public void updateSize(String size) {
+        this.size = size;
+    }
+
+    public void updateSizeInfo(Size sizeInfo) {
+        this.sizeInfo = sizeInfo;
+    }
+
+    public void updateQualityRate(QualityRate qualityRate) {
+        this.qualityRate = qualityRate;
+    }
+
+    public void updateGender(Gender gender) {
+        this.gender = gender;
+    }
+
+
+    public void updateThumbnailImageUrl(String thumbnailImageUrl) {
+        this.thumbnailImageUrl = thumbnailImageUrl;
     }
 }
