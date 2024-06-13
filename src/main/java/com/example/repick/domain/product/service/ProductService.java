@@ -174,7 +174,13 @@ public class ProductService {
             product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
         }
 
-         if (patchProduct != null) {
+        if (patchProduct != null) {
+            if(patchProduct.userId() != null) {
+                User user = userRepository.findById(patchProduct.userId())
+                        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                product.updateUser(user);
+            }
+
             if(patchProduct.categories() != null) {
                 productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
                 addCategory(patchProduct.categories(), product);
@@ -216,7 +222,6 @@ public class ProductService {
                 product.updateSize(convertSizeInfo(category, patchProduct.sizeInfo()));
             }
         }
-
 
         return ProductResponse.fromProduct(product);
 

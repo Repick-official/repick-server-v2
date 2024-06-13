@@ -81,6 +81,10 @@ public class Product extends BaseEntity {
         this.clothingSalesId = clothingSalesId;
     }
 
+    public void updateUser(User user) {
+        this.user = user;
+    }
+
     public void updateProductName(String productName) {
         this.productName = productName;
     }
