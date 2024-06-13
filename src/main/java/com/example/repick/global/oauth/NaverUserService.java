@@ -1,5 +1,6 @@
 package com.example.repick.global.oauth;
 
+import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.NaverUserDto;
 import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
@@ -28,6 +29,7 @@ public class NaverUserService {
     private final UserRepository userRepository;
     private final SecurityService securityService;
     private final ObjectMapper objectMapper; // JSON 처리를 위한 ObjectMapper 추가
+    private final RecommendationService recommendationService;
 
     @Value("${oauth.naver.client-id}")
     private String clientId;
@@ -75,6 +77,9 @@ public class NaverUserService {
                     .password(password)
                     .pushAllow(false)
                     .build();
+
+            // create user preference
+            recommendationService.registerUserPreference(naverUser.getId());
 
             userRepository.save(naverUser);
             return Pair.of(naverUser, true);

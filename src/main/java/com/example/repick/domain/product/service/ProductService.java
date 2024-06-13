@@ -5,6 +5,7 @@ import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
+import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -38,6 +39,7 @@ public class ProductService {
     private final ProductCartRepository productCartRepository;
     private final ProductStateRepository productStateRepository;
     private final ProductValidator productValidator;
+    private final RecommendationService recommendationService;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
         String thumbnailGeneratedUrl = null;
@@ -261,9 +263,24 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
+        List<String> sizes = productFilter.sizes();
+        if (productFilter.isMySize()) {
+            sizes = getUserSizesForCategory(user, Category.fromValue(productFilter.category()));
+            productFilter = new ProductFilter(
+                    productFilter.keyword(),
+                    productFilter.gender(),
+                    productFilter.category(),
+                    productFilter.styles(),
+                    productFilter.minPrice(),
+                    productFilter.maxPrice(),
+                    productFilter.brandNames(),
+                    productFilter.qualityRates(),
+                    sizes,
+                    productFilter.isMySize()
+            );
+        }
         Page<GetProductThumbnail> products = getProductsBasedOnType(type, userId, productFilter, pageCondition);
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
-
     }
 
     private Page<GetProductThumbnail> getProductsBasedOnType(String type, Long userId, ProductFilter productFilter, PageCondition pageCondition) {
@@ -279,12 +296,25 @@ public class ProductService {
         };
     }
 
+    private List<String> getUserSizesForCategory(User user, Category category) {
+        List<String> sizes = new ArrayList<>();
+        if (category.getParent().equals("상의") || category.getParent().equals("아우터") || category.getParent().equals("원피스")) {
+            sizes.add(user.getTopSize());
+        } else if (category.getParent().equals("하의") || category.getParent().equals("스커트")) {
+            sizes.add(user.getBottomSize());
+        }
+        return sizes;
+    }
+
     public Boolean toggleLike(Long productId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         productLikeRepository.findByUserIdAndProductId(user.getId(), productId)
-                .ifPresentOrElse(productLikeRepository::delete, () -> productLikeRepository.save(ProductLike.of(user.getId(), productId)));
+                .ifPresentOrElse(productLikeRepository::delete, () -> {
+                    productLikeRepository.save(ProductLike.of(user.getId(), productId));
+                    recommendationService.adjustUserPreferenceOnDetail(user.getId(), productId, new double[]{1.2, 1.05, 0.8});
+                });
 
         return true;
     }
@@ -386,6 +416,8 @@ public class ProductService {
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
 
+        handleUserPreference(userId, product.getId());
+
         Boolean isLiked = productLikeRepository.existsByUserIdAndProductId(userId, productId);
 
         List<ProductImage> productImageList = productImageRepository.findByProductIdAndIsDeleted(productId, false);
@@ -393,6 +425,13 @@ public class ProductService {
         List<ProductCategory> productCategoryList = productCategoryRepository.findByProductIdAndIsDeleted(productId, false);
 
         return GetProductDetail.of(product, productImageList, productCategoryList, isLiked);
+
+    }
+
+    private void handleUserPreference(Long userId, Long productId) {
+        if (userId == 0L) return;
+
+        recommendationService.adjustUserPreferenceOnDetail(userId, productId, new double[]{1.03, 1.01, 0.99});
 
     }
 

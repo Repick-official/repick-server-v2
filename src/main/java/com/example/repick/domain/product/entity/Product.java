@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity @NoArgsConstructor(access = AccessLevel.PROTECTED) @Getter
 public class Product extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +38,11 @@ public class Product extends BaseEntity {
     @Column(length = 1000)
     private String thumbnailImageUrl;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductCategory> productCategoryList;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductStyle> productStyleList;
     @Builder
     public Product(
             User user,
