@@ -30,6 +30,7 @@ public class Payment extends BaseEntity {
 
     private BigDecimal amount;
 
+    @Embedded
     private Address address;
 
     @Builder
