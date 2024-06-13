@@ -210,7 +210,10 @@ public class ProductService {
 
             if(patchProduct.sizeInfo() != null) {
                 product.updateSizeInfo(patchProduct.sizeInfo());
-                product.updateSize(convertSizeInfo(Category.fromName(patchProduct.categories().get(0)), patchProduct.sizeInfo()));
+                Category category = Optional.ofNullable(patchProduct.categories())
+                        .map(categories -> Category.fromName(categories.get(0)))
+                        .orElseGet(() -> product.getProductCategoryList().get(0).getCategory());
+                product.updateSize(convertSizeInfo(category, patchProduct.sizeInfo()));
             }
         }
 

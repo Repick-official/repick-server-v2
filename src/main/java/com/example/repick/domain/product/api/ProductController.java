@@ -85,9 +85,9 @@ public class ProductController {
             description = """
                     상품을 수정합니다. 삭제되거나 존재하지 않는 상품을 수정할 수 없습니다.
                     
-                    기존의 상품 정보를 새로운 정보로 **대체**합니다.
-                   
-                    MediaType: multipart/form-data
+                    필드는 필수가 아니고 수정되는 필드만 전송합니다.
+                    
+                    단, sizeInfo를 수정할 때는 모든 하위 필드 입력이 필수입니다.
                     """)
     @PatchMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<ProductResponse> updateProduct(
