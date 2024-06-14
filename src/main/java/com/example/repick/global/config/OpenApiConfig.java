@@ -6,6 +6,10 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+
+import java.util.ArrayList;
 
 @Configuration
 @OpenAPIDefinition(
@@ -45,4 +49,10 @@ import org.springframework.context.annotation.Configuration;
         scheme = "bearer"
 )
 public class OpenApiConfig {
+
+        public OpenApiConfig(MappingJackson2HttpMessageConverter converter) {
+                var supportedMediaTypes = new ArrayList<>(converter.getSupportedMediaTypes());
+                supportedMediaTypes.add(new MediaType("application", "octet-stream"));
+                converter.setSupportedMediaTypes(supportedMediaTypes);
+        }
 }

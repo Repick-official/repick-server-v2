@@ -79,7 +79,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse registerProduct(PostProduct postProduct) {
+    public ProductResponse registerProduct(List<MultipartFile> images, PostProduct postProduct) {
         User user = userRepository.findById(postProduct.userId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -87,10 +87,11 @@ public class ProductService {
         productValidator.validateClothingSales(postProduct.isBoxCollect(), postProduct.clothingSalesId(), user.getId());
 
         // product
-        Product product = productRepository.save(postProduct.toProduct(user));
+        String size  = convertSizeInfo(Category.fromName(postProduct.categories().get(0)), postProduct.sizeInfo());
+        Product product = productRepository.save(postProduct.toProduct(user, size));
 
         // productImage
-        String thumbnailGeneratedUrl = uploadImage(postProduct.images(), product);
+        String thumbnailGeneratedUrl = uploadImage(images, product);
         product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
         // productCategory
@@ -105,6 +106,34 @@ public class ProductService {
         return ProductResponse.fromProduct(product);
 
     }
+
+    private String convertSizeInfo(Category category, Size sizeInfo) {
+        if (category.getParent().equals("상의") || category.getParent().equals("아우터")) {
+            double chest = sizeInfo.getChest();
+            if (chest <= 78) return "XXS";
+            else if (chest <= 82) return "XS";
+            else if (chest <= 90) return "S";
+            else if (chest <= 98) return "M";
+            else if (chest <= 107) return "L";
+            else if (chest <= 119) return "XL";
+            else return "XXL";
+        }
+        else if (category.getParent().equals("하의") || category.getParent().equals("스커트") || category.getParent().equals("원피스")) {
+            double waist = sizeInfo.getWaist();
+            if (waist <= 62) return "XXS";
+            else if (waist <= 66) return "XS";
+            else if (waist <= 74) return "S";
+            else if (waist <= 82.5) return "M";
+            else if (waist <= 93) return "L";
+            else if (waist <= 105) return "XL";
+            else return "XXL";
+        }
+        else {
+            return "FREE";
+        }
+    }
+
+
 
     @Transactional
     public ProductResponse deleteProduct(Long productId) {
@@ -133,30 +162,66 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponse updateProduct(Long productId, PatchProduct patchProduct) {
-        User user = userRepository.findById(patchProduct.userId())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        // product
+    public ProductResponse updateProduct(Long productId, List<MultipartFile> images, PatchProduct patchProduct) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
 
         if (product.getIsDeleted()) throw new CustomException(DELETED_PRODUCT);
 
-        product.update(patchProduct.toProduct(user));
+        if(images != null) {
+            productImageRepository.findByProductId(product.getId()).forEach(ProductImage::delete);
+            String thumbnailGeneratedUrl = uploadImage(images, product);
+            product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
+        }
 
-        // productImage
-        productImageRepository.findByProductId(product.getId()).forEach(ProductImage::delete);
-        String thumbnailGeneratedUrl = uploadImage(patchProduct.images(), product);
-        product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
+        if (patchProduct != null) {
+            if(patchProduct.userId() != null) {
+                User user = userRepository.findById(patchProduct.userId())
+                        .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                product.updateUser(user);
+            }
 
-        // productCategory
-        productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
-        addCategory(patchProduct.categories(), product);
+            if(patchProduct.categories() != null) {
+                productCategoryRepository.findByProductId(product.getId()).forEach(ProductCategory::delete);
+                addCategory(patchProduct.categories(), product);
+            }
 
-        // productStyle
-        productStyleRepository.findByProductId(product.getId()).forEach(ProductStyle::delete);
-        addStyle(patchProduct.styles(), product);
+            if(patchProduct.styles() != null) {
+                productStyleRepository.findByProductId(product.getId()).forEach(ProductStyle::delete);
+                addStyle(patchProduct.styles(), product);
+            }
+
+            if(patchProduct.price() != null) {
+                product.updatePrice(patchProduct.price());
+                calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            }
+
+            if(patchProduct.suggestedPrice() != null) product.updateSuggestedPrice(patchProduct.suggestedPrice());
+
+            if(patchProduct.predictPrice() != null) {
+                product.updatePredictPrice(patchProduct.predictPrice());
+                calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            }
+
+            if(patchProduct.discountRate() != null) {
+                product.updateDiscountRate(patchProduct.discountRate());
+                calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            }
+
+            if(patchProduct.productName() != null) product.updateProductName(patchProduct.productName());
+            if(patchProduct.brandName() != null) product.updateBrandName(patchProduct.brandName());
+            if(patchProduct.description() != null) product.updateDescription(patchProduct.description());
+            if(patchProduct.qualityRate() != null) product.updateQualityRate(QualityRate.fromValue(patchProduct.qualityRate()));
+            if(patchProduct.gender() != null) product.updateGender(Gender.fromValue(patchProduct.gender()));
+
+            if(patchProduct.sizeInfo() != null) {
+                product.updateSizeInfo(patchProduct.sizeInfo());
+                Category category = Optional.ofNullable(patchProduct.categories())
+                        .map(categories -> Category.fromName(categories.get(0)))
+                        .orElseGet(() -> product.getProductCategoryList().get(0).getCategory());
+                product.updateSize(convertSizeInfo(category, patchProduct.sizeInfo()));
+            }
+        }
 
         return ProductResponse.fromProduct(product);
 

@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -64,8 +65,10 @@ public class ProductController {
                     MediaType: multipart/form-data
                     """)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessResponse<ProductResponse> registerProduct(@ModelAttribute PostProduct postProduct) {
-        return SuccessResponse.createSuccess(productService.registerProduct(postProduct));
+    public SuccessResponse<ProductResponse> registerProduct(
+            @RequestPart List<MultipartFile> images,
+            @RequestPart PostProduct postProduct) {
+        return SuccessResponse.createSuccess(productService.registerProduct(images, postProduct));
     }
 
     @Operation(summary = "상품 삭제하기",
@@ -82,15 +85,16 @@ public class ProductController {
             description = """
                     상품을 수정합니다. 삭제되거나 존재하지 않는 상품을 수정할 수 없습니다.
                     
-                    기존의 상품 정보를 새로운 정보로 **대체**합니다.
-                   
-                    MediaType: multipart/form-data
+                    필드는 필수가 아니고 수정되는 필드만 전송합니다.
+                    
+                    단, sizeInfo를 수정할 때는 모든 하위 필드 입력이 필수입니다.
                     """)
     @PatchMapping(value = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<ProductResponse> updateProduct(
             @Schema(description = "상품ID", example = "3") @PathVariable Long productId,
-            @ModelAttribute PatchProduct patchProduct) {
-        return SuccessResponse.createSuccess(productService.updateProduct(productId, patchProduct));
+            @RequestPart(required = false) List<MultipartFile> images,
+            @RequestPart(required = false) PatchProduct patchProduct) {
+        return SuccessResponse.success(productService.updateProduct(productId, images, patchProduct));
     }
 
     @Operation(summary = "새로 업데이트 된 의류 한눈에 보기",
