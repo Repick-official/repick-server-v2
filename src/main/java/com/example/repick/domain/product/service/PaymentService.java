@@ -52,6 +52,7 @@ public class PaymentService {
                 })
                 .map(product -> BigDecimal.valueOf(product.getDiscountPrice()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        totalPrice = totalPrice.add(BigDecimal.valueOf(postProductOrder.deliveryFee()));
 
         PrepareData prepareData = new PrepareData(merchantUid, totalPrice);
         try{
