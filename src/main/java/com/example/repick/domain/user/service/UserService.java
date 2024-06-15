@@ -9,6 +9,7 @@ import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.entity.UserSmsVerificationInfo;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.dynamodb.UserFcmTokenInfoRepository;
+import com.example.repick.dynamodb.UserPreferenceRepository;
 import com.example.repick.dynamodb.UserSmsVerificationInfoRepository;
 import com.example.repick.global.aws.S3UploadService;
 import com.example.repick.global.error.exception.CustomException;
@@ -42,6 +43,7 @@ public class UserService {
     private final UserSmsVerificationInfoRepository userSmsVerificationInfoRepository;
     private final TokenService tokenService;
     private final ProductOrderRepository productOrderRepository;
+    private final UserPreferenceRepository userPreferenceRepository;
 
 
     public GetUserInfo getUserInfo() {
@@ -91,6 +93,8 @@ public class UserService {
 
         // delete fcm token from ddb
         userFcmTokenInfoRepository.deleteById(user.getId());
+
+        userPreferenceRepository.deleteById(user.getId());
 
         userRepository.delete(user);
 

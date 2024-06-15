@@ -126,6 +126,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         likeFilter(userId),
                         categoryFilter(category),
                         deletedFilter())
+                .distinct()
                 .orderBy(productLike.id.desc());
         long total = query.stream().count();
         List<GetProductThumbnail> content = query
@@ -155,6 +156,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(
                         cartFilter(userId),
                         deletedFilter())
+                .distinct()
                 .orderBy(productCart.id.desc());
 
         long total = query.stream().count();
@@ -278,6 +280,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                     subCategoryFilter(subCategories),
                     deletedFilter(),
                     sellingStateFilter(ProductStateType.SELLING))
+                .distinct()
                 .orderBy(product.id.desc());
         long total = query.stream().count();
         List<GetProductThumbnail> content = query
@@ -313,6 +316,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 .groupBy(productState.productId)
                                 .eq(productState.id))
                         .and(productState.productStateType.eq(ProductStateType.PRICE_INPUT)))
+                .distinct()
                 .fetch();
     }
 
@@ -350,6 +354,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         productLike.id.isNull(),
                         productCart.id.isNull())
                 .limit(10)
+                .distinct()
                 .fetch();
     }
 

@@ -29,7 +29,7 @@ import java.util.ArrayList;
         
         ### 개발용 토큰
         
-        `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyODg2MjMzNzQ3Iiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3MDk1NTMxNTIsImV4cCI6MTcxODE5MzE1Mn0.85v06Tf4T56-CBjbtzhls_S5_lq7YRhhIaDGH9W7xew`
+        `eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyODg2MjMzNzQ3Iiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3MTg0MjE0MDYsImV4cCI6MTcyNzA2MTQwNn0.jI6XENuaZKPguz6S_olBk37GrnkLrQjc1RnV-4g6Aj0`
         
         ---
         
