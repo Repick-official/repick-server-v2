@@ -352,8 +352,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING),
                         notExistsUserPreferenceProduct(userId),
-                        productLike.id.isNull(),
-                        productCart.id.isNull())
+                        productLike.userId.ne(userId),
+                        productCart.userId.ne(userId))
                 .distinct()
                 .limit(10)
                 .fetch();

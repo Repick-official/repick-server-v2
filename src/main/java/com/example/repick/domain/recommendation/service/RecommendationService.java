@@ -90,7 +90,7 @@ public class RecommendationService {
         List<Product> topRecommendedProducts = new ArrayList<>();
         for (int categoryIndex : sortedCategoryIndices) {
             for (int styleIndex : sortedStyleIndices) {
-                if (topRecommendedProducts.size() >= 3) {
+                if (topRecommendedProducts.size() >= 5) {
                     break;
                 }
 
@@ -105,7 +105,7 @@ public class RecommendationService {
                         .toList();
 
                 topRecommendedProducts.addAll(filteredProducts);
-                topRecommendedProducts = topRecommendedProducts.stream().distinct().limit(3).collect(Collectors.toList());
+                topRecommendedProducts = topRecommendedProducts.stream().distinct().limit(5).collect(Collectors.toList());
             }
         }
 
