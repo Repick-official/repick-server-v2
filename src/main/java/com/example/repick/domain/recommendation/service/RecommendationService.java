@@ -109,8 +109,8 @@ public class RecommendationService {
             }
         }
 
-        if (topRecommendedProducts.size() < 3) {
-            topRecommendedProducts = productRecommendation.stream().limit(3).collect(Collectors.toList());
+        if (topRecommendedProducts.size() < 5) {
+            topRecommendedProducts = productRecommendation.stream().limit(5).collect(Collectors.toList());
         }
 
         shuffle(topRecommendedProducts);
