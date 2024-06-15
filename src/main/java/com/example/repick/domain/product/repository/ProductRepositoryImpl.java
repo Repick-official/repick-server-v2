@@ -354,8 +354,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         notExistsUserPreferenceProduct(userId),
                         productLike.id.isNull(),
                         productCart.id.isNull())
-                .limit(10)
                 .distinct()
+                .limit(10)
                 .fetch();
     }
 
