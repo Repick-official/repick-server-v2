@@ -352,8 +352,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING),
                         notExistsUserPreferenceProduct(userId),
-                        productLike.userId.isNull().or(productLike.userId.ne(userId)),
-                        productCart.userId.isNull().or(productCart.userId.ne(userId)))
+                        product.id.notIn(
+                            JPAExpressions
+                                .select(productLike.productId)
+                                .from(productLike)
+                                .where(productLike.userId.eq(userId))
+                        ),
+                        product.id.notIn(
+                            JPAExpressions
+                                .select(productCart.productId)
+                                .from(productCart)
+                                .where(productCart.userId.eq(userId))
+                        )
+                )
                 .distinct()
                 .limit(10)
                 .fetch();
