@@ -71,6 +71,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(productFilter.sizes()),
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING))
+                .distinct()
                 .orderBy(orderBy);
 
         long total = query.stream().count();
