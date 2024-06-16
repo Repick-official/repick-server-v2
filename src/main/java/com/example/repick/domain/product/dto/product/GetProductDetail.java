@@ -17,6 +17,7 @@ public record GetProductDetail(
         @Schema(description = "상품 가격(할인 전)", example = "40000") Long price,
         @Schema(description = "할인율",example = "30") Long discountRate,
         @Schema(description = "상품 예측 원가", example = "25000") Long predictPrice,
+        @Schema(description = "예측정가 대비 할인율",example = "30") Long predictPriceDiscountRate,
         @Schema(description = "좋아요 여부", example = "False") Boolean isLiked
 ) {
     public static GetProductDetail of(Product product, List<ProductImage> productImageList, List<ProductCategory> productCategoryList, Boolean isLiked) {
@@ -30,6 +31,7 @@ public record GetProductDetail(
                 product.getPrice(),
                 product.getDiscountRate(),
                 product.getPredictPrice(),
+                product.getPredictPriceDiscountRate(),
                 isLiked
         );
     }
