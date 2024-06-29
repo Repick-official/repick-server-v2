@@ -5,7 +5,7 @@ import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
-import com.example.repick.domain.product.service.PaymentService;
+import com.example.repick.domain.product.service.ProductOrderService;
 import com.example.repick.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,7 +22,7 @@ public class ProductScheduler {
 
     private final ProductRepository productRepository;
     private final ProductOrderRepository productOrderRepository;
-    private final PaymentService paymentService;
+    private final ProductOrderService productOrderService;
     private final ProductService productService;
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -44,7 +44,7 @@ public class ProductScheduler {
                     long days = Duration.between(p.getCreatedDate(), LocalDateTime.now()).toDays();
                     if (days >= 30 && days < 60) p.updateDiscountRate(maxDiscountRate / 2);
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
-                    else if (days >= 90) productService.addProductSellingState(p.getId(), ProductStateType.EXPIRED);
+                    else if (days >= 90) productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
                 });
     }
 
@@ -54,7 +54,7 @@ public class ProductScheduler {
         productOrders.forEach(po -> {
             if (Duration.between(po.getCreatedDate(), LocalDateTime.now()).toDays() >= 7) {
                 po.confirmOrder();
-                paymentService.addPointToSeller(po);
+                productOrderService.addPointToSeller(po);
             }
         });
         productOrderRepository.saveAll(productOrders);

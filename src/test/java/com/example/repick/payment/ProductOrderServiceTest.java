@@ -6,7 +6,7 @@ import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.product.repository.ProductStateRepository;
-import com.example.repick.domain.product.service.PaymentService;
+import com.example.repick.domain.product.service.ProductOrderService;
 import com.example.repick.global.entity.Address;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +21,10 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-public class PaymentServiceTest {
+public class ProductOrderServiceTest {
 
     @Autowired
-    private PaymentService paymentService;
+    private ProductOrderService productOrderService;
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -108,7 +108,7 @@ public class PaymentServiceTest {
                     productOrderRepository.save(productOrder2);
 
                     PostPayment postPayment = new PostPayment("iamportUid" + userId, "merchantUid" + userId, new Address());
-                    return paymentService.validatePaymentForTest(postPayment);  // 테스트용 서비스
+                    return productOrderService.validatePaymentForTest(postPayment);  // 테스트용 서비스
                 } catch (Exception e) {
                     System.out.println("Exception occurred while processing payment: " + userId + "\n" + e.getMessage());
                     return false;

@@ -27,7 +27,7 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class PaymentService {
+public class ProductOrderService {
     private final UserRepository userRepository;
     private final PaymentRepository paymentRepository;
     private final ProductRepository productRepository;
