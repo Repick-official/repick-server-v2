@@ -2,11 +2,14 @@ package com.example.repick.domain.product.api;
 
 import com.example.repick.domain.product.dto.productOrder.*;
 import com.example.repick.domain.product.service.ProductOrderService;
+import com.example.repick.global.page.PageCondition;
+import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,13 +53,13 @@ public class ProductOrderController {
     // Admin API
     @Operation(summary = "구매 현황")
     @GetMapping("/status")
-    public SuccessResponse<List<GetProductOrder>> orderStatus() {
+    public SuccessResponse<PageResponse<List<GetProductOrder>>> orderStatus(@ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(productOrderService.getProductOrders());
     }
 
     @Operation(summary = "반품 현황")
     @GetMapping("/return-status")
-    public SuccessResponse<List<GetProductOrder>> returnStatus() {
+    public SuccessResponse<PageResponse<List<GetProductOrder>>> returnStatus(@ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(productOrderService.getReturnedProductOrders());
     }
 

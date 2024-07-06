@@ -8,11 +8,13 @@ import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.entity.Address;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.page.PageResponse;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -203,8 +205,8 @@ public class ProductOrderService {
 
     // 구매 현황 보기
     @Transactional(readOnly = true)
-    public List<GetProductOrder> getProductOrders() {
-        return getProductOrdersByState(
+    public PageResponse<List<GetProductOrder>> getProductOrders() {
+        List<GetProductOrder> productOrders = getProductOrdersByState(
                 List.of(
                         ProductOrderState.PAYMENT_COMPLETED,
                         ProductOrderState.SHIPPING_PREPARING,
@@ -213,20 +215,23 @@ public class ProductOrderService {
                 ),
                 false
         );
+        PageImpl<GetProductOrder> page = new PageImpl<>(productOrders);
+        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     // 반품 현황 보기
     @Transactional(readOnly = true)
-    public List<GetProductOrder> getReturnedProductOrders() {
-        return getProductOrdersByState(
+    public PageResponse<List<GetProductOrder>> getReturnedProductOrders() {
+        List<GetProductOrder> returnOrders = getProductOrdersByState(
                 List.of(
-                        ProductOrderState.CANCELLED,
                         ProductOrderState.RETURN_REQUESTED,
                         ProductOrderState.RETURN_COMPLETED,
                         ProductOrderState.REFUND_COMPLETED
                 ),
                 true
         );
+        PageImpl<GetProductOrder> page = new PageImpl<>(returnOrders);
+        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     private List<GetProductOrder> getProductOrdersByState(List<ProductOrderState> states, boolean isReturned) {
