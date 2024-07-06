@@ -61,18 +61,18 @@ public class ProductOrderController {
     }
 
     @Operation(summary = "운송장 등록")
-    @PatchMapping("/{productOrderID}/tracking-number")
-    public SuccessResponse<Boolean> registerTrackingNumber(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID, @RequestBody TrackingNumberRequest trackingNumberRequest) {
-        return SuccessResponse.success(productOrderService.registerTrackingNumber(productOrderID, trackingNumberRequest));
+    @PatchMapping("/{productOrderId}/tracking-number")
+    public SuccessResponse<Boolean> registerTrackingNumber(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderId, @RequestBody TrackingNumberRequest trackingNumberRequest) {
+        return SuccessResponse.success(productOrderService.registerTrackingNumber(productOrderId, trackingNumberRequest));
     }
 
     @Operation(summary = "주문 상태 업데이트",
             description = """
                     반품 현황 보기 페이지에서 반품 입고 완료, 환불 완료 등으로 상태를 업데이트합니다
                     """)
-    @PatchMapping("/{productOrderID}/state")
-    public SuccessResponse<Boolean> updateProductOrderState(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID, @RequestBody ProductOrderSateRequest productOrderSateRequest) {
-        return SuccessResponse.success(productOrderService.updateProductOrderState(productOrderID, productOrderSateRequest));
+    @PatchMapping("/{productOrderId}/state")
+    public SuccessResponse<Boolean> updateProductOrderState(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderId, @RequestBody ProductOrderSateRequest productOrderSateRequest) {
+        return SuccessResponse.success(productOrderService.updateProductOrderState(productOrderId, productOrderSateRequest));
     }
 
 }

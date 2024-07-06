@@ -68,6 +68,7 @@ public enum ErrorCode {
     PRODUCT_ORDER_NOT_FOUND(404, "P046", "존재하지 않는 상품 주문 ID입니다."),
     PRODUCT_ORDER_ALREADY_CONFIRMED(400, "P047", "이미 구매를 확정한 상품입니다."),
     PRODUCT_SOLD_OUT(400, "P048", "품절된 상품이 포함되어 있습니다"),
+    INVALID_PRODUCT_ORDER_STATE(400, "P049", "존재하지 않는 상품 주문 상태입니다."),
     // SMS Verification
     USER_SMS_VERIFICATION_NOT_FOUND(404, "A001", "인증번호가 만료되었거나 존재하지 않습니다."),
     USER_SMS_VERIFICATION_EXPIRED(400, "A002", "인증번호가 만료되었습니다."),
