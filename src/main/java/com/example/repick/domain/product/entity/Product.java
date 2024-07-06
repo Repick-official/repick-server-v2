@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.entity;
 
+import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -17,6 +18,7 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    private String productCode;
     private String productName;
     private Long price;
     private Long predictPrice; // 예측정가
@@ -43,6 +45,7 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductStyle> productStyleList;
+
     @Builder
     public Product(
             User user,

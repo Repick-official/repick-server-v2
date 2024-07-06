@@ -25,6 +25,8 @@ public class ProductOrder extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private ProductOrderState productOrderState;
 
+    private String trackingNumber; // 운송장 번호
+
     @ManyToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
