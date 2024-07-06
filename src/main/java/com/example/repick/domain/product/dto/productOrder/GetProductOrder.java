@@ -6,7 +6,7 @@ import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record GetProductOrder(
-        @Schema(description = "주문 아이디") long productOrderID,
+        @Schema(description = "주문 아이디") long productOrderId,
         @Schema(description = "상품 코드") String productCode,
         @Schema(description = "상품 이름") String productName,
         @Schema(description = "주문자 이름") String userName,
@@ -17,9 +17,9 @@ public record GetProductOrder(
         @Schema(description = "구매확정 여부") Boolean isConfirmed,
         @Schema(description = "구매확정 남은 일수 ('배송 완료' & 구매 확정 false일 경우)") Integer confirmRemainingDays
 ) {
-    public static GetProductOrder of(long productOrderID, Product product, User user, Address address, String state, String trackingNumber, Boolean isConfirmed, Integer confirmRemainingDays) {
+    public static GetProductOrder of(long productOrderId, Product product, User user, Address address, String state, String trackingNumber, Boolean isConfirmed, Integer confirmRemainingDays) {
         return new GetProductOrder(
-                productOrderID,
+                productOrderId,
                 product.getProductCode(),
                 product.getProductName(),
                 user.getNickname(),
