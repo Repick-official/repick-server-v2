@@ -1,5 +1,7 @@
 package com.example.repick.domain.product.entity;
 
+import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.error.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter
@@ -22,5 +24,14 @@ public enum ProductOrderState {
     ProductOrderState(int id, String value) {
         this.id = id;
         this.value = value;
+    }
+
+    public static ProductOrderState fromValue(String keyword) {
+        for (ProductOrderState productOrderState : values()) {
+            if (productOrderState.getValue().equals(keyword)) {
+                return productOrderState;
+            }
+        }
+        throw new CustomException(ErrorCode.INVALID_PRODUCT_ORDER_STATE);
     }
 }

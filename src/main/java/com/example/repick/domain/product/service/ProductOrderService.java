@@ -261,4 +261,14 @@ public class ProductOrderService {
         return true;
     }
 
+    // 주문 상태 업데이트 (반품 요청 처리할 때)
+    @Transactional
+    public Boolean updateProductOrderState(Long productOrderId, ProductOrderSateRequest productOrderStateRequest){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+        productOrder.updateProductOrderState(ProductOrderState.fromValue(productOrderStateRequest.state()));
+        productOrderRepository.save(productOrder);
+        return true;
+    }
+
 }
