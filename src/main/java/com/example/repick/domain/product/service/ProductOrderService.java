@@ -1,13 +1,12 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
-import com.example.repick.domain.product.dto.productOrder.PostPayment;
-import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
+import com.example.repick.domain.product.dto.productOrder.*;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
+import com.example.repick.global.entity.Address;
 import com.example.repick.global.error.exception.CustomException;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
@@ -21,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -200,44 +201,73 @@ public class ProductOrderService {
         userRepository.save(seller);
     }
 
+    // 구매 현황 보기
+    @Transactional(readOnly = true)
+    public List<GetProductOrder> getProductOrders() {
+        return getProductOrdersByState(
+                List.of(
+                        ProductOrderState.PAYMENT_COMPLETED,
+                        ProductOrderState.SHIPPING_PREPARING,
+                        ProductOrderState.SHIPPING,
+                        ProductOrderState.DELIVERED
+                ),
+                false
+        );
+    }
 
-    // 동시성 테스트용 서비스 (iamportClient 통신 부분 제외)
-    @Transactional(isolation = Isolation.READ_COMMITTED, noRollbackFor = CustomException.class)
-    public Boolean validatePaymentForTest(PostPayment postPayment){
-        Payment payment = paymentRepository.findByMerchantUid(postPayment.merchantUid())
-                .orElseThrow(() -> new CustomException(INVALID_PAYMENT_ID));
+    // 반품 현황 보기
+    @Transactional(readOnly = true)
+    public List<GetProductOrder> getReturnedProductOrders() {
+        return getProductOrdersByState(
+                List.of(
+                        ProductOrderState.CANCELLED,
+                        ProductOrderState.RETURN_REQUESTED,
+                        ProductOrderState.RETURN_COMPLETED,
+                        ProductOrderState.REFUND_COMPLETED
+                ),
+                true
+        );
+    }
 
-        List<ProductOrder> productOrders = productOrderRepository.findByPayment(payment);
-        List<Long> productIds = productOrders.stream().map(ProductOrder::getProductId).toList();
+    private List<GetProductOrder> getProductOrdersByState(List<ProductOrderState> states, boolean isReturned) {
+        List<ProductOrder> productOrders = productOrderRepository.findByProductOrderStateIn(states);
 
-        long startTime = System.currentTimeMillis();
-        System.out.println("Thread " + Thread.currentThread().getName() + " is trying to lock products: " + productIds);
-        List<Product> products = productRepository.findAllByIdWithLock(productIds);
-        long endTime = System.currentTimeMillis();
-        System.out.println("Thread " + Thread.currentThread().getName() + " has locked products: " + productIds + ". Wait time: " + (endTime - startTime) + "ms");
+        return productOrders.stream().map(productOrder -> {
+            Product product = productRepository.findById(productOrder.getProductId())
+                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+            User user = userRepository.findById(productOrder.getUserId())
+                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+            Address address = productOrder.getPayment().getAddress();
+            return GetProductOrder.of(
+                    productOrder.getId(),
+                    product,
+                    user,
+                    address,
+                    productOrder.getProductOrderState().getValue(),
+                    isReturned ? productOrder.getTrackingNumber() : null,
+                    productOrder.isConfirmed(),
+                    isReturned || productOrder.isConfirmed() ? null : (int) Duration.between(productOrder.getCreatedDate(), LocalDateTime.now()).toDays()
+            );
+        }).toList();
+    }
 
-        products.forEach(product -> {
-            ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
-                    .orElseThrow(() -> new CustomException(PRODUCT_STATE_NOT_FOUND));
-            if(productState.getProductStateType() != ProductStateType.SELLING){
-                throw new CustomException(PRODUCT_SOLD_OUT);
-            }
-        });
+    // 운송장번호 등록
+    @Transactional
+    public Boolean registerTrackingNumber(Long productOrderId, TrackingNumberRequest trackingNumberRequest){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+        productOrder.updateTrackingNumber(trackingNumberRequest.trackingNumber());
+        productOrderRepository.save(productOrder);
+        return true;
+    }
 
-        if (paymentRepository.findByIamportUid(postPayment.iamportUid()).isPresent()) {
-            throw new CustomException(DUPLICATE_PAYMENT);
-        }
-
-        payment.completePayment(PaymentStatus.PAID, postPayment.iamportUid());
-        paymentRepository.save(payment);
-
-        productOrders.forEach(productOrder -> {
-            productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
-            productStateRepository.save(ProductState.of(productOrder.getProductId(), ProductStateType.SOLD_OUT));
-        });
-        productOrderRepository.saveAll(productOrders);
-
-        System.out.println("Thread " + Thread.currentThread().getName() + " has completed transaction.");
+    // 주문 상태 업데이트 (반품 요청 처리할 때)
+    @Transactional
+    public Boolean updateProductOrderState(Long productOrderId, ProductOrderSateRequest productOrderStateRequest){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+        productOrder.updateProductOrderState(ProductOrderState.fromValue(productOrderStateRequest.state()));
+        productOrderRepository.save(productOrder);
         return true;
     }
 

@@ -25,6 +25,8 @@ public class ProductOrder extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private ProductOrderState productOrderState;
 
+    private String trackingNumber; // 운송장 번호
+
     @ManyToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
@@ -54,5 +56,9 @@ public class ProductOrder extends BaseEntity{
 
     public void updateProductOrderState(ProductOrderState productOrderState) {
         this.productOrderState = productOrderState;
+    }
+
+    public void updateTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
     }
 }

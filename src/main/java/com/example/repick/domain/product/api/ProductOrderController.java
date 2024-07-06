@@ -1,8 +1,6 @@
 package com.example.repick.domain.product.api;
 
-import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
-import com.example.repick.domain.product.dto.productOrder.PostPayment;
-import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
+import com.example.repick.domain.product.dto.productOrder.*;
 import com.example.repick.domain.product.service.ProductOrderService;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "order", description = "상품 주문 관련 API")
+import java.util.List;
+
+@Tag(name = "ProductOrder", description = "상품 주문 관련 API")
 @RestController
 @RequestMapping("/order")
 @RequiredArgsConstructor
@@ -45,6 +45,34 @@ public class ProductOrderController {
     @PatchMapping("/confirm/{productOrderID}")
     public SuccessResponse<Boolean> confirmOrder(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID) {
         return SuccessResponse.success(productOrderService.confirmProductOrder(productOrderID));
+    }
+
+    // Admin API
+    @Operation(summary = "구매 현황")
+    @GetMapping("/status")
+    public SuccessResponse<List<GetProductOrder>> orderStatus() {
+        return SuccessResponse.success(productOrderService.getProductOrders());
+    }
+
+    @Operation(summary = "반품 현황")
+    @GetMapping("/return-status")
+    public SuccessResponse<List<GetProductOrder>> returnStatus() {
+        return SuccessResponse.success(productOrderService.getReturnedProductOrders());
+    }
+
+    @Operation(summary = "운송장 등록")
+    @PatchMapping("/{productOrderID}/tracking-number")
+    public SuccessResponse<Boolean> registerTrackingNumber(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID, @RequestBody TrackingNumberRequest trackingNumberRequest) {
+        return SuccessResponse.success(productOrderService.registerTrackingNumber(productOrderID, trackingNumberRequest));
+    }
+
+    @Operation(summary = "주문 상태 업데이트",
+            description = """
+                    반품 현황 보기 페이지에서 반품 입고 완료, 환불 완료 등으로 상태를 업데이트합니다
+                    """)
+    @PatchMapping("/{productOrderID}/state")
+    public SuccessResponse<Boolean> updateProductOrderState(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID, @RequestBody ProductOrderSateRequest productOrderSateRequest) {
+        return SuccessResponse.success(productOrderService.updateProductOrderState(productOrderID, productOrderSateRequest));
     }
 
 }
