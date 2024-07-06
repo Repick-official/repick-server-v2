@@ -57,4 +57,8 @@ public class ProductOrder extends BaseEntity{
     public void updateProductOrderState(ProductOrderState productOrderState) {
         this.productOrderState = productOrderState;
     }
+
+    public void updateTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+    }
 }

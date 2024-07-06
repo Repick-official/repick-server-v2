@@ -1,9 +1,6 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.productOrder.GetProductOrder;
-import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
-import com.example.repick.domain.product.dto.productOrder.PostPayment;
-import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
+import com.example.repick.domain.product.dto.productOrder.*;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
@@ -25,8 +22,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -244,6 +239,7 @@ public class ProductOrderService {
                     .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
             Address address = productOrder.getPayment().getAddress();
             return GetProductOrder.of(
+                    productOrder.getId(),
                     product,
                     user,
                     address,
@@ -253,6 +249,16 @@ public class ProductOrderService {
                     isReturned || productOrder.isConfirmed() ? null : (int) Duration.between(productOrder.getCreatedDate(), LocalDateTime.now()).toDays()
             );
         }).toList();
+    }
+
+    // 운송장번호 등록
+    @Transactional
+    public Boolean registerTrackingNumber(Long productOrderId, TrackingNumberRequest trackingNumberRequest){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+        productOrder.updateTrackingNumber(trackingNumberRequest.trackingNumber());
+        productOrderRepository.save(productOrder);
+        return true;
     }
 
 }

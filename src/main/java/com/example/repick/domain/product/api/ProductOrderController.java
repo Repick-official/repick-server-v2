@@ -1,9 +1,6 @@
 package com.example.repick.domain.product.api;
 
-import com.example.repick.domain.product.dto.productOrder.GetProductOrder;
-import com.example.repick.domain.product.dto.productOrder.GetProductOrderPreparation;
-import com.example.repick.domain.product.dto.productOrder.PostPayment;
-import com.example.repick.domain.product.dto.productOrder.PostProductOrder;
+import com.example.repick.domain.product.dto.productOrder.*;
 import com.example.repick.domain.product.service.ProductOrderService;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,4 +59,11 @@ public class ProductOrderController {
     public SuccessResponse<List<GetProductOrder>> returnStatus() {
         return SuccessResponse.success(productOrderService.getReturnedProductOrders());
     }
+
+    @Operation(summary = "운송장 등록")
+    @PatchMapping("/{productOrderID}/tracking-number")
+    public SuccessResponse<Boolean> registerTrackingNumber(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderID, @RequestBody TrackingNumberRequest trackingNumberRequest) {
+        return SuccessResponse.success(productOrderService.registerTrackingNumber(productOrderID, trackingNumberRequest));
+    }
+
 }

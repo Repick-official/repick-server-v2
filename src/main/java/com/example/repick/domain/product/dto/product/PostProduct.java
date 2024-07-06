@@ -13,6 +13,7 @@ public record PostProduct (
         @Schema(description = "상품 카테고리") List<String> categories,
         @Schema(description = "상품 스타일") List<String> styles,
         @Schema(description = "판매하는 유저의 id", example = "5") Long userId,
+        @Schema(description = "상품 코드", example = "17-1-1") String productCode,
         @Schema(description = "상품명", example = "블랙 카라 오버핏 셔츠") String productName,
         @Schema(description = "제안가", example = "40000") Long suggestedPrice,
         @Schema(description = "상품 예측 원가", example = "25000") Long predictPrice,
@@ -31,6 +32,7 @@ public record PostProduct (
     public Product toProduct(User user, String size) {
         return Product.builder()
                 .user(user)
+                .productCode(this.productCode())
                 .productName(this.productName())
                 .suggestedPrice(this.suggestedPrice())
                 .predictPrice(this.predictPrice())

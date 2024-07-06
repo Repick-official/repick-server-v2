@@ -49,6 +49,7 @@ public class Product extends BaseEntity {
     @Builder
     public Product(
             User user,
+            String productCode,
             String productName,
             Long price,
             Long predictPrice,
@@ -66,6 +67,7 @@ public class Product extends BaseEntity {
             Boolean isBoxCollect,
             Long clothingSalesId) {
         this.user = user;
+        this.productCode = productCode;
         this.productName = productName;
         this.price = price;
         this.predictPrice = predictPrice;
