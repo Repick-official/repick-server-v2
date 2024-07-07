@@ -30,7 +30,7 @@ public record GetProductOrder(
                 productOrder.getProductOrderState().getValue(),
                 isReturnOrder ? null: productOrder.getTrackingNumber(),
                 isReturnOrder ? null: productOrder.isConfirmed(),
-                isReturnOrder || productOrder.isConfirmed() ? null : (int) Duration.between(productOrder.getCreatedDate(), LocalDateTime.now()).toDays()
+                isReturnOrder || productOrder.isConfirmed() ? null : 7 - (int) Duration.between(productOrder.getCreatedDate(), LocalDateTime.now()).toDays()
         );
     }
 }
