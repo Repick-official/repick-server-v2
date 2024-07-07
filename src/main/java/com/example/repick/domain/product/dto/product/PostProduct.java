@@ -1,9 +1,6 @@
 package com.example.repick.domain.product.dto.product;
 
-import com.example.repick.domain.product.entity.Gender;
-import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.QualityRate;
-import com.example.repick.domain.product.entity.Size;
+import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -24,8 +21,8 @@ public record PostProduct (
         @Schema(description = "상품 품질 등급 (S, A, B)", example = "S") String qualityRate,
         @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender,
         @Schema(description = "박스 수거 여부, true: 박스 수거 false: 백 수거", example = "true") Boolean isBoxCollect,
-        @Schema(description = "수거 ID", example = "3") Long clothingSalesId
-
+        @Schema(description = "수거 ID", example = "3") Long clothingSalesId,
+        @Schema(description = "상품 소재 목록") List<String> materials
         ) {
 
     public Product toProduct(User user, String size) {

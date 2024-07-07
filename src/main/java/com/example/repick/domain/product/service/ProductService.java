@@ -38,6 +38,7 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final ProductCartRepository productCartRepository;
     private final ProductStateRepository productStateRepository;
+    private final ProductMaterialRepository productMaterialRepository;
     private final ProductValidator productValidator;
     private final RecommendationService recommendationService;
 
@@ -74,6 +75,13 @@ public class ProductService {
         }
     }
 
+    private void addMaterials(List<String> materials, Product product) {
+        for (String material : materials) {
+            productMaterialRepository.save(ProductMaterial.of(material, product));
+        }
+    }
+
+
     public void addProductSellingState(Long productId, ProductStateType productStateType) {
         productStateRepository.save(ProductState.of(productId, productStateType));
     }
@@ -99,6 +107,9 @@ public class ProductService {
 
         // productStyle
         addStyle(postProduct.styles(), product);
+
+        // productMaterial
+        addMaterials(postProduct.materials(), product);
 
         // productSellingState
         addProductSellingState(product.getId(), ProductStateType.PREPARING);
@@ -432,7 +443,8 @@ public class ProductService {
 
         List<ProductCategory> productCategoryList = productCategoryRepository.findByProductIdAndIsDeleted(productId, false);
 
-        return GetProductDetail.of(product, productImageList, productCategoryList, isLiked);
+        List<ProductMaterial> productMaterialList = productMaterialRepository.findByProductId(productId);
+        return GetProductDetail.of(product, productImageList, productCategoryList, isLiked, productMaterialList);
 
     }
 
