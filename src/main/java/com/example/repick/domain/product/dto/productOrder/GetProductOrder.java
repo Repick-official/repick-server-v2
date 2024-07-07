@@ -1,9 +1,11 @@
 package com.example.repick.domain.product.dto.productOrder;
 
 import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.user.entity.User;
-import com.example.repick.global.entity.Address;
+import com.example.repick.domain.product.entity.ProductOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public record GetProductOrder(
         @Schema(description = "주문 아이디") long productOrderId,
@@ -17,18 +19,18 @@ public record GetProductOrder(
         @Schema(description = "구매확정 여부") Boolean isConfirmed,
         @Schema(description = "구매확정 남은 일수 ('배송 완료' & 구매 확정 false일 경우)") Integer confirmRemainingDays
 ) {
-    public static GetProductOrder of(long productOrderId, Product product, User user, Address address, String state, String trackingNumber, Boolean isConfirmed, Integer confirmRemainingDays) {
+    public static GetProductOrder of(ProductOrder productOrder, Product product, boolean isReturnOrder) {
         return new GetProductOrder(
-                productOrderId,
+                productOrder.getId(),
                 product.getProductCode(),
                 product.getProductName(),
-                user.getNickname(),
-                address.getMainAddress(),
-                user.getPhoneNumber(),
-                state,
-                trackingNumber,
-                isConfirmed,
-                confirmRemainingDays
+                productOrder.getPayment().getUserName(),
+                productOrder.getPayment().getAddress().getMainAddress(),
+                productOrder.getPayment().getPhoneNumber(),
+                productOrder.getProductOrderState().getValue(),
+                isReturnOrder ? null: productOrder.getTrackingNumber(),
+                isReturnOrder ? null: productOrder.isConfirmed(),
+                isReturnOrder || productOrder.isConfirmed() ? null : (int) Duration.between(productOrder.getCreatedDate(), LocalDateTime.now()).toDays()
         );
     }
 }

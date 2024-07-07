@@ -6,7 +6,6 @@ import com.example.repick.domain.product.repository.*;
 import com.example.repick.domain.product.validator.ProductValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
-import com.example.repick.global.entity.Address;
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.page.PageResponse;
 import com.siot.IamportRestClient.IamportClient;
@@ -22,8 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -65,7 +62,7 @@ public class ProductOrderService {
         }
 
         // Payment 저장
-        Payment payment = Payment.of(user.getId(), merchantUid, totalPrice, postProductOrder.address());
+        Payment payment = Payment.of(user.getId(), merchantUid, totalPrice, postProductOrder.name(), postProductOrder.phoneNumber(), postProductOrder.address());
         paymentRepository.save(payment);
 
         // ProductOrder 저장
@@ -206,54 +203,42 @@ public class ProductOrderService {
     // 구매 현황 보기
     @Transactional(readOnly = true)
     public PageResponse<List<GetProductOrder>> getProductOrders() {
-        List<GetProductOrder> productOrders = getProductOrdersByState(
+        List<ProductOrder> productOrders = productOrderRepository.findByProductOrderStateIn(
                 List.of(
                         ProductOrderState.PAYMENT_COMPLETED,
                         ProductOrderState.SHIPPING_PREPARING,
                         ProductOrderState.SHIPPING,
                         ProductOrderState.DELIVERED
-                ),
-                false
+                )
         );
-        PageImpl<GetProductOrder> page = new PageImpl<>(productOrders);
+        List<GetProductOrder> getProductOrders = productOrders.stream()
+                .map(productOrder -> {
+                    Product product = productRepository.findById(productOrder.getProductId())
+                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                    return GetProductOrder.of(productOrder, product, false);
+                }).toList();
+        PageImpl<GetProductOrder> page = new PageImpl<>(getProductOrders);
         return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     // 반품 현황 보기
     @Transactional(readOnly = true)
     public PageResponse<List<GetProductOrder>> getReturnedProductOrders() {
-        List<GetProductOrder> returnOrders = getProductOrdersByState(
+        List<ProductOrder> returnOrders = productOrderRepository.findByProductOrderStateIn(
                 List.of(
                         ProductOrderState.RETURN_REQUESTED,
                         ProductOrderState.RETURN_COMPLETED,
                         ProductOrderState.REFUND_COMPLETED
-                ),
-                true
+                )
         );
-        PageImpl<GetProductOrder> page = new PageImpl<>(returnOrders);
-        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
-    }
-
-    private List<GetProductOrder> getProductOrdersByState(List<ProductOrderState> states, boolean isReturned) {
-        List<ProductOrder> productOrders = productOrderRepository.findByProductOrderStateIn(states);
-
-        return productOrders.stream().map(productOrder -> {
-            Product product = productRepository.findById(productOrder.getProductId())
+        List<GetProductOrder> getReturnOrders = returnOrders.stream()
+                .map(productOrder -> {
+                    Product product = productRepository.findById(productOrder.getProductId())
                     .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-            User user = userRepository.findById(productOrder.getUserId())
-                    .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-            Address address = productOrder.getPayment().getAddress();
-            return GetProductOrder.of(
-                    productOrder.getId(),
-                    product,
-                    user,
-                    address,
-                    productOrder.getProductOrderState().getValue(),
-                    isReturned ? productOrder.getTrackingNumber() : null,
-                    productOrder.isConfirmed(),
-                    isReturned || productOrder.isConfirmed() ? null : (int) Duration.between(productOrder.getCreatedDate(), LocalDateTime.now()).toDays()
-            );
+                    return GetProductOrder.of(productOrder, product, true);
         }).toList();
+        PageImpl<GetProductOrder> page = new PageImpl<>(getReturnOrders);
+        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     // 운송장번호 등록

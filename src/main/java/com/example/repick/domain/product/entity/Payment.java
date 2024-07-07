@@ -1,6 +1,5 @@
 package com.example.repick.domain.product.entity;
 
-import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -30,25 +29,33 @@ public class Payment extends BaseEntity {
 
     private BigDecimal amount;
 
+    private String userName;
+
+    private String phoneNumber;
+
     @Embedded
     private Address address;
 
     @Builder
-    public Payment(Long userId, PaymentStatus paymentStatus, String iamportUid, String merchantUid, BigDecimal amount, Address address) {
+    public Payment(Long userId, PaymentStatus paymentStatus, String iamportUid, String merchantUid, BigDecimal amount, String userName, String phoneNumber, Address address) {
         this.userId = userId;
         this.paymentStatus = paymentStatus;
         this.iamportUid = iamportUid;
         this.merchantUid = merchantUid;
         this.amount = amount;
+        this.userName = userName;
+        this.phoneNumber = phoneNumber;
         this.address = address;
     }
 
-    public static Payment of(Long userId, String merchantUid, BigDecimal amount, Address address) {
+    public static Payment of(Long userId, String merchantUid, BigDecimal amount, String userName, String phoneNumber, Address address) {
         return Payment.builder()
                 .userId(userId)
                 .paymentStatus(PaymentStatus.READY)
                 .merchantUid(merchantUid)
                 .amount(amount)
+                .userName(userName)
+                .phoneNumber(phoneNumber)
                 .address(address)
                 .build();
     }
