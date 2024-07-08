@@ -1,10 +1,12 @@
 package com.example.repick.domain.admin.api;
 
+import com.example.repick.domain.admin.dto.GetPresignedUrl;
 import com.example.repick.domain.admin.dto.PostFcmToken;
 import com.example.repick.domain.admin.service.AdminService;
 import com.example.repick.domain.fcmtoken.entity.UserFcmTokenInfo;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,12 @@ public class AdminController {
     @DeleteMapping("/fcmToken/{userId}")
     public SuccessResponse<Boolean> deleteFcmTokenByUserId(Long userId) {
         return SuccessResponse.success(adminService.deleteFcmTokenByUserId(userId));
+    }
+
+    @Operation(summary = "presigned url 생성하기")
+    @GetMapping("/presignedUrl")
+    public SuccessResponse<GetPresignedUrl> createPresignedUrl(@Parameter(description = "업로드 파일명") @RequestParam String filename) {
+        return SuccessResponse.success(adminService.createPresignedUrl(filename));
     }
 
 }
