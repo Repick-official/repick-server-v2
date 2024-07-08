@@ -45,6 +45,9 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductStyle> productStyleList;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductMaterial> productMaterialList;
+
     @Builder
     public Product(
             User user,

@@ -3,6 +3,7 @@ package com.example.repick.domain.product.dto.product;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductCategory;
 import com.example.repick.domain.product.entity.ProductImage;
+import com.example.repick.domain.product.entity.ProductMaterial;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -19,9 +20,12 @@ public record GetProductDetail(
         @Schema(description = "할인율",example = "30") Long discountRate,
         @Schema(description = "상품 예측 원가", example = "25000") Long predictPrice,
         @Schema(description = "예측정가 대비 할인율",example = "30") Long predictPriceDiscountRate,
-        @Schema(description = "좋아요 여부", example = "False") Boolean isLiked
+        @Schema(description = "좋아요 여부", example = "False") Boolean isLiked,
+        @Schema(description = "상품 사이즈 정보") String size,
+        @Schema(description = "상품 소재 정보") List<String> materials
+
 ) {
-    public static GetProductDetail of(Product product, List<ProductImage> productImageList, List<ProductCategory> productCategoryList, Boolean isLiked) {
+    public static GetProductDetail of(Product product, List<ProductImage> productImageList, List<ProductCategory> productCategoryList, Boolean isLiked, List<ProductMaterial> materials) {
         return new GetProductDetail(
                 product.getId(),
                 productImageList.stream().map(ProductImage::getImageUrl).toList(),
@@ -34,7 +38,9 @@ public record GetProductDetail(
                 product.getDiscountRate(),
                 product.getPredictPrice(),
                 product.getPredictPriceDiscountRate(),
-                isLiked
+                isLiked,
+                product.getSize(),
+                materials.stream().map(ProductMaterial::getMaterial).toList()
         );
     }
 }
