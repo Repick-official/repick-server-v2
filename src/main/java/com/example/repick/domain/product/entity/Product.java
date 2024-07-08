@@ -17,6 +17,7 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    private String productCode;
     private String productName;
     private Long price;
     private Long predictPrice; // 예측정가
@@ -50,6 +51,7 @@ public class Product extends BaseEntity {
     @Builder
     public Product(
             User user,
+            String productCode,
             String productName,
             Long price,
             Long predictPrice,
@@ -67,6 +69,7 @@ public class Product extends BaseEntity {
             Boolean isBoxCollect,
             Long clothingSalesId) {
         this.user = user;
+        this.productCode = productCode;
         this.productName = productName;
         this.price = price;
         this.predictPrice = predictPrice;
