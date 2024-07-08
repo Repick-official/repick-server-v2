@@ -2,6 +2,7 @@ package com.example.repick.domain.admin.service;
 
 import com.example.repick.domain.admin.dto.GetPresignedUrl;
 import com.example.repick.domain.admin.dto.PostFcmToken;
+import com.example.repick.domain.admin.entity.FileType;
 import com.example.repick.domain.fcmtoken.entity.UserFcmTokenInfo;
 import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
 import com.example.repick.global.error.exception.CustomException;
@@ -15,6 +16,7 @@ import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_REQUEST_ERROR;
 import static com.example.repick.global.error.exception.ErrorCode.LAMBDA_INVOKE_FAILED;
 
 @Service @RequiredArgsConstructor
@@ -41,7 +43,7 @@ public class AdminService {
         return true;
     }
 
-    public GetPresignedUrl createPresignedUrl(String filename) {
+    public GetPresignedUrl createPresignedUrl(String filename, FileType fileType) {
 
         LambdaClient awsLambda = LambdaClient.builder()
                 .region(Region.AP_NORTHEAST_2)
@@ -49,7 +51,14 @@ public class AdminService {
 
         InvokeResponse res;
 
-        filename = filename + "-" + System.currentTimeMillis();
+        if (fileType == FileType.IMAGE) {
+            String userId = filename.split("-")[0];
+            filename = "images/" + userId + '/' + filename;
+        } else if (fileType == FileType.EXCEL) {
+            filename = "excels/" + System.currentTimeMillis() + filename;
+        } else {
+            throw new CustomException(INVALID_REQUEST_ERROR);
+        }
 
         try {
             String json = String.format("{\"queryStringParameters\": {\"object_name\": \"%s\", \"operation\": \"upload\"}}", filename);

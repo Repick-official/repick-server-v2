@@ -2,6 +2,7 @@ package com.example.repick.domain.admin.api;
 
 import com.example.repick.domain.admin.dto.GetPresignedUrl;
 import com.example.repick.domain.admin.dto.PostFcmToken;
+import com.example.repick.domain.admin.entity.FileType;
 import com.example.repick.domain.admin.service.AdminService;
 import com.example.repick.domain.fcmtoken.entity.UserFcmTokenInfo;
 import com.example.repick.global.response.SuccessResponse;
@@ -46,10 +47,28 @@ public class AdminController {
         return SuccessResponse.success(adminService.deleteFcmTokenByUserId(userId));
     }
 
-    @Operation(summary = "presigned url 생성하기")
+    @Operation(summary = "presigned url 생성하기", description = """
+            ## Presigned Url을 생성합니다. 이 API는 다음 파일들을 업로드하기 위해 사용됩니다:
+            - 상품 이미지 파일
+            - 엑셀 파일
+            
+            **주의: 엑셀 파일을 업로드하기 전 그에 해당하는 모든 이미지 파일을 먼저 업로드해주세요.**
+            
+            ### 1. 상품 이미지 파일
+            - 업로드 파일명: 업로드하는 이미지 파일 이름을 따름
+            - 파일 타입: "IMAGE" 를 입력하세요.
+            
+            ### 2. 엑셀 파일
+            - 업로드 파일명: (일치하지 않아도 무관)업로드하는 엑셀 파일 이름을 따름
+            - 파일 타입: "EXCEL" 를 입력하세요.
+            
+            엑셀 파일을 업로드하면 이벤트가 트리거 되어 자동 상품 등록이 시작됩니다.
+            
+            """)
     @GetMapping("/presignedUrl")
-    public SuccessResponse<GetPresignedUrl> createPresignedUrl(@Parameter(description = "업로드 파일명") @RequestParam String filename) {
-        return SuccessResponse.success(adminService.createPresignedUrl(filename));
+    public SuccessResponse<GetPresignedUrl> createPresignedUrl(@Parameter(description = "업로드 파일명") @RequestParam String filename,
+                                                               @Parameter(description = "파일 타입 (IMAGE | EXCEL") @RequestParam FileType fileType) {
+        return SuccessResponse.success(adminService.createPresignedUrl(filename, fileType));
     }
 
 }
