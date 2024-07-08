@@ -67,7 +67,7 @@ public class AdminController {
             """)
     @GetMapping("/presignedUrl")
     public SuccessResponse<GetPresignedUrl> createPresignedUrl(@Parameter(description = "업로드 파일명") @RequestParam String filename,
-                                                               @Parameter(description = "파일 타입 (IMAGE | EXCEL") @RequestParam FileType fileType) {
+                                                               @Parameter(description = "파일 타입 (IMAGE | EXCEL)") @RequestParam FileType fileType) {
         return SuccessResponse.success(adminService.createPresignedUrl(filename, fileType));
     }
 
