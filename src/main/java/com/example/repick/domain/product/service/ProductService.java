@@ -295,7 +295,8 @@ public class ProductService {
                     productFilter.brandNames(),
                     productFilter.qualityRates(),
                     sizes,
-                    productFilter.isMySize()
+                    productFilter.isMySize(),
+                    productFilter.materials()
             );
         }
         Page<GetProductThumbnail> products = getProductsBasedOnType(type, userId, productFilter, pageCondition);

@@ -24,6 +24,7 @@ import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
 import static com.example.repick.domain.product.entity.QProductLike.productLike;
+import static com.example.repick.domain.product.entity.QProductMaterial.productMaterial;
 import static com.example.repick.domain.product.entity.QProductState.productState;
 import static com.example.repick.domain.product.entity.QProductStyle.productStyle;
 import static com.example.repick.domain.recommendation.entity.QUserPreferenceProduct.userPreferenceProduct;
@@ -58,6 +59,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
+                .leftJoin(productMaterial)
+                .on(product.id.eq(productMaterial.product.id))
                 .leftJoin(productState)
                 .on(product.id.eq(productState.productId))
                 .where(
@@ -69,6 +72,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         brandFilter(productFilter.brandNames()),
                         qualityFilter(productFilter.qualityRates()),
                         sizesFilter(productFilter.sizes()),
+                        materialsFilter(productFilter.materials()),
                         deletedFilter(),
                         sellingStateFilter(ProductStateType.SELLING))
                 .distinct()
@@ -214,6 +218,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private BooleanExpression sizesFilter(List<String> sizes) {
         return sizes != null ? product.size.in(sizes) : null;
+    }
+
+    private BooleanExpression materialsFilter(List<String> materials) {
+        return materials != null ? productMaterial.name.in(materials) : null;
     }
 
     private BooleanExpression deletedFilter() {
