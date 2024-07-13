@@ -8,4 +8,5 @@ import java.util.List;
 public interface BoxCollectRepository extends JpaRepository<BoxCollect, Long> {
     List<BoxCollect> findByUserId(Long userId);
 
+    Integer countByUserId(Long userId);
 }

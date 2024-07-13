@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface BagInitRepository extends JpaRepository<BagInit, Long> {
     List<BagInit> findByUserId(Long userId);
+    Integer countByUserId(Long userId);
 }

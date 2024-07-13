@@ -4,6 +4,7 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.BoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
+import com.example.repick.domain.clothingSales.repository.BagInitRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
@@ -31,6 +32,7 @@ public class BoxService {
     private final ProductRepository productRepository;
     private final S3UploadService s3UploadService;
     private final ClothingSalesValidator clothingSalesValidator;
+    private final BagInitRepository bagInitRepository;
 
 
     @Transactional
@@ -38,8 +40,13 @@ public class BoxService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
+        // Count the number of the clothingSalesCount of the user
+        Integer bagInitCount = bagInitRepository.countByUserId(user.getId());
+        Integer boxCollectCount = boxCollectRepository.countByUserId(user.getId());
+
+
         // BoxCollect
-        BoxCollect boxCollect = postBoxCollect.toEntity(user);
+        BoxCollect boxCollect = postBoxCollect.toEntity(user, bagInitCount + boxCollectCount);
 
         boxCollect.updateImageUrl(s3UploadService.saveFile(postBoxCollect.image(), "clothingSales/boxCollect/" + user.getId() + "/" + boxCollect.getId()));
 

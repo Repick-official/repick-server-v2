@@ -39,12 +39,16 @@ public class BagInit extends BaseEntity {
     @OneToOne(mappedBy = "bagInit", cascade = CascadeType.ALL)
     private BagCollect bagCollect;
 
+    @Column(name = "clothing_sales_count")
+    private Integer clothingSalesCount;
+
     @Builder
-    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl) {
+    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, Integer clothingSalesCount) {
         this.user = user;
         this.address = address;
         this.bagQuantity = bagQuantity;
         this.imageUrl = imageUrl;
+        this.clothingSalesCount = clothingSalesCount;
     }
 
     public void updateImageUrl(String imageUrl) {

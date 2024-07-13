@@ -37,13 +37,17 @@ public class BoxCollect extends BaseEntity {
     @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
     private List<BoxCollectState> boxCollectStateList;
 
+    @Column(name = "clothing_sales_count")
+    private Integer clothingSalesCount;
+
     @Builder
-    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate) {
+    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate, Integer clothingSalesCount) {
         this.user = user;
         this.address = address;
         this.boxQuantity = boxQuantity;
         this.imageUrl = imageUrl;
         this.collectionDate = collectionDate;
+        this.clothingSalesCount = clothingSalesCount;
     }
 
     public void updateImageUrl(String imageUrl) {

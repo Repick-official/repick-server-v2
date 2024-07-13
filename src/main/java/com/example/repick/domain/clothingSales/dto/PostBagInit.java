@@ -15,11 +15,12 @@ public record PostBagInit(
 
 ) {
 
-    public BagInit toEntity(User user) {
+    public BagInit toEntity(User user, Integer clothingSalesCount) {
         return BagInit.builder()
                 .user(user)
                 .bagQuantity(bagQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
+                .clothingSalesCount(clothingSalesCount)
                 .build();
     }
 

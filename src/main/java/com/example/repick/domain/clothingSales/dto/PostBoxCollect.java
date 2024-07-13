@@ -17,12 +17,13 @@ public record PostBoxCollect (
         @Schema(description = "희망 수거 날짜", example = "2021-09-15") String collectionDate
 
 ) {
-    public BoxCollect toEntity(User user) {
+    public BoxCollect toEntity(User user, Integer clothingSalesCount) {
         return BoxCollect.builder()
                 .user(user)
                 .boxQuantity(boxQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
                 .collectionDate(LocalDate.parse(collectionDate))
+                .clothingSalesCount(clothingSalesCount)
                 .build();
     }
 }
