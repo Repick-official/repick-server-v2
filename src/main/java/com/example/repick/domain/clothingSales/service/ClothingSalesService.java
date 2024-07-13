@@ -83,7 +83,7 @@ public class ClothingSalesService {
             });
 
             if (!isCanceledOrCompleted.get())
-                clothingSalesList.add(GetPendingClothingSales.of(bagInit.getId(), "백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
+                clothingSalesList.add(GetPendingClothingSales.of(bagInit.getId(), bagInit.getClothingSalesCount(), "백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
         });
 
 
@@ -109,7 +109,7 @@ public class ClothingSalesService {
             });
 
             if (!isCanceledOrCompleted.get())
-                clothingSalesList.add(GetPendingClothingSales.of(boxCollect.getId(), "박스", requestDate.get(), null, collectDate.get(), productDate.get()));
+                clothingSalesList.add(GetPendingClothingSales.of(boxCollect.getId(), boxCollect.getClothingSalesCount(), "박스", requestDate.get(), null, collectDate.get(), productDate.get()));
         });
 
         // order by created date
@@ -184,6 +184,7 @@ public class ClothingSalesService {
 
             sellingClothingSalesList.add(new GetSellingClothingSales(
                     boxCollect.getId(),
+                    boxCollect.getClothingSalesCount(),
                     true,
                     boxCollect.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")),
                     sellingQuantity.get(),
@@ -213,6 +214,7 @@ public class ClothingSalesService {
 
             sellingClothingSalesList.add(new GetSellingClothingSales(
                     bagInit.getId(),
+                    bagInit.getClothingSalesCount(),
                     false,
                     bagInit.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")),
                     sellingQuantity.get(),
