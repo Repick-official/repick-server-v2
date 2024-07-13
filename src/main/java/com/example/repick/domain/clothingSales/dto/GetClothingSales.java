@@ -29,9 +29,9 @@ public record GetClothingSales(
                 boxCollect.getClothingSalesState().getValue(),
                 boxCollect.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                 boxCollect.getClothingSalesState().getId() >= 5,
-                products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                boxCollect.getClothingSalesState().getId() >= 12 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
+                boxCollect.getClothingSalesState().getId() >= 12 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
                 null,
                 null,
                 false,
@@ -46,9 +46,9 @@ public record GetClothingSales(
                 bagInit.getClothingSalesState().getValue(),
                 bagInit.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                 bagInit.getClothingSalesState().getId() >= 5,
-                products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                bagInit.getClothingSalesState().getId() >= 12 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
+                bagInit.getClothingSalesState().getId() >= 12 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
                 null,
                 null,
                 false,

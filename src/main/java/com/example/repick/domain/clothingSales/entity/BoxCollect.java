@@ -40,6 +40,7 @@ public class BoxCollect extends BaseEntity {
     @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
     private List<BoxCollectState> boxCollectStateList;
 
+    @Enumerated(EnumType.STRING)
     private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
     @Builder

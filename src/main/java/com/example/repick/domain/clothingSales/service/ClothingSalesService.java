@@ -285,5 +285,16 @@ public class ClothingSalesService {
         return true;
     }
 
-
+    // Admin API
+    public List<GetClothingSales> getClothingSalesInformation(){
+        List<GetClothingSales> clothingSalesList = new ArrayList<>(bagInitRepository.findAll().stream()
+                .map(bagInit -> GetClothingSales.of(bagInit, productService.findByClothingSales(false, bagInit.getId())))
+                .toList());
+        clothingSalesList.addAll(boxCollectRepository.findAll().stream()
+                .map(boxCollect -> GetClothingSales.of(boxCollect, productService.findByClothingSales(true, boxCollect.getId())))
+                .toList());
+        // createdAt 순서로 내림차순 정렬
+        clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
+        return clothingSalesList;
+    }
 }

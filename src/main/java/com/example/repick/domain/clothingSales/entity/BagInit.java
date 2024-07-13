@@ -42,6 +42,7 @@ public class BagInit extends BaseEntity {
     @OneToOne(mappedBy = "bagInit", cascade = CascadeType.ALL)
     private BagCollect bagCollect;
 
+    @Enumerated(EnumType.STRING)
     private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
     @Builder

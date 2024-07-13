@@ -190,5 +190,12 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.changeProductPriceInputState(postClothingSales));
     }
 
+    // Admin API
+    @Operation(summary = "옷장 정리 현황")
+    @GetMapping("/status")
+    public SuccessResponse<List<GetClothingSales>> getClothingSalesStatus() {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation());
+    }
+
 }
 
