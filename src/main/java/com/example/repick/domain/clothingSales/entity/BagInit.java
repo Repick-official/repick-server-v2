@@ -20,6 +20,9 @@ public class BagInit extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "bag_code")
+    private String bagCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -38,6 +41,8 @@ public class BagInit extends BaseEntity {
 
     @OneToOne(mappedBy = "bagInit", cascade = CascadeType.ALL)
     private BagCollect bagCollect;
+
+    private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
     @Builder
     public BagInit(User user, Address address, Integer bagQuantity, String imageUrl) {

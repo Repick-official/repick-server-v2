@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity @NoArgsConstructor(access = AccessLevel.PROTECTED) @Getter
@@ -38,6 +39,7 @@ public class Product extends BaseEntity {
     private Gender gender;
     @Column(length = 1000)
     private String thumbnailImageUrl;
+    private LocalDateTime salesStartDate;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductCategory> productCategoryList;

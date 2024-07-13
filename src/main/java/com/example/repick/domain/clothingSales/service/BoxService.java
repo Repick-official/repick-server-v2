@@ -66,10 +66,6 @@ public class BoxService {
         return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
     }
 
-    public List<BoxCollect> getBoxCollectByUser(Long userId) {
-        return boxCollectRepository.findByUserId(userId);
-    }
-
     public GetProductListByClothingSales getProductsByBoxId(Long boxCollectId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -85,10 +81,5 @@ public class BoxService {
         Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(true, boxCollectId);
 
         return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity);
-    }
-
-    public BoxCollect getBoxCollectByBoxCollectId(Long boxCollectId) {
-        return boxCollectRepository.findById(boxCollectId)
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
     }
 }

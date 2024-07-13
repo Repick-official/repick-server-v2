@@ -109,10 +109,6 @@ public class BagService {
         return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
     }
 
-    public List<BagInit> getBagInitByUser(Long userId) {
-        return bagInitRepository.findByUserId(userId);
-    }
-
     public GetProductListByClothingSales getProductsByBagInitId(Long bagInitId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -128,10 +124,5 @@ public class BagService {
         Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(false, bagInitId);
 
         return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantity);
-    }
-
-    public BagInit getBagInitByBagInitId(Long bagInitId) {
-        return bagInitRepository.findById(bagInitId)
-                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
     }
 }

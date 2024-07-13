@@ -2,6 +2,8 @@ package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
+import com.example.repick.domain.clothingSales.repository.BagInitRepository;
+import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.dto.product.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
@@ -24,8 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_PRODUCT_ID;
-import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
+import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service @RequiredArgsConstructor
 public class ClothingSalesService {
@@ -34,6 +35,8 @@ public class ClothingSalesService {
     private final BagService bagService;
     private final BoxService boxService;
     private final ProductService productService;
+    private final BagInitRepository bagInitRepository;
+    private final BoxCollectRepository boxCollectRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final ProductRepository productRepository;
     private final ProductStateRepository productStateRepository;
@@ -52,7 +55,7 @@ public class ClothingSalesService {
         AtomicReference<String> productDate = new AtomicReference<>();
 
         // get bag inits
-        bagService.getBagInitByUser(user.getId()).forEach(bagInit -> {
+        bagInitRepository.findByUserId(user.getId()).forEach(bagInit -> {
             requestDate.set(null);
             bagArriveDate.set(null);
             collectDate.set(null);
@@ -88,7 +91,7 @@ public class ClothingSalesService {
 
 
         // get box collects
-        boxService.getBoxCollectByUser(user.getId()).forEach(boxCollect -> {
+        boxCollectRepository.findByUserId(user.getId()).forEach(boxCollect -> {
             requestDate.set(null);
             collectDate.set(null);
             productDate.set(null);
@@ -147,13 +150,13 @@ public class ClothingSalesService {
 
         List<GetSellingClothingSales> sellingClothingSalesList = new ArrayList<>();
 
-        List<BoxCollect> boxCollectList = boxService.getBoxCollectByUser(user.getId())
+        List<BoxCollect> boxCollectList = boxCollectRepository.findByUserId(user.getId())
                 // boxCollectStateType이 SELLING인 것만 가져온다.
                 .stream()
                 .filter(boxCollect -> boxCollect.getBoxCollectStateList().stream().anyMatch(boxCollectState -> boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)))
                 .toList();
 
-        List<BagInit> bagInitList = bagService.getBagInitByUser(user.getId())
+        List<BagInit> bagInitList = bagInitRepository.findByUserId(user.getId())
                 // bagCollectStateType이 SELLING인 것만 가져온다.
                 .stream()
                 .filter(bagInit -> bagInit.getBagCollect() != null)
@@ -240,7 +243,8 @@ public class ClothingSalesService {
     }
 
     private void startSellingBoxCollect(User user, Long boxCollectId) {
-        BoxCollect boxCollect = boxService.getBoxCollectByBoxCollectId(boxCollectId);
+        BoxCollect boxCollect = boxCollectRepository.findById(boxCollectId)
+                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
 
         clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
 
@@ -256,7 +260,8 @@ public class ClothingSalesService {
     }
 
     private void startSellingBagInit(User user, Long bagInitId) {
-        BagInit bagInit = bagService.getBagInitByBagInitId(bagInitId);
+        BagInit bagInit = bagInitRepository.findById(bagInitId)
+                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
 
         clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
 
@@ -279,4 +284,6 @@ public class ClothingSalesService {
 
         return true;
     }
+
+
 }

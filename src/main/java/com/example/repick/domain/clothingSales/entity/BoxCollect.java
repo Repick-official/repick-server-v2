@@ -22,6 +22,9 @@ public class BoxCollect extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "box_code")
+    private String boxCode;
+
     @Embedded
     private Address address;
 
@@ -36,6 +39,8 @@ public class BoxCollect extends BaseEntity {
 
     @OneToMany(mappedBy = "boxCollect", cascade = CascadeType.ALL)
     private List<BoxCollectState> boxCollectStateList;
+
+    private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
     @Builder
     public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate) {

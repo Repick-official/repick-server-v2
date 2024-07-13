@@ -41,7 +41,7 @@ public class ProductScheduler {
         products.stream()
                 .filter(priceRange)
                 .forEach(p -> {
-                    long days = Duration.between(p.getCreatedDate(), LocalDateTime.now()).toDays();
+                    long days = Duration.between(p.getSalesStartDate(), LocalDateTime.now()).toDays();
                     if (days >= 30 && days < 60) p.updateDiscountRate(maxDiscountRate / 2);
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
                     else if (days >= 90) productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
