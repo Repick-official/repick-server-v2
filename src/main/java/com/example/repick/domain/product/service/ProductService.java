@@ -282,22 +282,12 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElse(null);
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
-        List<String> sizes = productFilter.sizes();
-        if (productFilter.isMySize()) {
-            sizes = getUserSizesForCategory(user, Category.fromValue(productFilter.category()));
-            productFilter = new ProductFilter(
-                    productFilter.keyword(),
-                    productFilter.gender(),
-                    productFilter.category(),
-                    productFilter.styles(),
-                    productFilter.minPrice(),
-                    productFilter.maxPrice(),
-                    productFilter.brandNames(),
-                    productFilter.qualityRates(),
-                    sizes,
-                    productFilter.isMySize(),
-                    productFilter.materials()
-            );
+        if(productFilter.isMySize() != null && productFilter.isMySize()){
+            // FIXME: 카테고리 설정 안했을 때도 전체 상품에 대한 내 사이즈보기 적용
+            if(user != null && productFilter.category() != null && !productFilter.isParentCategory()){
+                List<String> sizes = getUserSizesForCategory(user, Category.fromValue(productFilter.category()));
+                productFilter = productFilter.withMySize(sizes);
+            }
         }
         Page<GetProductThumbnail> products = getProductsBasedOnType(type, userId, productFilter, pageCondition);
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());

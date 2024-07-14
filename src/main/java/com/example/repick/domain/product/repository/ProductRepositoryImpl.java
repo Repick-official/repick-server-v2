@@ -66,7 +66,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(
                         keywordFilter(productFilter.keyword()),
                         genderFilter(productFilter.gender()),
-                        categoryFilter(productFilter.category()),
+                        categoryFilter(productFilter.category(), productFilter.isParentCategory()),
                         stylesFilter(productFilter.styles()),
                         priceFilter(productFilter.minPrice(), productFilter.maxPrice()),
                         brandFilter(productFilter.brandNames()),
@@ -129,7 +129,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productCategory.product.id))
                 .where(
                         likeFilter(userId),
-                        categoryFilter(category),
+                        categoryFilter(category, false),
                         deletedFilter())
                 .distinct()
                 .orderBy(productLike.id.desc());
@@ -189,7 +189,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return gender != null ? product.gender.eq(Gender.fromValue(gender)).or(product.gender.eq(Gender.UNISEX)) : null;
     }
 
-    private BooleanExpression categoryFilter(String category) {
+    private BooleanExpression categoryFilter(String category, Boolean isParentCategory) {
+        if(isParentCategory != null && isParentCategory) {
+            List<Category> subCategories = Category.fromParent(category);
+            return productCategory.category.in(subCategories);
+        }
         return category != null ? productCategory.category.eq(Category.fromValue(category)) : null;
     }
 

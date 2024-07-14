@@ -8,6 +8,7 @@ public record ProductFilter(
         @Schema(description = "검색어") String keyword,
         @Schema(description = "조회 의류 성별") String gender,
         @Schema(description = "카테고리") String category,
+        @Schema(description = "상위 카테고리 여부") Boolean isParentCategory,
         @Schema(description = "스타일") List<String> styles,
         @Schema(description = "최소 가격") Long minPrice,
         @Schema(description = "최대 가격") Long maxPrice,
@@ -17,8 +18,22 @@ public record ProductFilter(
         @Schema(description = "내 사이즈 여부") Boolean isMySize,
         @Schema(description = "소재") List<String> materials
 ) {
-    public Boolean isMySize() {
-        return isMySize != null ? isMySize : false;
+
+    public ProductFilter withMySize(List<String> sizes) {
+        return new ProductFilter(
+                this.keyword,
+                this.gender,
+                this.category,
+                this.isParentCategory,
+                this.styles,
+                this.minPrice,
+                this.maxPrice,
+                this.brandNames,
+                this.qualityRates,
+                sizes,
+                this.isMySize,
+                this.materials
+        );
     }
 
 }
