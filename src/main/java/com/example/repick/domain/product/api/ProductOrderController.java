@@ -54,13 +54,13 @@ public class ProductOrderController {
     @Operation(summary = "구매 현황")
     @GetMapping("/status")
     public SuccessResponse<PageResponse<List<GetProductOrder>>> orderStatus(@ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(productOrderService.getProductOrders());
+        return SuccessResponse.success(productOrderService.getProductOrders(pageCondition));
     }
 
     @Operation(summary = "반품 현황")
     @GetMapping("/return-status")
     public SuccessResponse<PageResponse<List<GetProductOrder>>> returnStatus(@ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(productOrderService.getReturnedProductOrders());
+        return SuccessResponse.success(productOrderService.getReturnedProductOrders(pageCondition));
     }
 
     @Operation(summary = "운송장 등록")

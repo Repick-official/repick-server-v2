@@ -3,6 +3,8 @@ package com.example.repick.domain.product.repository;
 import com.example.repick.domain.product.entity.Payment;
 import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductOrderState;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,6 +16,6 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
 
     List<ProductOrder> findByUserId(Long userId);
 
-    List<ProductOrder> findByProductOrderStateIn(List<ProductOrderState> productOrderStates);
+    Page<ProductOrder> findByProductOrderStateIn(List<ProductOrderState> productOrderStates, Pageable pageable);
 
 }

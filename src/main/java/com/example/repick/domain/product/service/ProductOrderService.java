@@ -7,13 +7,16 @@ import com.example.repick.domain.product.validator.ProductValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -202,42 +205,42 @@ public class ProductOrderService {
 
     // 구매 현황 보기
     @Transactional(readOnly = true)
-    public PageResponse<List<GetProductOrder>> getProductOrders() {
-        List<ProductOrder> productOrders = productOrderRepository.findByProductOrderStateIn(
+    public PageResponse<List<GetProductOrder>> getProductOrders(PageCondition pageCondition) {
+        Pageable pageable = pageCondition.toPageable();
+        Page<ProductOrder> productOrderPage = productOrderRepository.findByProductOrderStateIn(
                 List.of(
                         ProductOrderState.PAYMENT_COMPLETED,
                         ProductOrderState.SHIPPING_PREPARING,
                         ProductOrderState.SHIPPING,
                         ProductOrderState.DELIVERED
-                )
-        );
-        List<GetProductOrder> getProductOrders = productOrders.stream()
+                ), pageable);
+        List<GetProductOrder> getProductOrders = productOrderPage.stream()
                 .map(productOrder -> {
                     Product product = productRepository.findById(productOrder.getProductId())
                             .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                     return GetProductOrder.of(productOrder, product, false);
                 }).toList();
-        PageImpl<GetProductOrder> page = new PageImpl<>(getProductOrders);
+        Page<GetProductOrder> page = new PageImpl<>(getProductOrders, pageable, productOrderPage.getTotalElements());
         return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
     // 반품 현황 보기
     @Transactional(readOnly = true)
-    public PageResponse<List<GetProductOrder>> getReturnedProductOrders() {
-        List<ProductOrder> returnOrders = productOrderRepository.findByProductOrderStateIn(
+    public PageResponse<List<GetProductOrder>> getReturnedProductOrders(PageCondition pageCondition) {
+        Pageable pageable = pageCondition.toPageable();
+        Page<ProductOrder> returnOrderPage = productOrderRepository.findByProductOrderStateIn(
                 List.of(
                         ProductOrderState.RETURN_REQUESTED,
                         ProductOrderState.RETURN_COMPLETED,
                         ProductOrderState.REFUND_COMPLETED
-                )
-        );
-        List<GetProductOrder> getReturnOrders = returnOrders.stream()
+                ), pageable);
+        List<GetProductOrder> getReturnOrders = returnOrderPage.stream()
                 .map(productOrder -> {
                     Product product = productRepository.findById(productOrder.getProductId())
                     .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                     return GetProductOrder.of(productOrder, product, true);
         }).toList();
-        PageImpl<GetProductOrder> page = new PageImpl<>(getReturnOrders);
+        Page<GetProductOrder> page = new PageImpl<>(getReturnOrders, pageable, returnOrderPage.getTotalElements());
         return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
