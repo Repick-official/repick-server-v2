@@ -55,17 +55,6 @@ public class BagService {
     }
 
     @Transactional
-    public BagInitResponse updateBagInitState(PostBagInitState postBagInitState) {
-        BagInit bagInit = bagInitRepository.findById(postBagInitState.bagInitId())
-                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-
-        BagInitState bagInitState = BagInitState.of(BagInitStateType.fromValue(postBagInitState.bagInitStateType()), bagInit);
-        bagInitStateRepository.save(bagInitState);
-
-        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getValue());
-    }
-
-    @Transactional
     public BagCollectResponse registerBagCollect(PostBagCollect postBagCollect) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -96,17 +85,6 @@ public class BagService {
 
         return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
 
-    }
-
-    @Transactional
-    public BagCollectResponse updateBagCollectState(PostBagCollectState postBagCollectState) {
-        BagCollect bagCollect = bagCollectRepository.findById(postBagCollectState.bagCollectId())
-                .orElseThrow(() -> new CustomException(INVALID_BAG_COLLECT_ID));
-
-        BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.fromValue(postBagCollectState.bagCollectStateType()), bagCollect);
-        bagCollectStateRepository.save(bagCollectState);
-
-        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
     }
 
     public GetProductListByClothingSales getProductsByBagInitId(Long bagInitId) {

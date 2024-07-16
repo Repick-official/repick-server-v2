@@ -30,22 +30,6 @@ public class ClothingSalesController {
         return SuccessResponse.createSuccess(bagService.registerBagInit(postBagInit));
     }
 
-    @Operation(summary = "백 초기 요청 상태 업데이트", description = """
-            백 초기 요청에 대한 상태를 변경합니다.
-            가능한 상태:
-            - '신청완료'
-            - '배송중'
-            - '배송완료'
-            - '요청취소'
-            
-            네가지 값 중 하나를 bagInitStateType 에 입력합니다.
-            예시: backInitStateType: "배송중"
-            """)
-    @PostMapping("bags/initialize/state")
-    public SuccessResponse<BagInitResponse> updateBagInitState(@RequestBody PostBagInitState postBagInitState) {
-        return SuccessResponse.createSuccess(bagService.updateBagInitState(postBagInitState));
-    }
-
     @Operation(summary = "백 수거 요청", description = """
             백 수거 요청을 합니다.
             백 수거 요청 등록 시 '대기중' 상태로 등록됩니다.
@@ -57,24 +41,6 @@ public class ClothingSalesController {
         return SuccessResponse.createSuccess(bagService.registerBagCollect(postBagCollect));
     }
 
-    @Operation(summary = "백 수거 요청 상태 업데이트", description = """
-            백 수거 요청에 대한 상태를 변경합니다.
-            가능한 상태:
-            - '신청완료'
-            - '수거중'
-            - '수거완료'
-            - '검수완료'
-            - '판매진행'
-            - '요청취소'
-            
-            네가지 값 중 하나를 bagCollectStateType 에 입력합니다.
-            예시: bagCollectStateType: "수거완료"
-            """)
-    @PostMapping("bags/collection/state")
-    public SuccessResponse<BagCollectResponse> updateBagInitState(@RequestBody PostBagCollectState postBagCollectState) {
-        return SuccessResponse.createSuccess(bagService.updateBagCollectState(postBagCollectState));
-    }
-
     @Operation(summary = "박스 수거 요청", description = """
             박스 수거 요청을 합니다.
             박스 수거 요청 등록 시 '대기중' 상태로 등록됩니다.
@@ -84,24 +50,6 @@ public class ClothingSalesController {
     @PostMapping(value = "/box/collection", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SuccessResponse<BoxCollectResponse> handleBoxCollectionRequest(@ModelAttribute PostBoxCollect postBoxCollect) {
         return SuccessResponse.createSuccess(boxService.registerBoxCollect(postBoxCollect));
-    }
-
-    @Operation(summary = "박스 수거 요청 상태 업데이트", description = """
-            박스 수거 요청에 대한 상태를 변경합니다.
-            가능한 상태:
-            - '신청완료'
-            - '수거중'
-            - '수거완료'
-            - '검수완료'
-            - '판매진행'
-            - '요청취소'
-            
-            네가지 값 중 하나를 boxCollectStateType 에 입력합니다.
-            예시: boxCollectStateType: "판매진행"
-            """)
-    @PostMapping("box/collection/state")
-    public SuccessResponse<BoxCollectResponse> updateBoxCollectState(@RequestBody PostBoxCollectState postBoxCollectState) {
-        return SuccessResponse.createSuccess(boxService.updateBoxCollectState(postBoxCollectState));
     }
 
     @Operation(summary = "옷장 정리 통합 조회: 진행 중인 수거", description = """
@@ -195,6 +143,12 @@ public class ClothingSalesController {
     @GetMapping("/status")
     public SuccessResponse<List<GetClothingSales>> getClothingSalesStatus() {
         return SuccessResponse.success(clothingSalesService.getClothingSalesInformation());
+    }
+
+    @Operation(summary = "옷장 정리 상태 업데이트")
+    @PostMapping("/status")
+    public SuccessResponse<Boolean> updateClothingSalesStatus(@RequestBody PostClothingSalesState postClothingSalesState) {
+        return SuccessResponse.success(clothingSalesService.updateClothingSalesState(postClothingSalesState));
     }
 
 }

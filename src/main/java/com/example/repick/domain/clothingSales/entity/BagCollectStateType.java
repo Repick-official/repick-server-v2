@@ -45,12 +45,26 @@ public enum BagCollectStateType {
         throw new CustomException(ErrorCode.INVALID_BAG_COLLECT_STATUS_NAME);
     }
 
-    public static String getValueByName(String name) {
-        for (BagCollectStateType stateType : values()) {
-            if (stateType.name().equals(name)) {
-                return stateType.getValue();
+    public static BagCollectStateType fromClothingSalesStateType(ClothingSalesStateType clothingSalesStateType) {
+        switch (clothingSalesStateType) {
+            case COLLECTING -> {
+                return BagCollectStateType.DELIVERING;
+            }
+            case COLLECTED -> {
+                return BagCollectStateType.DELIVERED;
+            }
+            case REQUEST_CANCELLED -> {
+                return BagCollectStateType.CANCELED;
+            }
+            case SHOOTING, SHOOTED, PRODUCTING, PRODUCTED -> {
+                return null;
+            }
+            case PRODUCT_REGISTERED -> {
+                return BagCollectStateType.INSPECTION_COMPLETED;
+            }
+            default -> {
+                throw new CustomException(ErrorCode.INVALID_BAG_COLLECT_STATUS_NAME);
             }
         }
-        return null;
     }
 }

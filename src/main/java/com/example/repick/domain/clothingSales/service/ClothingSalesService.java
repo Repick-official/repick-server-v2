@@ -2,8 +2,7 @@ package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
-import com.example.repick.domain.clothingSales.repository.BagInitRepository;
-import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
+import com.example.repick.domain.clothingSales.repository.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.dto.product.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
@@ -40,6 +39,9 @@ public class ClothingSalesService {
     private final ClothingSalesValidator clothingSalesValidator;
     private final ProductRepository productRepository;
     private final ProductStateRepository productStateRepository;
+    private final BoxCollectStateRepository boxCollectStateRepository;
+    private final BagInitStateRepository bagInitStateRepository;
+    private final BagCollectStateRepository bagCollectStateRepository;
 
     public List<GetPendingClothingSales> getPendingClothingSales() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -256,7 +258,8 @@ public class ClothingSalesService {
             productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
         });
 
-        boxService.updateBoxCollectState(new PostBoxCollectState(boxCollectId, "판매진행"));
+        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.SELLING, boxCollect);
+        boxCollectStateRepository.save(boxCollectState);
     }
 
     private void startSellingBagInit(User user, Long bagInitId) {
@@ -273,7 +276,8 @@ public class ClothingSalesService {
             productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
         });
 
-        bagService.updateBagCollectState(new PostBagCollectState(bagInit.getBagCollect().getId(), "판매진행"));
+        BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.SELLING, bagInit.getBagCollect());
+        bagCollectStateRepository.save(bagCollectState);
     }
 
     public Boolean changeProductPriceInputState(PostClothingSales postClothingSales) {
@@ -296,5 +300,45 @@ public class ClothingSalesService {
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
         return clothingSalesList;
+    }
+
+
+    @Transactional
+    public Boolean updateClothingSalesState(PostClothingSalesState postClothingSalesState){
+        ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState());
+        if(postClothingSalesState.isBoxCollect()){
+            // Admin 용 상태 관리
+            BoxCollect boxCollect = boxCollectRepository.findById(postClothingSalesState.clothingSalesId())
+                    .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
+            boxCollect.updateClothingSalesState(clothingSalesStateType);
+
+            // User 용 상태 관리
+            BoxCollectStateType boxCollectStateType = BoxCollectStateType.fromClothingSalesStateType(clothingSalesStateType);
+            if(boxCollectStateType != null){
+                BoxCollectState boxCollectState = BoxCollectState.of(boxCollectStateType, boxCollect);
+                boxCollectStateRepository.save(boxCollectState);
+            }
+        }
+        else {
+            // Admin 용 상태 관리
+            BagInit bagInit = bagInitRepository.findById(postClothingSalesState.clothingSalesId())
+                    .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
+            bagInit.updateClothingSalesState(ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState()));
+
+            // User 용 상태 관리
+            if(postClothingSalesState.isBagDelivered()){
+                BagCollect bagCollect = bagInit.getBagCollect();
+                BagCollectStateType bagCollectStateType = BagCollectStateType.fromClothingSalesStateType(clothingSalesStateType);
+                if (bagCollectStateType != null) {
+                    BagCollectState bagCollectState = BagCollectState.of(bagCollectStateType, bagCollect);
+                    bagCollectStateRepository.save(bagCollectState);
+                }
+            }
+            else{
+                BagInitState bagInitState = BagInitState.of(BagInitStateType.fromClothingSalesStateType(clothingSalesStateType), bagInit);
+                bagInitStateRepository.save(bagInitState);
+            }
+        }
+        return true;
     }
 }

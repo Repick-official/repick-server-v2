@@ -44,16 +44,21 @@ public class BoxCollect extends BaseEntity {
     private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
     @Builder
-    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate) {
+    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate, ClothingSalesStateType clothingSalesState) {
         this.user = user;
         this.address = address;
         this.boxQuantity = boxQuantity;
         this.imageUrl = imageUrl;
         this.collectionDate = collectionDate;
+        this.clothingSalesState = clothingSalesState;
     }
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void updateClothingSalesState(ClothingSalesStateType clothingSalesState) {
+        this.clothingSalesState = clothingSalesState;
     }
 
 }

@@ -46,15 +46,20 @@ public class BagInit extends BaseEntity {
     private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
     @Builder
-    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl) {
+    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, ClothingSalesStateType clothingSalesState) {
         this.user = user;
         this.address = address;
         this.bagQuantity = bagQuantity;
         this.imageUrl = imageUrl;
+        this.clothingSalesState = clothingSalesState;
     }
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void updateClothingSalesState(ClothingSalesStateType clothingSalesState) {
+        this.clothingSalesState = clothingSalesState;
     }
 
 }

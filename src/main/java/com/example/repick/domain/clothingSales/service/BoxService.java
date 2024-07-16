@@ -54,18 +54,6 @@ public class BoxService {
 
     }
 
-    @Transactional
-    public BoxCollectResponse updateBoxCollectState(PostBoxCollectState postBoxCollectState) {
-        BoxCollect boxCollect = boxCollectRepository.findById(postBoxCollectState.boxCollectId())
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-
-        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.fromValue(postBoxCollectState.boxCollectStateType()), boxCollect);
-
-        boxCollectStateRepository.save(boxCollectState);
-
-        return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
-    }
-
     public GetProductListByClothingSales getProductsByBoxId(Long boxCollectId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));

@@ -1,6 +1,7 @@
 package com.example.repick.domain.clothingSales.dto;
 
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +24,7 @@ public record PostBoxCollect (
                 .boxQuantity(boxQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
                 .collectionDate(LocalDate.parse(collectionDate))
+                .clothingSalesState(ClothingSalesStateType.BOX_REQUEST)
                 .build();
     }
 }
