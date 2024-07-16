@@ -82,6 +82,7 @@ public class BagService {
         // BagCollectState
         BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.PENDING, bagCollect);
         bagCollectStateRepository.save(bagCollectState);
+        bagInit.updateClothingSalesState(ClothingSalesStateType.BAG_COLLECT_REQUEST);
 
         return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
 

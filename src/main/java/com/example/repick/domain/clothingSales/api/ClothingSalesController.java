@@ -4,9 +4,12 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
+import com.example.repick.global.page.PageCondition;
+import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -141,8 +144,8 @@ public class ClothingSalesController {
     // Admin API
     @Operation(summary = "옷장 정리 현황")
     @GetMapping("/status")
-    public SuccessResponse<List<GetClothingSales>> getClothingSalesStatus() {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation());
+    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(pageCondition));
     }
 
     @Operation(summary = "옷장 정리 상태 업데이트")

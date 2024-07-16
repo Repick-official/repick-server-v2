@@ -21,9 +21,8 @@ public enum ClothingSalesStateType {
     PRODUCTING(11, "상품화 중"),
     PRODUCTED(12, "상품화 완료"),
     PRODUCT_REGISTERED(13, "상품 등록 완료"),
-    PRICE_SET(14, "가격 설정 완료"),
-    SELLING(15, "판매 중"),
-    SELLING_EXPIRED(16, "판매 기간 만료");
+    SELLING(14, "판매 중"),
+    SELLING_EXPIRED(15, "판매 기간 만료");
 
     private final int id;
     private final String value;

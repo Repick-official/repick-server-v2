@@ -14,7 +14,11 @@ import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.page.PageCondition;
+import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -290,7 +294,7 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public List<GetClothingSales> getClothingSalesInformation(){
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
         List<GetClothingSales> clothingSalesList = new ArrayList<>(bagInitRepository.findAll().stream()
                 .map(bagInit -> GetClothingSales.of(bagInit, productService.findByClothingSales(false, bagInit.getId())))
                 .toList());
@@ -299,7 +303,14 @@ public class ClothingSalesService {
                 .toList());
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
-        return clothingSalesList;
+
+        // Paging 처리
+        Pageable pageable = pageCondition.toPageable();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), clothingSalesList.size());
+        List<GetClothingSales> pagedList = clothingSalesList.subList(start, end);
+        PageImpl<GetClothingSales> page = new PageImpl<>(pagedList, pageable, clothingSalesList.size());
+        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
     }
 
 
