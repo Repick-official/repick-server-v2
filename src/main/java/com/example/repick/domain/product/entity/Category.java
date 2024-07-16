@@ -66,4 +66,10 @@ public enum Category {
         }
         throw new CustomException(ErrorCode.INVALID_CATEGORY_NAME);
     }
+
+    public static List<Category> fromParent(String parent) {
+        return Arrays.stream(Category.values())
+                .filter(category -> category.getParent().equalsIgnoreCase(parent))
+                .toList();
+    }
 }
