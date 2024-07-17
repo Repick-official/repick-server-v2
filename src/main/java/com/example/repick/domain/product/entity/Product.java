@@ -146,4 +146,8 @@ public class Product extends BaseEntity {
     public void updateThumbnailImageUrl(String thumbnailImageUrl) {
         this.thumbnailImageUrl = thumbnailImageUrl;
     }
+
+    public void updateSalesStartDate(LocalDateTime salesStartDate) {
+        this.salesStartDate = salesStartDate;
+    }
 }

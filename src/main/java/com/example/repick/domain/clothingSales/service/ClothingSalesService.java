@@ -49,6 +49,25 @@ public class ClothingSalesService {
     private final BagInitStateRepository bagInitStateRepository;
     private final BagCollectStateRepository bagCollectStateRepository;
 
+    public Boolean getIsBoxCollect(long userId, int clothingSalesCount) {
+        return boxCollectRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount).isPresent();
+    }
+
+    public void updateSellingExpired(Product product) {
+        if(getIsBoxCollect(product.getUser().getId(), product.getClothingSalesCount())){
+            BoxCollect boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(product.getUser().getId(), product.getClothingSalesCount())
+                    .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
+            boxCollect.updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
+            boxCollectRepository.save(boxCollect);
+        }
+        else{
+            BagInit bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(product.getUser().getId(), product.getClothingSalesCount())
+                    .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
+            bagInit.updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
+            bagInitRepository.save(bagInit);
+        }
+    }
+
     public List<GetPendingClothingSales> getPendingClothingSales() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -154,7 +173,9 @@ public class ClothingSalesService {
         productList.forEach(product -> {
             productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
             productService.changeSellingState(product.getId(), ProductStateType.SELLING);
+            product.updateSalesStartDate(LocalDateTime.now());
         });
+        productRepository.saveAll(productList);
 
         Optional<BagInit> bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(user.getId(), productList.get(0).getClothingSalesCount());
         if(bagInit.isPresent()){
