@@ -190,7 +190,7 @@ public class ClothingSalesService {
                     sellingQuantity.get(),
                     pendingQuantity.get(),
                     soldQuantity.get(),
-                    0));
+                    boxCollect.getPoint()));
         });
 
         bagInitList.forEach(bagInit -> {
@@ -220,7 +220,7 @@ public class ClothingSalesService {
                     sellingQuantity.get(),
                     pendingQuantity.get(),
                     soldQuantity.get(),
-                    0));
+                    bagInit.getPoint()));
         });
 
         return sellingClothingSalesList;

@@ -42,17 +42,25 @@ public class BagInit extends BaseEntity {
     @Column(name = "clothing_sales_count")
     private Integer clothingSalesCount;
 
+    @Column(name = "point")
+    private Long point;
+
     @Builder
-    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, Integer clothingSalesCount) {
+    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, Integer clothingSalesCount, Long point) {
         this.user = user;
         this.address = address;
         this.bagQuantity = bagQuantity;
         this.imageUrl = imageUrl;
         this.clothingSalesCount = clothingSalesCount;
+        this.point = point;
     }
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void updatePoint(long point) {
+        this.point = point;
     }
 
 }

@@ -21,6 +21,7 @@ public record PostBagInit(
                 .bagQuantity(bagQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
                 .clothingSalesCount(clothingSalesCount)
+                .point(0L)
                 .build();
     }
 
