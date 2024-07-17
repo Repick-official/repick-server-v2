@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -30,27 +31,25 @@ public class ProductValidator {
         }
     }
 
-    public void validateClothingSales(Boolean isBoxCollect, Long clothingSalesId, Long userId) {
-        if (isBoxCollect) {
-            validateBoxCollect(clothingSalesId, userId);
-        } else {
-            validateBagInit(clothingSalesId, userId);
-        }
+    public void validateClothingSales(Integer clothingSalesCount, Long userId) {
+        Optional<BagInit> bagInitOptional = bagInitRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount);
+
+        bagInitOptional.ifPresentOrElse(bagInit -> validateBagInit(bagInit, userId), () -> {
+            Optional<BoxCollect> boxCollectOptional = boxCollectRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount);
+
+            boxCollectOptional.ifPresentOrElse(boxCollect -> validateBoxCollect(boxCollect, userId), () -> {
+                throw new CustomException(INVALID_CLOTHING_SALES);
+            });
+        });
     }
 
-    private void validateBagInit(Long bagInitId, Long userId) {
-        BagInit bagInit = bagInitRepository.findById(bagInitId)
-                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-
+    private void validateBagInit(BagInit bagInit, Long userId) {
         if (!Objects.equals(bagInit.getUser().getId(), userId)) {
             throw new CustomException(BAG_INIT_NOT_MATCH_USER);
         }
     }
 
-    private void validateBoxCollect(Long boxCollectId, Long userId) {
-        BoxCollect boxCollect = boxCollectRepository.findById(boxCollectId)
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-
+    private void validateBoxCollect(BoxCollect boxCollect, Long userId) {
         if (!Objects.equals(boxCollect.getUser().getId(), userId)) {
             throw new CustomException(BOX_COLLECT_NOT_MATCH_USER);
         }

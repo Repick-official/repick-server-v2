@@ -77,23 +77,6 @@ public class BoxService {
         return boxCollectRepository.findByUserId(userId);
     }
 
-    public GetProductListByClothingSales getProductsByBoxId(Long boxCollectId) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        BoxCollect boxCollect = boxCollectRepository.findById(boxCollectId)
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-
-        // validate boxCollectId and user
-        clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
-
-        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSales(true, boxCollectId);
-
-        Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(true, boxCollectId);
-
-        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity);
-    }
-
     public BoxCollect getBoxCollectByBoxCollectId(Long boxCollectId) {
         return boxCollectRepository.findById(boxCollectId)
                 .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));

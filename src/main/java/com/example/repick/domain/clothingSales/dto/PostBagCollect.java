@@ -2,6 +2,7 @@ package com.example.repick.domain.clothingSales.dto;
 
 import com.example.repick.domain.clothingSales.entity.BagCollect;
 import com.example.repick.domain.clothingSales.entity.BagInit;
+import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,8 +19,9 @@ public record PostBagCollect (
         @Schema(description = "희망 수거 날짜", example = "2021-09-15") String collectionDate
 
 ) {
-    public BagCollect toEntity(BagInit bagInit) {
+    public BagCollect toEntity(BagInit bagInit, User user) {
         return BagCollect.builder()
+                .user(user)
                 .bagInit(bagInit)
                 .bagQuantity(bagQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))

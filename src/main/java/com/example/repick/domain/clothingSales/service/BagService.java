@@ -87,7 +87,7 @@ public class BagService {
         clothingSalesValidator.duplicateBagCollectExists(bagInit.getId());
 
         // BagCollect
-        BagCollect bagCollect = postBagCollect.toEntity(bagInit);
+        BagCollect bagCollect = postBagCollect.toEntity(bagInit, user);
 
         bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
 
@@ -114,23 +114,6 @@ public class BagService {
 
     public List<BagInit> getBagInitByUser(Long userId) {
         return bagInitRepository.findByUserId(userId);
-    }
-
-    public GetProductListByClothingSales getProductsByBagInitId(Long bagInitId) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        BagInit bagInit = bagInitRepository.findById(bagInitId)
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-
-        // validate bagInitId and user
-        clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
-
-        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSales(false, bagInitId);
-
-        Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(false, bagInitId);
-
-        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantity);
     }
 
     public BagInit getBagInitByBagInitId(Long bagInitId) {

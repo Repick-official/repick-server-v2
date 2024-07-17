@@ -301,7 +301,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long clothingSalesId) {
+    public List<GetProductByClothingSalesDto> findProductDtoByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductByClothingSalesDto.class,
                         product.id,
@@ -315,8 +315,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.predictPriceDiscountRate))
                 .from(product)
                 .leftJoin(productState).on(product.id.eq(productState.productId))
-                .where(product.isBoxCollect.eq(isBoxCollect)
-                        .and(product.clothingSalesId.eq(clothingSalesId))
+                .where(product.clothingSalesCount.eq(clothingSalesCount)
                         .and(product.isDeleted.isFalse())
                         .and(JPAExpressions
                                 .select(productState.id.max())

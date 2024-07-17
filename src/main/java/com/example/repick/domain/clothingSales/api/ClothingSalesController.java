@@ -132,26 +132,15 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.getSellingClothingSales());
     }
 
-    @Operation(summary = "박스: 판매 가능한 상품 보기", description = """
-            박스 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+    @Operation(summary = "수거: 판매 가능한 상품 보기", description = """
+            수거 신청 건에 대한 판매 가능 상품을 조회합니다.
             - productList: 상품 리스트
             - requestedQuantity: 신청한 의류 수량
             - productQuantity: 판매 가능한 의류 수량
             """)
-    @GetMapping("/products/box/{boxCollectId}")
-    public SuccessResponse<GetProductListByClothingSales> getProductsByBoxCollectId(@PathVariable Long boxCollectId) {
-        return SuccessResponse.success(boxService.getProductsByBoxId(boxCollectId));
-    }
-
-    @Operation(summary = "백: 판매 가능한 상품 보기", description = """
-            백 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
-            - productList: 상품 리스트
-            - requestedQuantity: 신청한 의류 수량
-            - productQuantity: 판매 가능한 의류 수량
-            """)
-    @GetMapping("/products/bag/{bagInitId}")
-    public SuccessResponse<GetProductListByClothingSales> getProductsByBagInitId(@PathVariable Long bagInitId) {
-        return SuccessResponse.success(bagService.getProductsByBagInitId(bagInitId));
+    @GetMapping("/products/{clothingSalesCount}")
+    public SuccessResponse<GetProductListByClothingSales> getProductsByClothingSalesCount(@PathVariable Integer clothingSalesCount) {
+        return SuccessResponse.success(clothingSalesService.getProductsByClothingSalesCount(clothingSalesCount));
     }
 
     @Operation(summary = "상품 가격 입력하기", description = """
@@ -176,9 +165,9 @@ public class ClothingSalesController {
             - clothingSalesId: 수거 ID
             
             """)
-    @PostMapping("/products/start-selling")
-    public SuccessResponse<Boolean> startSellingBox(@RequestBody PostClothingSales postStartSelling) {
-        return SuccessResponse.success(clothingSalesService.startSelling(postStartSelling));
+    @PostMapping("/products/start-selling/{clothingSalesCount}")
+    public SuccessResponse<Boolean> startSelling(@PathVariable Integer clothingSalesCount) {
+        return SuccessResponse.success(clothingSalesService.startSelling(clothingSalesCount));
     }
 
     // TODO: ADMIN ACCESS

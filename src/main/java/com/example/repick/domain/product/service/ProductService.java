@@ -92,7 +92,7 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         // validate clothing sales info
-        productValidator.validateClothingSales(postProduct.isBoxCollect(), postProduct.clothingSalesId(), user.getId());
+        productValidator.validateClothingSales(postProduct.clothingSalesCount(), user.getId());
 
         // product
         String size  = convertSizeInfo(Category.fromName(postProduct.categories().get(0)), postProduct.sizeInfo());
@@ -389,8 +389,8 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public List<Product> findByClothingSales(Boolean isBoxCollect, Long clothingSlaesId) {
-        return productRepository.findProductByIsBoxCollectAndClothingSalesId(isBoxCollect, clothingSlaesId);
+    public List<Product> findByClothingSales(Long userId, Integer clothingSalesCount) {
+        return productRepository.findProductByUserIdAndClothingSalesCount(userId, clothingSalesCount);
     }
 
     public List<GetClassificationEach> getProductStyleTypes() {
