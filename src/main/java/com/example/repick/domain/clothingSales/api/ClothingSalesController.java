@@ -107,6 +107,7 @@ public class ClothingSalesController {
     @Operation(summary = "옷장 정리 통합 조회: 진행 중인 수거", description = """
             옷장 정리 통합 조회: 진행 중인 수거, 신청 완료일 순으로 정렬되어 리스트로 반환합니다.
             - id: 수거 ID, '백 수거 요청' 시 '백 요청 ID'를 조회하기 위해 사용됩니다.
+            - clothingSalesCount: 수거 회차(각각의 유저에 대해 고유한 값입니다).
             - type: 박스/백
             - requestDate: 신청 완료일
             - bagArriveDate: 백 도착일 (박스의 경우 항상 null)
@@ -121,6 +122,7 @@ public class ClothingSalesController {
     @Operation(summary = "옷장 정리 통합 조회: 판매 중인 옷장", description = """
             옷장 정리 통합 조회: 판매 중인 옷장, 신청 완료일 순으로 정렬되어 리스트로 반환합니다.
             - id: 수거 ID
+            - clothingSalesCount: 수거 회차(각각의 유저에 대해 고유한 값입니다).
             - clothingSalesPeriod: 신청 완료일 ~ 판매 진행 시작일
             - sellingQuantity: 판매 중인 의류 수량
             - pendingQuantity: 구매 확정 대기 수량
@@ -161,8 +163,7 @@ public class ClothingSalesController {
             수거 신청 건에 대한 옷장 판매를 시작합니다.
             **가격이 등록되지 않은 상품이 있다면 판매 시작이 불가합니다**
             
-            - isBoxCollect: 박스 수거 여부 (true: 박스, false: 백)
-            - clothingSalesId: 수거 ID
+            - clothingSalesCount: 수거 회차
             
             """)
     @PostMapping("/products/start-selling/{clothingSalesCount}")
