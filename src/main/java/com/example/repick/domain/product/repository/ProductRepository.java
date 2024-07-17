@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
-    List<Product> findProductByIsBoxCollectAndClothingSalesId(Boolean isBoxCollect, Long clothingSalesId);
-    Integer countByIsBoxCollectAndClothingSalesId(Boolean isBoxCollect, Long clothingSalesId);
+    List<Product> findProductByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
+    Integer countByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.id IN :ids")

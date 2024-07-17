@@ -2,10 +2,7 @@ package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
-import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
-import com.example.repick.domain.clothingSales.repository.BagCollectStateRepository;
-import com.example.repick.domain.clothingSales.repository.BagInitRepository;
-import com.example.repick.domain.clothingSales.repository.BagInitStateRepository;
+import com.example.repick.domain.clothingSales.repository.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.user.entity.User;
@@ -33,14 +30,20 @@ public class BagService {
     private final ClothingSalesValidator clothingSalesValidator;
     private final S3UploadService s3UploadService;
     private final ProductRepository productRepository;
+    private final BoxCollectRepository boxCollectRepository;
 
     @Transactional
     public BagInitResponse registerBagInit(PostBagInit postBagInit) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
+
+        // Count the number of the clothingSalesCount of the user
+        Integer bagInitCount = bagInitRepository.countByUserId(user.getId());
+        Integer boxCollectCount = boxCollectRepository.countByUserId(user.getId());
+
         // BagInit
-        BagInit bagInit = postBagInit.toEntity(user);
+        BagInit bagInit = postBagInit.toEntity(user, bagInitCount + boxCollectCount);
 
         bagInit.updateImageUrl(s3UploadService.saveFile(postBagInit.image(), "clothingSales/bagInit/" + user.getId() + "/" + bagInit.getId()));
 
@@ -84,7 +87,7 @@ public class BagService {
         clothingSalesValidator.duplicateBagCollectExists(bagInit.getId());
 
         // BagCollect
-        BagCollect bagCollect = postBagCollect.toEntity(bagInit);
+        BagCollect bagCollect = postBagCollect.toEntity(bagInit, user);
 
         bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
 
@@ -111,23 +114,6 @@ public class BagService {
 
     public List<BagInit> getBagInitByUser(Long userId) {
         return bagInitRepository.findByUserId(userId);
-    }
-
-    public GetProductListByClothingSales getProductsByBagInitId(Long bagInitId) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        BagInit bagInit = bagInitRepository.findById(bagInitId)
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-
-        // validate bagInitId and user
-        clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
-
-        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSales(false, bagInitId);
-
-        Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(false, bagInitId);
-
-        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantity);
     }
 
     public BagInit getBagInitByBagInitId(Long bagInitId) {
