@@ -43,14 +43,22 @@ public class BoxCollect extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
 
+    @Column(name = "clothing_sales_count")
+    private Integer clothingSalesCount;
+
+    @Column(name = "point")
+    private Long point;
+
     @Builder
-    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate, ClothingSalesStateType clothingSalesState) {
+    public BoxCollect(User user, Address address, Integer boxQuantity, String imageUrl, LocalDate collectionDate, ClothingSalesStateType clothingSalesState, Integer clothingSalesCount, Long point) {
         this.user = user;
         this.address = address;
         this.boxQuantity = boxQuantity;
         this.imageUrl = imageUrl;
         this.collectionDate = collectionDate;
         this.clothingSalesState = clothingSalesState;
+        this.clothingSalesCount = clothingSalesCount;
+        this.point = point;
     }
 
     public void updateImageUrl(String imageUrl) {
@@ -59,6 +67,10 @@ public class BoxCollect extends BaseEntity {
 
     public void updateClothingSalesState(ClothingSalesStateType clothingSalesState) {
         this.clothingSalesState = clothingSalesState;
+    }
+
+    public void updatePoint(long point) {
+        this.point = point;
     }
 
 }

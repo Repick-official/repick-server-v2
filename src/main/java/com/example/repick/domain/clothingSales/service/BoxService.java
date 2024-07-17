@@ -4,6 +4,7 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.BoxCollectState;
 import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
+import com.example.repick.domain.clothingSales.repository.BagInitRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
@@ -31,6 +32,7 @@ public class BoxService {
     private final ProductRepository productRepository;
     private final S3UploadService s3UploadService;
     private final ClothingSalesValidator clothingSalesValidator;
+    private final BagInitRepository bagInitRepository;
 
 
     @Transactional
@@ -38,8 +40,13 @@ public class BoxService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
+        // Count the number of the clothingSalesCount of the user
+        Integer bagInitCount = bagInitRepository.countByUserId(user.getId());
+        Integer boxCollectCount = boxCollectRepository.countByUserId(user.getId());
+
+
         // BoxCollect
-        BoxCollect boxCollect = postBoxCollect.toEntity(user);
+        BoxCollect boxCollect = postBoxCollect.toEntity(user, bagInitCount + boxCollectCount);
 
         boxCollect.updateImageUrl(s3UploadService.saveFile(postBoxCollect.image(), "clothingSales/boxCollect/" + user.getId() + "/" + boxCollect.getId()));
 
@@ -54,20 +61,19 @@ public class BoxService {
 
     }
 
-    public GetProductListByClothingSales getProductsByBoxId(Long boxCollectId) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        BoxCollect boxCollect = boxCollectRepository.findById(boxCollectId)
+    @Transactional
+    public BoxCollectResponse updateBoxCollectState(PostBoxCollectState postBoxCollectState) {
+        BoxCollect boxCollect = boxCollectRepository.findById(postBoxCollectState.boxCollectId())
                 .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
 
-        // validate boxCollectId and user
-        clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
+        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.fromValue(postBoxCollectState.boxCollectStateType()), boxCollect);
 
-        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSales(true, boxCollectId);
+        boxCollectStateRepository.save(boxCollectState);
 
-        Integer productQuantity = productRepository.countByIsBoxCollectAndClothingSalesId(true, boxCollectId);
+        return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
+    }
 
-        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity);
+    public List<BoxCollect> getBoxCollectByUser(Long userId) {
+        return boxCollectRepository.findByUserId(userId);
     }
 }

@@ -18,6 +18,7 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    private Integer clothingSalesCount;
     private String productCode;
     private String productName;
     private Long price;
@@ -31,8 +32,6 @@ public class Product extends BaseEntity {
     private String size;
     @Embedded
     private Size sizeInfo;
-    private Boolean isBoxCollect;
-    private Long clothingSalesId;
     @Enumerated(EnumType.STRING)
     private QualityRate qualityRate;
     @Enumerated(EnumType.STRING)
@@ -53,6 +52,7 @@ public class Product extends BaseEntity {
     @Builder
     public Product(
             User user,
+            Integer clothingSalesCount,
             String productCode,
             String productName,
             Long price,
@@ -67,10 +67,9 @@ public class Product extends BaseEntity {
             Size sizeInfo,
             QualityRate qualityRate,
             String thumbnailImageUrl,
-            Gender gender,
-            Boolean isBoxCollect,
-            Long clothingSalesId) {
+            Gender gender) {
         this.user = user;
+        this.clothingSalesCount = clothingSalesCount;
         this.productCode = productCode;
         this.productName = productName;
         this.price = price;
@@ -86,8 +85,6 @@ public class Product extends BaseEntity {
         this.qualityRate = qualityRate;
         this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
-        this.isBoxCollect = isBoxCollect;
-        this.clothingSalesId = clothingSalesId;
     }
 
     public void updateUser(User user) {

@@ -59,6 +59,8 @@ public enum ErrorCode {
     // BoxCollectStateType
     INVALID_BOX_COLLECT_STATUS_ID(400, "B501", "존재하지 않는 박스 수거 상태 ID입니다."),
     INVALID_BOX_COLLECT_STATUS_NAME(400, "B502", "존재하지 않는 박스 수거 상태 이름입니다."),
+    // ClothingSales
+    INVALID_CLOTHING_SALES(400, "B601", "존재하지 않는 수거 요청입니다."),
     // ProductSellingState
     INVALID_SELLING_STATE_ID(400, "P031", "존재하지 않는 판매 상태 ID입니다."),
     INVALID_SELLING_STATE_NAME(400, "P042", "존재하지 않는 판매 상태 이름입니다."),

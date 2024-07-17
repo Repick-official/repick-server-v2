@@ -40,7 +40,7 @@ public interface ProductRepositoryCustom {
 
     Page<GetProductCart> findCartedProducts(Long userId, Pageable pageable);
 
-    List<GetProductByClothingSalesDto> findProductDtoByClothingSales(Boolean isBoxCollect, Long boxCollectId);
+    List<GetProductByClothingSalesDto> findProductDtoByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
 
     List<Product> findByProductSellingStateType(ProductStateType productStateType);
 
