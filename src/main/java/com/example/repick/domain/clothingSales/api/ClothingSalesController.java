@@ -86,7 +86,7 @@ public class ClothingSalesController {
     }
 
     @Operation(summary = "수거: 판매 가능한 상품 보기", description = """
-            수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+            가격 설정 화면: 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
             - productList: 상품 리스트
             - requestedQuantity: 신청한 의류 수량
             - productQuantity: 판매 가능한 의류 수량
@@ -97,7 +97,7 @@ public class ClothingSalesController {
     }
 
     @Operation(summary = "상품 가격 입력하기", description = """
-            상품 가격을 입력합니다.
+            상품 가격을 입력합니다. 같은 옷장 정리 회차에 들어있는 옷들 한 번에 가격 설정 요청하기.
             
             1. 다른 유저의 상품을 등록할 수 없습니다.
             2. 이미 가격이 등록된 상품의 가격을 수정할 수 없습니다.

@@ -145,7 +145,7 @@ public class ClothingSalesService {
                     .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
             productList.add(product);
             clothingSalesValidator.productUserMatches(product, user);
-            clothingSalesValidator.validateProductState(product, ProductStateType.PRICE_INPUT);
+            clothingSalesValidator.validateProductState(product, ProductStateType.PREPARING);
             product.updatePrice(postProductPrice.price());
         });
 
@@ -155,7 +155,7 @@ public class ClothingSalesService {
             productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
             productService.changeSellingState(product.getId(), ProductStateType.SELLING);
         });
-        
+
         Optional<BagInit> bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(user.getId(), productList.get(0).getClothingSalesCount());
         if(bagInit.isPresent()){
             BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.SELLING, bagInit.get().getBagCollect());

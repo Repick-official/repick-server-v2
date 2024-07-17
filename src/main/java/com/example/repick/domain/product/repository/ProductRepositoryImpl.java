@@ -327,7 +327,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 .where(productState.productId.eq(product.id))
                                 .groupBy(productState.productId)
                                 .eq(productState.id))
-                        .and(productState.productStateType.eq(ProductStateType.PRICE_INPUT)))
+                        .and(productState.productStateType.eq(ProductStateType.PREPARING)))
                 .distinct()
                 .fetch();
     }
