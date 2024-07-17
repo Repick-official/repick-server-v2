@@ -6,7 +6,6 @@ import com.example.repick.domain.clothingSales.repository.*;
 import com.example.repick.domain.clothingSales.repository.BagInitRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
-import com.example.repick.domain.product.dto.product.PostProductSellingState;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
@@ -137,20 +136,42 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public GetProductByClothingSalesDto updateProductPrice(PostProductPrice postProductPrice) {
+    public Boolean updateProductPrice(List<PostProductPrice> postProductPriceList) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        List<Product> productList = new ArrayList<>();
+        postProductPriceList.forEach(postProductPrice -> {
+            Product product = productRepository.findById(postProductPrice.productId())
+                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+            productList.add(product);
+            clothingSalesValidator.productUserMatches(product, user);
+            clothingSalesValidator.validateProductState(product, ProductStateType.PRICE_INPUT);
+            product.updatePrice(postProductPrice.price());
+        });
 
-        Product product = productRepository.findById(postProductPrice.productId())
-                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+        // start selling
+        productList.forEach(clothingSalesValidator::productPriceNotSet);
+        productList.forEach(product -> {
+            productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
+            productService.changeSellingState(product.getId(), ProductStateType.SELLING);
+        });
+        
+        Optional<BagInit> bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(user.getId(), productList.get(0).getClothingSalesCount());
+        if(bagInit.isPresent()){
+            BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.SELLING, bagInit.get().getBagCollect());
+            bagCollectStateRepository.save(bagCollectState);
+            bagInit.get().updateClothingSalesState(ClothingSalesStateType.SELLING);
+            return true;
+        }
 
-        clothingSalesValidator.productUserMatches(product, user);
-        clothingSalesValidator.validateProductState(product, ProductStateType.PRICE_INPUT);
-
-        product.updatePrice(postProductPrice.price());
-
-        return GetProductByClothingSalesDto.of(product);
-
+        Optional<BoxCollect> boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(user.getId(), productList.get(0).getClothingSalesCount());
+        if(boxCollect.isPresent()){
+            BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.SELLING, boxCollect.get());
+            boxCollectStateRepository.save(boxCollectState);
+            boxCollect.get().updateClothingSalesState(ClothingSalesStateType.SELLING);
+            return true;
+        }
+        throw new CustomException(INVALID_CLOTHING_SALES);
     }
 
     public List<GetSellingClothingSales> getSellingClothingSales() {
@@ -235,47 +256,6 @@ public class ClothingSalesService {
 
         return sellingClothingSalesList;
 
-    }
-
-    @Transactional
-    public Boolean startSelling(Integer clothingSalesCount) {
-        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        List<Product> productList = productService.findByClothingSales(user.getId(), clothingSalesCount);
-
-        productList.forEach(clothingSalesValidator::productPriceNotSet);
-        productList.forEach(product -> {
-            productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
-            productService.changeSellingState(new PostProductSellingState(product.getId(), "판매중"));
-        });
-
-        Optional<BagInit> bagInitOptional = bagInitRepository.findByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
-
-        if (bagInitOptional.isPresent()) {
-            BagInit bagInit = bagInitOptional.get();
-            bagService.updateBagCollectState(new PostBagCollectState(bagInit.getBagCollect().getId(), "판매진행"));
-            return true;
-        }
-
-        Optional<BoxCollect> boxCollectOptional = boxCollectRepository.findByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
-
-        if (boxCollectOptional.isPresent()) {
-            BoxCollect boxCollect = boxCollectOptional.get();
-            boxService.updateBoxCollectState(new PostBoxCollectState(boxCollect.getId(), "판매진행"));
-            return true;
-        }
-
-        throw new CustomException(INVALID_CLOTHING_SALES);
-    }
-
-    public Boolean changeProductPriceInputState(PostClothingSales postClothingSales) {
-        List<Product> productList = productService.findByClothingSales(postClothingSales.userId(), postClothingSales.clothingSalesCount());
-
-        productList.forEach(product -> clothingSalesValidator.validateProductState(product, ProductStateType.PREPARING));
-        productList.forEach(product -> productService.changeSellingState(new PostProductSellingState(product.getId(), "가격입력중")));
-
-        return true;
     }
 
     public GetProductListByClothingSales getProductsByClothingSalesCount(Integer clothingSalesCount) {

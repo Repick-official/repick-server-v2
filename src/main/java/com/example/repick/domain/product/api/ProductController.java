@@ -121,16 +121,6 @@ public class ProductController {
         return SuccessResponse.success(productService.getProducts(type, productFilter, pageCondition));
     }
 
-    // TODO: !!ADMIN ACCESS REQUIRED!!
-    @Operation(summary = "상품 판매 상태 변경",
-            description = """
-                    상품의 판매 상태를 변경합니다.
-                    """)
-    @PostMapping("/state")
-    public SuccessResponse<Boolean> changeSellingState(@RequestBody PostProductSellingState postProductSellingState) {
-        return SuccessResponse.createSuccess(productService.changeSellingState(postProductSellingState));
-    }
-
     @Operation(summary = "좋아요 토글",
             description = """
                     상품을 좋아요 토글 처리 합니다.

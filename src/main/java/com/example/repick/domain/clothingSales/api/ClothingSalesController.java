@@ -106,31 +106,11 @@ public class ClothingSalesController {
             - price: 상품 가격
             """)
     @PatchMapping("/products/price")
-    public SuccessResponse<GetProductByClothingSalesDto> updateProductPrice(@RequestBody PostProductPrice postProductPrice) {
-        return SuccessResponse.createSuccess(clothingSalesService.updateProductPrice(postProductPrice));
-    }
-
-    @Operation(summary = "옷장 판매 시작하기", description = """
-            수거 신청 건에 대한 옷장 판매를 시작합니다.
-            **가격이 등록되지 않은 상품이 있다면 판매 시작이 불가합니다**
-            
-            - clothingSalesCount: 수거 회차
-            
-            """)
-    @PostMapping("/products/start-selling/{clothingSalesCount}")
-    public SuccessResponse<Boolean> startSelling(@PathVariable Integer clothingSalesCount) {
-        return SuccessResponse.success(clothingSalesService.startSelling(clothingSalesCount));
+    public SuccessResponse<Boolean> updateProductPrice(@RequestBody List<PostProductPrice> postProductPriceList) {
+        return SuccessResponse.createSuccess(clothingSalesService.updateProductPrice(postProductPriceList));
     }
 
     // TODO: ADMIN ACCESS
-    @Operation(summary = "옷장 수거 가격입력중 상태로 변경하기", description = """
-            옷장 수거에 해당하는 상품들을 가격입력중 상태로 변경합니다.
-            """)
-    @PostMapping("/products/price-input")
-    public SuccessResponse<Boolean> changeProductPriceInputState(@RequestBody PostClothingSales postClothingSales) {
-        return SuccessResponse.success(clothingSalesService.changeProductPriceInputState(postClothingSales));
-    }
-
     // Admin API
     @Operation(summary = "옷장 정리 현황")
     @GetMapping("/status")

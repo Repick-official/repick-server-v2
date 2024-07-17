@@ -368,8 +368,8 @@ public class ProductService {
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
-    public Boolean changeSellingState(PostProductSellingState postProductSellingState) {
-        addProductSellingState(postProductSellingState.productId(), ProductStateType.fromValue(postProductSellingState.sellingState()));
+    public Boolean changeSellingState(long productId, ProductStateType sellingState) {
+        addProductSellingState(productId, sellingState);
         return true;
     }
 
