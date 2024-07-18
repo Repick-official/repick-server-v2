@@ -1,5 +1,7 @@
 package com.example.repick.domain.product.scheduler;
 
+import com.example.repick.domain.clothingSales.entity.BoxCollect;
+import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductStateType;
@@ -24,6 +26,7 @@ public class ProductScheduler {
     private final ProductOrderRepository productOrderRepository;
     private final ProductOrderService productOrderService;
     private final ProductService productService;
+    private final ClothingSalesService clothingSalesService;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateProductDiscountRate() {
@@ -41,10 +44,13 @@ public class ProductScheduler {
         products.stream()
                 .filter(priceRange)
                 .forEach(p -> {
-                    long days = Duration.between(p.getCreatedDate(), LocalDateTime.now()).toDays();
+                    long days = Duration.between(p.getSalesStartDate(), LocalDateTime.now()).toDays();
                     if (days >= 30 && days < 60) p.updateDiscountRate(maxDiscountRate / 2);
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
-                    else if (days >= 90) productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
+                    else if (days >= 90) {
+                        productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
+                        clothingSalesService.updateSellingExpired(p);
+                    }
                 });
     }
 

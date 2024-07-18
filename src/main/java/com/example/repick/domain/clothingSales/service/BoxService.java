@@ -7,8 +7,6 @@ import com.example.repick.domain.clothingSales.entity.BoxCollectStateType;
 import com.example.repick.domain.clothingSales.repository.BagInitRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.repository.BoxCollectStateRepository;
-import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
-import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.example.repick.global.error.exception.ErrorCode.INVALID_BOX_COLLECT_ID;
 import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service @RequiredArgsConstructor
@@ -29,9 +26,7 @@ public class BoxService {
     private final UserRepository userRepository;
     private final BoxCollectRepository boxCollectRepository;
     private final BoxCollectStateRepository boxCollectStateRepository;
-    private final ProductRepository productRepository;
     private final S3UploadService s3UploadService;
-    private final ClothingSalesValidator clothingSalesValidator;
     private final BagInitRepository bagInitRepository;
 
 
@@ -61,24 +56,7 @@ public class BoxService {
 
     }
 
-    @Transactional
-    public BoxCollectResponse updateBoxCollectState(PostBoxCollectState postBoxCollectState) {
-        BoxCollect boxCollect = boxCollectRepository.findById(postBoxCollectState.boxCollectId())
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-
-        BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.fromValue(postBoxCollectState.boxCollectStateType()), boxCollect);
-
-        boxCollectStateRepository.save(boxCollectState);
-
-        return BoxCollectResponse.of(boxCollect, boxCollectState.getBoxCollectStateType().getValue());
-    }
-
     public List<BoxCollect> getBoxCollectByUser(Long userId) {
         return boxCollectRepository.findByUserId(userId);
-    }
-
-    public BoxCollect getBoxCollectByBoxCollectId(Long boxCollectId) {
-        return boxCollectRepository.findById(boxCollectId)
-                .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
     }
 }

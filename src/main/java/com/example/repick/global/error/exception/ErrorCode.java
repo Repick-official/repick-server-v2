@@ -39,6 +39,8 @@ public enum ErrorCode {
     PRODUCT_NOT_DESIRED_STATE(400, "P029", "정상적인 접근이 아닙니다."),
     PRODUCT_STATE_NOT_FOUND(400, "P030", "상품 상태가 존재하지 않습니다."),
     DUPLICATE_PRODUCT_CART(400, "P031", "이미 장바구니에 담긴 상품입니다."),
+    // ClothingSales
+    INVALID_CLOTHING_SALES_STATE_NAME(400, "C001", "존재하지 않는 옷장 정리 상태 이름입니다."),
     // BagInit
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect

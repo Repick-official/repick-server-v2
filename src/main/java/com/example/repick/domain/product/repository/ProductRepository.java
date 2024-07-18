@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
+
     List<Product> findProductByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
     Integer countByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
 

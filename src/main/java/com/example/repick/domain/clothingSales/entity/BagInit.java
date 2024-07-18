@@ -20,6 +20,9 @@ public class BagInit extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "bag_code")
+    private String bagCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -39,6 +42,9 @@ public class BagInit extends BaseEntity {
     @OneToOne(mappedBy = "bagInit", cascade = CascadeType.ALL)
     private BagCollect bagCollect;
 
+    @Enumerated(EnumType.STRING)
+    private ClothingSalesStateType clothingSalesState;  // 옷장 정리 상태 (관리자용)
+
     @Column(name = "clothing_sales_count")
     private Integer clothingSalesCount;
 
@@ -46,17 +52,22 @@ public class BagInit extends BaseEntity {
     private Long point;
 
     @Builder
-    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, Integer clothingSalesCount, Long point) {
+    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, ClothingSalesStateType clothingSalesState, Integer clothingSalesCount, Long point) {
         this.user = user;
         this.address = address;
         this.bagQuantity = bagQuantity;
         this.imageUrl = imageUrl;
+        this.clothingSalesState = clothingSalesState;
         this.clothingSalesCount = clothingSalesCount;
         this.point = point;
     }
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void updateClothingSalesState(ClothingSalesStateType clothingSalesState) {
+        this.clothingSalesState = clothingSalesState;
     }
 
     public void updatePoint(long point) {

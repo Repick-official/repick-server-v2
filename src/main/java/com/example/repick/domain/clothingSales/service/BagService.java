@@ -29,7 +29,6 @@ public class BagService {
     private final BagCollectStateRepository bagCollectStateRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final S3UploadService s3UploadService;
-    private final ProductRepository productRepository;
     private final BoxCollectRepository boxCollectRepository;
 
     @Transactional
@@ -55,17 +54,6 @@ public class BagService {
 
         return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getValue());
 
-    }
-
-    @Transactional
-    public BagInitResponse updateBagInitState(PostBagInitState postBagInitState) {
-        BagInit bagInit = bagInitRepository.findById(postBagInitState.bagInitId())
-                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-
-        BagInitState bagInitState = BagInitState.of(BagInitStateType.fromValue(postBagInitState.bagInitStateType()), bagInit);
-        bagInitStateRepository.save(bagInitState);
-
-        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getValue());
     }
 
     @Transactional
@@ -96,28 +84,14 @@ public class BagService {
         // BagCollectState
         BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.PENDING, bagCollect);
         bagCollectStateRepository.save(bagCollectState);
+        bagInit.updateClothingSalesState(ClothingSalesStateType.BAG_COLLECT_REQUEST);
 
         return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
 
-    }
-
-    @Transactional
-    public BagCollectResponse updateBagCollectState(PostBagCollectState postBagCollectState) {
-        BagCollect bagCollect = bagCollectRepository.findById(postBagCollectState.bagCollectId())
-                .orElseThrow(() -> new CustomException(INVALID_BAG_COLLECT_ID));
-
-        BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.fromValue(postBagCollectState.bagCollectStateType()), bagCollect);
-        bagCollectStateRepository.save(bagCollectState);
-
-        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
     }
 
     public List<BagInit> getBagInitByUser(Long userId) {
         return bagInitRepository.findByUserId(userId);
     }
 
-    public BagInit getBagInitByBagInitId(Long bagInitId) {
-        return bagInitRepository.findById(bagInitId)
-                .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-    }
 }

@@ -2,17 +2,18 @@ package com.example.repick.domain.product.entity;
 
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
+import lombok.Getter;
 
+@Getter
 public enum ProductStateType {
 
     PREPARING(1, "판매준비중"),
-    PRICE_INPUT(2, "가격입력중"),
-    SELLING(3, "판매중"),
-    SOLD_OUT(4, "판매완료"),
-    SETTLING(5, "정산중"),
-    SETTLED(6, "정산완료"),
-    CANCELLED(7, "판매취소"),
-    SELLING_END(8, "판매종료");
+    SELLING(2, "판매중"),
+    SOLD_OUT(3, "판매완료"),
+    SETTLING(4, "정산중"),
+    SETTLED(5, "정산완료"),
+    CANCELLED(6, "판매취소"),
+    SELLING_END(7, "판매종료");
 
     private final int id;
     private final String value;
@@ -20,14 +21,6 @@ public enum ProductStateType {
     ProductStateType(int id, String value) {
         this.id = id;
         this.value = value;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public static ProductStateType fromId(int id) {

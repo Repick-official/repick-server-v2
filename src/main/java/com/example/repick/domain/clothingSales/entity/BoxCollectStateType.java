@@ -45,12 +45,26 @@ public enum BoxCollectStateType {
         throw new CustomException(ErrorCode.INVALID_BOX_COLLECT_STATUS_NAME);
     }
 
-    public static String getValueByName(String name) {
-        for (BoxCollectStateType stateType : values()) {
-            if (stateType.name().equals(name)) {
-                return stateType.getValue();
+    public static BoxCollectStateType fromClothingSalesStateType(ClothingSalesStateType clothingSalesStateType) {
+        switch (clothingSalesStateType) {
+            case COLLECTING -> {
+                return BoxCollectStateType.DELIVERING;
+            }
+            case COLLECTED -> {
+                return BoxCollectStateType.DELIVERED;
+            }
+            case REQUEST_CANCELLED -> {
+                return BoxCollectStateType.CANCELED;
+            }
+            case SHOOTING, SHOOTED, PRODUCTING, PRODUCTED -> {
+                return null;
+            }
+            case PRODUCT_REGISTERED -> {
+                return BoxCollectStateType.INSPECTION_COMPLETED;
+            }
+            default -> {
+                throw new CustomException(ErrorCode.INVALID_CLOTHING_SALES_STATE_NAME);
             }
         }
-        return null;
     }
 }
