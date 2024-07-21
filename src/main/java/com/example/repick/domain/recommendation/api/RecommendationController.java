@@ -39,4 +39,10 @@ public class RecommendationController {
     public SuccessResponse<Boolean> skipProduct(@RequestParam Long productId) {
         return SuccessResponse.success(recommendationService.skipProduct(productId));
     }
+
+    @Operation(summary = "추천 가중치 전체 삭제 (테스트용)")
+    @GetMapping("/reset")
+    public SuccessResponse<Boolean> resetRecommendation() {
+        return SuccessResponse.success(recommendationService.deleteAllUserPreference());
+    }
 }
