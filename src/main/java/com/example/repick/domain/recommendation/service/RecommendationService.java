@@ -156,7 +156,7 @@ public class RecommendationService {
         return true;
     }
 
-    public Boolean deleteAllUserPreference() {
+    public Boolean deleteAllUserPreferenceProduct() {
         userPreferenceRepository.deleteAll();
         return true;
     }
