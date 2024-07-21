@@ -157,7 +157,7 @@ public class RecommendationService {
     }
 
     public Boolean deleteAllUserPreferenceProduct() {
-        userPreferenceRepository.deleteAll();
+        userPreferenceProductRepository.deleteAll();
         return true;
     }
 }
