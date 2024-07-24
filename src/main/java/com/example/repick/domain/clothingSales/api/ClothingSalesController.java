@@ -134,5 +134,11 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
     }
 
+    @Operation(summary = "옷장 정리 상품 무게 등록")
+    @PostMapping("/weight")
+    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PostClothingSalesWeight postClothingSalesWeight) {
+        return SuccessResponse.success(clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight));
+    }
+
 }
 

@@ -3,8 +3,6 @@ package com.example.repick.domain.clothingSales.service;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.repository.*;
-import com.example.repick.domain.clothingSales.repository.BagInitRepository;
-import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
@@ -378,5 +376,25 @@ public class ClothingSalesService {
 
     public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
         return productRepository.getClothingSalesProductCount(pageCondition);
+    }
+
+    public Boolean updateClothingSalesWeight(PostClothingSalesWeight postClothingSalesWeight) {
+
+        if (postClothingSalesWeight.isBoxCollect()) {
+            boxCollectRepository.findByUserIdAndClothingSalesCount(postClothingSalesWeight.userId(), postClothingSalesWeight.clothingSalesCount())
+                    .ifPresent(boxCollect -> {
+                        boxCollect.updateWeight(postClothingSalesWeight.weight());
+                        boxCollectRepository.save(boxCollect);
+                    });
+        }
+        else {
+            bagInitRepository.findByUserIdAndClothingSalesCount(postClothingSalesWeight.userId(), postClothingSalesWeight.clothingSalesCount())
+                    .ifPresent(bagInit -> {
+                        bagInit.updateWeight(postClothingSalesWeight.weight());
+                        bagInitRepository.save(bagInit);
+                    });
+        }
+
+        return true;
     }
 }
