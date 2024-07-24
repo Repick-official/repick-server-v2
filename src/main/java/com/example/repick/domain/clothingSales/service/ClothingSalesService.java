@@ -397,4 +397,11 @@ public class ClothingSalesService {
 
         return true;
     }
+
+    public List<GetClothingSalesProduct> getClothingSalesProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType) {
+        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT)
+            return productRepository.getClothingSalesPendingProduct(userId, clothingSalesCount, productStateType);
+
+        return productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType);
+    }
 }

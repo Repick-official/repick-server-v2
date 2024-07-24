@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetClothingSalesProduct;
 import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
@@ -51,4 +52,8 @@ public interface ProductRepositoryCustom {
     List<Product> findRecommendation(Long userId);
 
     List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition);
+
+    List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType);
+
+    List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType);
 }
