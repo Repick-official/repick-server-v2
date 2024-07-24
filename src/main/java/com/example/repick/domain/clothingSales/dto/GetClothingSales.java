@@ -12,6 +12,8 @@ import java.util.List;
 public record GetClothingSales(
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
+        @Schema(description = "유저 ID") Long userId,
+        @Schema(description = "옷장 정리 회차") Integer clothingSalesCount,
         @Schema(description = "박스 수거 여부, true: 박스 수거 false: 백 수거", example = "true") Boolean isBoxCollect,
         @Schema(description = "현황") String status,
         @Schema(description = "신청일") String requestDate,
@@ -29,6 +31,8 @@ public record GetClothingSales(
         return new GetClothingSales(
                 boxCollect.getUser().getId().toString() + "-" + boxCollect.getClothingSalesCount(),
                 boxCollect.getUser().getNickname(),
+                boxCollect.getUser().getId(),
+                boxCollect.getClothingSalesCount(),
                 true,
                 boxCollect.getClothingSalesState().getValue(),
                 boxCollect.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
@@ -48,6 +52,8 @@ public record GetClothingSales(
         return new GetClothingSales(
                 bagInit.getUser().getId().toString() + "-" + bagInit.getClothingSalesCount(),
                 bagInit.getUser().getNickname(),
+                bagInit.getUser().getId(),
+                bagInit.getClothingSalesCount(),
                 false,
                 bagInit.getClothingSalesState() != ClothingSalesStateType.BAG_COLLECT_REQUEST? bagInit.getClothingSalesState().getValue() : "리픽백 배송 완료",
                 bagInit.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
