@@ -342,7 +342,7 @@ public class ClothingSalesService {
         ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState());
         if (postClothingSalesState.isBoxCollect()) {
             // Admin 용 상태 관리
-            BoxCollect boxCollect = boxCollectRepository.findById(postClothingSalesState.clothingSalesId())
+            BoxCollect boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(postClothingSalesState.userId(), postClothingSalesState.clothingSalesCount())
                     .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
             boxCollect.updateClothingSalesState(clothingSalesStateType);
 
@@ -354,7 +354,7 @@ public class ClothingSalesService {
             }
         } else {
             // Admin 용 상태 관리
-            BagInit bagInit = bagInitRepository.findById(postClothingSalesState.clothingSalesId())
+            BagInit bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(postClothingSalesState.userId(), postClothingSalesState.clothingSalesCount())
                     .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
             bagInit.updateClothingSalesState(ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState()));
 
