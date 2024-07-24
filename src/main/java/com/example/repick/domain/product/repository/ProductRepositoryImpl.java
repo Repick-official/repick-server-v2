@@ -457,7 +457,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(product.clothingSalesCount.eq(clothingSalesCount)
                         .and(product.productState.eq(productStateType))))
                 .fetch();
-
+        // TODO: Mock data 제거 및 반송 기능 구현
         return products.stream()
                 .map(p -> new GetClothingSalesProduct(
                         p.getProductCode(),
