@@ -111,7 +111,11 @@ public class ClothingSalesController {
     }
 
     // TODO: ADMIN ACCESS
-    // Admin API
+
+    ///////////////
+    // Admin API //
+    ///////////////
+
     @Operation(summary = "옷장 정리 현황")
     @GetMapping("/status")
     public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject PageCondition pageCondition) {
@@ -122,6 +126,18 @@ public class ClothingSalesController {
     @PostMapping("/status")
     public SuccessResponse<Boolean> updateClothingSalesStatus(@RequestBody PostClothingSalesState postClothingSalesState) {
         return SuccessResponse.success(clothingSalesService.updateClothingSalesState(postClothingSalesState));
+    }
+
+    @Operation(summary = "상품 종합 현황")
+    @GetMapping("/product-count")
+    public SuccessResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
+    }
+
+    @Operation(summary = "옷장 정리 상품 무게 등록")
+    @PostMapping("/weight")
+    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PostClothingSalesWeight postClothingSalesWeight) {
+        return SuccessResponse.success(clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight));
     }
 
 }

@@ -39,6 +39,8 @@ public class Product extends BaseEntity {
     @Column(length = 1000)
     private String thumbnailImageUrl;
     private LocalDateTime salesStartDate;
+    @Enumerated(EnumType.STRING)
+    private ProductStateType productState;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductCategory> productCategoryList;
@@ -67,7 +69,8 @@ public class Product extends BaseEntity {
             Size sizeInfo,
             QualityRate qualityRate,
             String thumbnailImageUrl,
-            Gender gender) {
+            Gender gender,
+            ProductStateType productState) {
         this.user = user;
         this.clothingSalesCount = clothingSalesCount;
         this.productCode = productCode;
@@ -85,6 +88,7 @@ public class Product extends BaseEntity {
         this.qualityRate = qualityRate;
         this.gender = gender;
         this.thumbnailImageUrl = thumbnailImageUrl;
+        this.productState = productState;
     }
 
     public void updateUser(User user) {
@@ -149,5 +153,9 @@ public class Product extends BaseEntity {
 
     public void updateSalesStartDate(LocalDateTime salesStartDate) {
         this.salesStartDate = salesStartDate;
+    }
+
+    public void updateProductState(ProductStateType productState) {
+        this.productState = productState;
     }
 }

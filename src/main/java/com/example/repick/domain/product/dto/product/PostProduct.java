@@ -40,6 +40,7 @@ public record PostProduct (
                 .sizeInfo(sizeInfo)
                 .qualityRate(QualityRate.fromValue(this.qualityRate()))
                 .gender(Gender.fromValue(this.gender()))
+                .productState(ProductStateType.PREPARING)
                 .build();
     }
 }

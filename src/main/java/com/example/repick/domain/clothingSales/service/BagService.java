@@ -1,10 +1,12 @@
 package com.example.repick.domain.clothingSales.service;
 
-import com.example.repick.domain.clothingSales.dto.*;
+import com.example.repick.domain.clothingSales.dto.BagCollectResponse;
+import com.example.repick.domain.clothingSales.dto.BagInitResponse;
+import com.example.repick.domain.clothingSales.dto.PostBagCollect;
+import com.example.repick.domain.clothingSales.dto.PostBagInit;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.repository.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
-import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -17,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.example.repick.global.error.exception.ErrorCode.*;
+import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
 
 @Service @RequiredArgsConstructor
 public class BagService {
@@ -42,7 +44,7 @@ public class BagService {
         Integer boxCollectCount = boxCollectRepository.countByUserId(user.getId());
 
         // BagInit
-        BagInit bagInit = postBagInit.toEntity(user, bagInitCount + boxCollectCount);
+        BagInit bagInit = postBagInit.toEntity(user, bagInitCount + boxCollectCount + 1);
 
         bagInit.updateImageUrl(s3UploadService.saveFile(postBagInit.image(), "clothingSales/bagInit/" + user.getId() + "/" + bagInit.getId()));
 

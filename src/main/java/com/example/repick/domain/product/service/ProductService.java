@@ -244,7 +244,7 @@ public class ProductService {
         Long userId = user == null ? 0L : user.getId();  // non-login user 고려
   
           // 상위 카테고리를 기반으로 하위 카테고리 리스트 생성
-        List<String> subCategories = new ArrayList<>();
+        List<String> subCategories;
         if (parentCategory != null) {
             // 상위 카테고리 유효성 검사
             if (!Category.PARENT_CATEGORIES.contains(parentCategory)) {
@@ -260,12 +260,12 @@ public class ProductService {
                 subCategories.addAll(Arrays.stream(Category.values())
                         .filter(category -> category.getParent().equals("스커트"))
                         .map(Category::getValue)
-                        .collect(Collectors.toList()));
+                        .toList());
             } else if (parentCategory.equals("상의")) {
                 subCategories.addAll(Arrays.stream(Category.values())
                         .filter(category -> category.getParent().equals("원피스"))
                         .map(Category::getValue)
-                        .collect(Collectors.toList()));
+                        .toList());
             }
         } else {
             // parentCategory가 없을 경우 모든 카테고리를 포함
@@ -368,9 +368,9 @@ public class ProductService {
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
-    public Boolean changeSellingState(long productId, ProductStateType sellingState) {
-        addProductSellingState(productId, sellingState);
-        return true;
+    public void changeSellingState(Product product, ProductStateType sellingState) {
+        addProductSellingState(product.getId(), sellingState);
+        product.updateProductState(sellingState);
     }
 
     public void calculateDiscountPriceAndPredictDiscountRateAndSave(Product product) {

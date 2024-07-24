@@ -1,11 +1,13 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.dto.product.GetProductThumbnail;
 import com.example.repick.domain.product.dto.product.ProductFilter;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
+import com.example.repick.global.page.PageCondition;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -20,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.repick.domain.clothingSales.entity.QBagInit.bagInit;
+import static com.example.repick.domain.clothingSales.entity.QBoxCollect.boxCollect;
 import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
@@ -378,6 +382,32 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 )
                 .distinct()
                 .limit(10)
+                .fetch();
+    }
+
+    @Override
+    public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
+        Pageable pageable = pageCondition.toPageable();
+
+        return jpaQueryFactory
+                .select(Projections.constructor(GetClothingSalesProductCount.class,
+                        product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
+                        product.user.nickname,
+                        product.count().intValue(),
+                        product.productState.when(ProductStateType.SELLING).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.CANCELLED).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
+                        bagInit.weight.coalesce(boxCollect.weight).max(),
+                        bagInit.createdDate.coalesce(boxCollect.createdDate).max()
+                ))
+                .from(product)
+                .leftJoin(bagInit).on(product.user.id.eq(bagInit.user.id).and(product.clothingSalesCount.eq(bagInit.clothingSalesCount)))
+                .leftJoin(boxCollect).on(product.user.id.eq(boxCollect.user.id).and(product.clothingSalesCount.eq(boxCollect.clothingSalesCount)))
+                .groupBy(product.user.id, product.clothingSalesCount)
+                .orderBy(bagInit.createdDate.coalesce(boxCollect.createdDate).max().desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
     }
 

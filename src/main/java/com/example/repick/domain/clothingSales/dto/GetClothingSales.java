@@ -10,13 +10,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record GetClothingSales(
-        @Schema(description = "박스 수거 여부, true: 박스 수거 false: 백 수거", example = "true") Boolean isBoxCollect,
-        @Schema(description = "(백일 경우) 백 배송 여부, true: 백 배송까지 단계 false: 백 수거부터") Boolean isBagDelivered,
-        @Schema(description = "수거 ID", example = "3") Long clothingSalesId,
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
+        @Schema(description = "박스 수거 여부, true: 박스 수거 false: 백 수거", example = "true") Boolean isBoxCollect,
         @Schema(description = "현황") String status,
         @Schema(description = "신청일") String requestDate,
+        @Schema(description = "(백일 경우) 백 배송 여부, true: 백 배송까지 단계 false: 백 수거부터") Boolean isBagDelivered,
         @Schema(description = "수거 진행 여부") Boolean isForCollect,
         @Schema(description = "상품화 시작일") String productStartDate,
         @Schema(description = "판매기간") String salesPeriod,
@@ -28,13 +27,12 @@ public record GetClothingSales(
 
     public static GetClothingSales of(BoxCollect boxCollect, List<Product> products) {
         return new GetClothingSales(
-                true,
-                null,
-                boxCollect.getId(),
-                boxCollect.getBoxCode(),
+                boxCollect.getUser().getId().toString() + "-" + boxCollect.getClothingSalesCount(),
                 boxCollect.getUser().getNickname(),
+                true,
                 boxCollect.getClothingSalesState().getValue(),
                 boxCollect.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                null,
                 boxCollect.getClothingSalesState() != ClothingSalesStateType.REQUEST_CANCELLED,
                 boxCollect.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
                 boxCollect.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
@@ -48,13 +46,12 @@ public record GetClothingSales(
 
     public static GetClothingSales of(BagInit bagInit, List<Product> products) {
         return new GetClothingSales(
-                false,
-                bagInit.getBagCollect() != null,
-                bagInit.getId(),
-                bagInit.getBagCode(),
+                bagInit.getUser().getId().toString() + "-" + bagInit.getClothingSalesCount(),
                 bagInit.getUser().getNickname(),
+                false,
                 bagInit.getClothingSalesState() != ClothingSalesStateType.BAG_COLLECT_REQUEST? bagInit.getClothingSalesState().getValue() : "리픽백 배송 완료",
                 bagInit.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                bagInit.getBagCollect() != null,
                 bagInit.getClothingSalesState().getId() >= 6,
                 bagInit.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
                 bagInit.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))

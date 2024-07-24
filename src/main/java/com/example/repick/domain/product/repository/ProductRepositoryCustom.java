@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.dto.product.GetProductThumbnail;
@@ -7,6 +8,7 @@ import com.example.repick.domain.product.dto.product.ProductFilter;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.global.page.PageCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -47,4 +49,6 @@ public interface ProductRepositoryCustom {
     List<GetBrandList> getBrandList();
 
     List<Product> findRecommendation(Long userId);
+
+    List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition);
 }

@@ -20,9 +20,6 @@ public class BagInit extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "bag_code")
-    private String bagCode;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -51,8 +48,11 @@ public class BagInit extends BaseEntity {
     @Column(name = "point")
     private Long point;
 
+    @Column(name = "weight")
+    private Double weight;
+
     @Builder
-    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, ClothingSalesStateType clothingSalesState, Integer clothingSalesCount, Long point) {
+    public BagInit(User user, Address address, Integer bagQuantity, String imageUrl, ClothingSalesStateType clothingSalesState, Integer clothingSalesCount, Long point, Double weight) {
         this.user = user;
         this.address = address;
         this.bagQuantity = bagQuantity;
@@ -60,6 +60,7 @@ public class BagInit extends BaseEntity {
         this.clothingSalesState = clothingSalesState;
         this.clothingSalesCount = clothingSalesCount;
         this.point = point;
+        this.weight = weight;
     }
 
     public void updateImageUrl(String imageUrl) {
@@ -72,6 +73,9 @@ public class BagInit extends BaseEntity {
 
     public void updatePoint(long point) {
         this.point = point;
+    }
+    public void updateWeight(double weight) {
+        this.weight = weight;
     }
 
 }

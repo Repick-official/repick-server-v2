@@ -135,6 +135,11 @@ public class ProductOrderService {
             productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
             productStateRepository.save(ProductState.of(productOrder.getProductId(), ProductStateType.SOLD_OUT));
+            // Product 엔티티의 productState 업데이트
+            Product product = productRepository.findById(productOrder.getProductId())
+                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+            product.updateProductState(ProductStateType.SOLD_OUT);
+            productRepository.save(product);
         });
         productOrderRepository.saveAll(productOrders);
 

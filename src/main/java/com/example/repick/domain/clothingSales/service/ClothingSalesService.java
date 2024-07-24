@@ -3,8 +3,6 @@ package com.example.repick.domain.clothingSales.service;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.repository.*;
-import com.example.repick.domain.clothingSales.repository.BagInitRepository;
-import com.example.repick.domain.clothingSales.repository.BoxCollectRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
@@ -172,7 +170,7 @@ public class ClothingSalesService {
         productList.forEach(clothingSalesValidator::productPriceNotSet);
         productList.forEach(product -> {
             productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
-            productService.changeSellingState(product.getId(), ProductStateType.SELLING);
+            productService.changeSellingState(product, ProductStateType.SELLING);
             product.updateSalesStartDate(LocalDateTime.now());
         });
         productRepository.saveAll(productList);
@@ -344,7 +342,7 @@ public class ClothingSalesService {
         ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState());
         if (postClothingSalesState.isBoxCollect()) {
             // Admin 용 상태 관리
-            BoxCollect boxCollect = boxCollectRepository.findById(postClothingSalesState.clothingSalesId())
+            BoxCollect boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(postClothingSalesState.userId(), postClothingSalesState.clothingSalesCount())
                     .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
             boxCollect.updateClothingSalesState(clothingSalesStateType);
 
@@ -356,7 +354,7 @@ public class ClothingSalesService {
             }
         } else {
             // Admin 용 상태 관리
-            BagInit bagInit = bagInitRepository.findById(postClothingSalesState.clothingSalesId())
+            BagInit bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(postClothingSalesState.userId(), postClothingSalesState.clothingSalesCount())
                     .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
             bagInit.updateClothingSalesState(ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState()));
 
@@ -373,6 +371,30 @@ public class ClothingSalesService {
                 bagInitStateRepository.save(bagInitState);
             }
         }
+        return true;
+    }
+
+    public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
+        return productRepository.getClothingSalesProductCount(pageCondition);
+    }
+
+    public Boolean updateClothingSalesWeight(PostClothingSalesWeight postClothingSalesWeight) {
+
+        if (postClothingSalesWeight.isBoxCollect()) {
+            boxCollectRepository.findByUserIdAndClothingSalesCount(postClothingSalesWeight.userId(), postClothingSalesWeight.clothingSalesCount())
+                    .ifPresent(boxCollect -> {
+                        boxCollect.updateWeight(postClothingSalesWeight.weight());
+                        boxCollectRepository.save(boxCollect);
+                    });
+        }
+        else {
+            bagInitRepository.findByUserIdAndClothingSalesCount(postClothingSalesWeight.userId(), postClothingSalesWeight.clothingSalesCount())
+                    .ifPresent(bagInit -> {
+                        bagInit.updateWeight(postClothingSalesWeight.weight());
+                        bagInitRepository.save(bagInit);
+                    });
+        }
+
         return true;
     }
 }

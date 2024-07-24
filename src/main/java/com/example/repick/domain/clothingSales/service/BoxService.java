@@ -41,7 +41,7 @@ public class BoxService {
 
 
         // BoxCollect
-        BoxCollect boxCollect = postBoxCollect.toEntity(user, bagInitCount + boxCollectCount);
+        BoxCollect boxCollect = postBoxCollect.toEntity(user, bagInitCount + boxCollectCount + 1);
 
         boxCollect.updateImageUrl(s3UploadService.saveFile(postBoxCollect.image(), "clothingSales/boxCollect/" + user.getId() + "/" + boxCollect.getId()));
 
