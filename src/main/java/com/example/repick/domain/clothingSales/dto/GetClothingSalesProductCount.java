@@ -2,6 +2,8 @@ package com.example.repick.domain.clothingSales.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDateTime;
+
 public record GetClothingSalesProductCount (
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
@@ -10,7 +12,8 @@ public record GetClothingSalesProductCount (
         @Schema(description = "판매 완료") Integer soldQuantity,
         @Schema(description = "리젝") Integer rejectedQuantity,
         @Schema(description = "기한 만료") Integer expiredQuantity,
-        @Schema(description = "KG") Double weight
+        @Schema(description = "KG") Double weight,
+        @Schema(description = "최초 신청일") LocalDateTime createdDate
         ) {
 
 }

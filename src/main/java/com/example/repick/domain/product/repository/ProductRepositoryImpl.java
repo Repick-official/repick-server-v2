@@ -398,13 +398,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.CANCELLED).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
-                        bagInit.weight.coalesce(boxCollect.weight)
+                        bagInit.weight.coalesce(boxCollect.weight).max(),
+                        bagInit.createdDate.coalesce(boxCollect.createdDate).max()
                 ))
                 .from(product)
                 .leftJoin(bagInit).on(product.user.id.eq(bagInit.user.id).and(product.clothingSalesCount.eq(bagInit.clothingSalesCount)))
                 .leftJoin(boxCollect).on(product.user.id.eq(boxCollect.user.id).and(product.clothingSalesCount.eq(boxCollect.clothingSalesCount)))
                 .groupBy(product.user.id, product.clothingSalesCount)
-                .orderBy(product.createdDate.desc())
+                .orderBy(bagInit.createdDate.coalesce(boxCollect.createdDate).max().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
