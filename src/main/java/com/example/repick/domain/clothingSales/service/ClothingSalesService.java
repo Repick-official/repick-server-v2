@@ -48,6 +48,7 @@ public class ClothingSalesService {
     private final BoxCollectStateRepository boxCollectStateRepository;
     private final BagInitStateRepository bagInitStateRepository;
     private final BagCollectStateRepository bagCollectStateRepository;
+    private final ClothingSalesRepository clothingSalesRepository;
 
     public Boolean getIsBoxCollect(long userId, int clothingSalesCount) {
         return boxCollectRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount).isPresent();
@@ -374,5 +375,16 @@ public class ClothingSalesService {
             }
         }
         return true;
+    }
+
+    public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
+
+        // 모든 옷장 정리를 가져옴
+        List<GetClothingSalesProductCountDto> clothingSalesProductCountList = new ArrayList<>(clothingSalesRepository.findAllClothingSalesProductCount());
+
+        for (GetClothingSalesProductCountDto clothingSalesProductCountDto : clothingSalesProductCountList) {
+        }
+
+        return null;
     }
 }

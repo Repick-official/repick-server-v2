@@ -128,11 +128,11 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.updateClothingSalesState(postClothingSalesState));
     }
 
-//    @Operation(summary = "상품 종합 현황")
-//    @GetMapping("/product-count")
-//    public SuccessResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
-//        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
-//    }
+    @Operation(summary = "상품 종합 현황")
+    @GetMapping("/product-count")
+    public SuccessResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
+    }
 
 }
 
