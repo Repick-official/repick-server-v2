@@ -1,14 +1,17 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.dto.product.GetProductThumbnail;
 import com.example.repick.domain.product.dto.product.ProductFilter;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
+import com.example.repick.global.page.PageCondition;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -378,6 +381,31 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 )
                 .distinct()
                 .limit(10)
+                .fetch();
+    }
+
+    @Override
+    public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
+        // Create a Pageable object using the pageCondition
+        Pageable pageable = pageCondition.toPageable();
+
+        // Apply pagination to the query
+        return jpaQueryFactory
+                .select(Projections.constructor(GetClothingSalesProductCount.class,
+                        product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
+                        product.user.nickname,
+                        product.count().intValue(),
+                        product.productState.when(ProductStateType.SELLING).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.CANCELLED).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
+                        Expressions.constant(0) // FIXME : 무게 칼럼 옷장정리에 추가 및 적용 필요
+                ))
+                .from(product)
+                .groupBy(product.user.id, product.clothingSalesCount)
+                .orderBy(product.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
     }
 

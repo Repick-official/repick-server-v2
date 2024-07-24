@@ -377,14 +377,6 @@ public class ClothingSalesService {
     }
 
     public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
-
-        // 모든 옷장 정리를 가져옴
-//        List<GetClothingSalesProductCountDto> clothingSalesProductCountList = new ArrayList<>(clothingSalesRepositoryCustom.findAllClothingSalesProductCount());
-//
-//        for (GetClothingSalesProductCountDto clothingSalesProductCountDto : clothingSalesProductCountList) {
-//            // TODO
-//        }
-
-        return null;
+        return productRepository.getClothingSalesProductCount(pageCondition);
     }
 }
