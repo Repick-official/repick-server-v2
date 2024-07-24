@@ -10,7 +10,7 @@ public record GetClothingSalesProductCount (
         @Schema(description = "판매 완료") Integer soldQuantity,
         @Schema(description = "리젝") Integer rejectedQuantity,
         @Schema(description = "기한 만료") Integer expiredQuantity,
-        @Schema(description = "KG") Integer weight
+        @Schema(description = "KG") Double weight
         ) {
 
 }

@@ -11,7 +11,6 @@ import com.example.repick.global.page.PageCondition;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -23,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.repick.domain.clothingSales.entity.QBagInit.bagInit;
+import static com.example.repick.domain.clothingSales.entity.QBoxCollect.boxCollect;
 import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
@@ -386,10 +387,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     @Override
     public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
-        // Create a Pageable object using the pageCondition
         Pageable pageable = pageCondition.toPageable();
 
-        // Apply pagination to the query
         return jpaQueryFactory
                 .select(Projections.constructor(GetClothingSalesProductCount.class,
                         product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
@@ -399,9 +398,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.CANCELLED).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
-                        Expressions.constant(0) // FIXME : 무게 칼럼 옷장정리에 추가 및 적용 필요
+                        bagInit.weight.coalesce(boxCollect.weight)
                 ))
                 .from(product)
+                .leftJoin(bagInit).on(product.user.id.eq(bagInit.user.id).and(product.clothingSalesCount.eq(bagInit.clothingSalesCount)))
+                .leftJoin(boxCollect).on(product.user.id.eq(boxCollect.user.id).and(product.clothingSalesCount.eq(boxCollect.clothingSalesCount)))
                 .groupBy(product.user.id, product.clothingSalesCount)
                 .orderBy(product.createdDate.desc())
                 .offset(pageable.getOffset())
