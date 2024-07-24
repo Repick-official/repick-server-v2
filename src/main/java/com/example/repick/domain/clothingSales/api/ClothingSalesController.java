@@ -4,6 +4,7 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
+import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
@@ -132,6 +133,14 @@ public class ClothingSalesController {
     @GetMapping("/product-count")
     public SuccessResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
+    }
+
+    @Operation(summary = "유저 상품 현황")
+    @GetMapping("/products/{userId}/{clothingSalesCount}/{productStateType}")
+    public SuccessResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(@PathVariable Long userId,
+                                                                                  @PathVariable Integer clothingSalesCount,
+                                                                                  @PathVariable ProductStateType productStateType) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(userId, clothingSalesCount, productStateType));
     }
 
     @Operation(summary = "옷장 정리 상품 무게 등록")

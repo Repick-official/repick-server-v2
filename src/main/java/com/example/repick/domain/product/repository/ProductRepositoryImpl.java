@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.repository;
 
+import com.example.repick.domain.clothingSales.dto.GetClothingSalesProduct;
 import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -398,7 +401,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.count().intValue(),
                         product.productState.when(ProductStateType.SELLING).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
-                        product.productState.when(ProductStateType.CANCELLED).then(1).otherwise(0).sum(),
+                        product.productState.when(ProductStateType.REJECTED).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
                         bagInit.weight.coalesce(boxCollect.weight).max(),
                         bagInit.createdDate.coalesce(boxCollect.createdDate).max()
@@ -412,6 +415,65 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
     }
+
+    @Override
+    public List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType) {
+        List<Product> products = jpaQueryFactory
+                .selectFrom(product)
+                .where(product.user.id.eq(userId)
+                        .and(product.clothingSalesCount.eq(clothingSalesCount)
+                        .and(product.productState.eq(productStateType))))
+                .fetch();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
+
+        return products.stream()
+                .map(p -> {
+                    LocalDate createdDate = p.getCreatedDate().toLocalDate();
+                    LocalDate endDate = createdDate.plusDays(90);
+                    String dateRange = String.format("%s ~ %s", createdDate.format(formatter), endDate.format(formatter));
+
+                    return new GetClothingSalesProduct(
+                            p.getProductCode(),
+                            p.getThumbnailImageUrl(),
+                            p.getProductName(),
+                            p.getQualityRate().toString(),
+                            dateRange,
+                            p.getPrice(),
+                            0,
+                            0,
+                            null,
+                            null
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType) {
+        List<Product> products = jpaQueryFactory
+                .selectFrom(product)
+                .where(product.user.id.eq(userId)
+                        .and(product.clothingSalesCount.eq(clothingSalesCount)
+                        .and(product.productState.eq(productStateType))))
+                .fetch();
+
+        return products.stream()
+                .map(p -> new GetClothingSalesProduct(
+                        p.getProductCode(),
+                        p.getThumbnailImageUrl(),
+                        p.getProductName(),
+                        p.getQualityRate().toString(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        "07/09/24",
+                        false
+                ))
+                .collect(Collectors.toList());
+    }
+
 
     private BooleanExpression notExistsUserPreferenceProduct(Long userId) {
 
