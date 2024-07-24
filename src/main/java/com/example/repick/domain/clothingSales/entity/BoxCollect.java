@@ -22,9 +22,6 @@ public class BoxCollect extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "box_code")
-    private String boxCode;
-
     @Embedded
     private Address address;
 

@@ -20,9 +20,6 @@ public class BagInit extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "bag_code")
-    private String bagCode;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
