@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 public record GetClothingSalesProductCount (
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
+        @Schema(description = "유저 ID") Long userId,
+        @Schema(description = "옷장 정리 회차") Integer clothingSalesCount,
         @Schema(description = "총 수량") Integer totalQuantity,
         @Schema(description = "판매 중") Integer sellingQuantity,
         @Schema(description = "판매 완료") Integer soldQuantity,

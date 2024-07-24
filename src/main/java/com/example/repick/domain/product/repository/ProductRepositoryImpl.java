@@ -393,6 +393,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .select(Projections.constructor(GetClothingSalesProductCount.class,
                         product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
                         product.user.nickname,
+                        product.user.id,
+                        bagInit.clothingSalesCount.coalesce(boxCollect.clothingSalesCount),
                         product.count().intValue(),
                         product.productState.when(ProductStateType.SELLING).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
