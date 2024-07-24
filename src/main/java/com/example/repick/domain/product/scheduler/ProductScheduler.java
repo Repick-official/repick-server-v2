@@ -1,6 +1,5 @@
 package com.example.repick.domain.product.scheduler;
 
-import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
@@ -49,6 +48,9 @@ public class ProductScheduler {
                     else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
                     else if (days >= 90) {
                         productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
+                        // Product 엔티티의 productState 업데이트
+                        p.updateProductState(ProductStateType.SELLING_END);
+                        productRepository.save(p);
                         clothingSalesService.updateSellingExpired(p);
                     }
                 });

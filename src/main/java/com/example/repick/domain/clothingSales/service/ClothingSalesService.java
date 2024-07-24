@@ -48,7 +48,6 @@ public class ClothingSalesService {
     private final BoxCollectStateRepository boxCollectStateRepository;
     private final BagInitStateRepository bagInitStateRepository;
     private final BagCollectStateRepository bagCollectStateRepository;
-    private final ClothingSalesRepository clothingSalesRepository;
 
     public Boolean getIsBoxCollect(long userId, int clothingSalesCount) {
         return boxCollectRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount).isPresent();
@@ -173,7 +172,7 @@ public class ClothingSalesService {
         productList.forEach(clothingSalesValidator::productPriceNotSet);
         productList.forEach(product -> {
             productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
-            productService.changeSellingState(product.getId(), ProductStateType.SELLING);
+            productService.changeSellingState(product, ProductStateType.SELLING);
             product.updateSalesStartDate(LocalDateTime.now());
         });
         productRepository.saveAll(productList);
@@ -380,10 +379,11 @@ public class ClothingSalesService {
     public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
 
         // 모든 옷장 정리를 가져옴
-        List<GetClothingSalesProductCountDto> clothingSalesProductCountList = new ArrayList<>(clothingSalesRepository.findAllClothingSalesProductCount());
-
-        for (GetClothingSalesProductCountDto clothingSalesProductCountDto : clothingSalesProductCountList) {
-        }
+//        List<GetClothingSalesProductCountDto> clothingSalesProductCountList = new ArrayList<>(clothingSalesRepositoryCustom.findAllClothingSalesProductCount());
+//
+//        for (GetClothingSalesProductCountDto clothingSalesProductCountDto : clothingSalesProductCountList) {
+//            // TODO
+//        }
 
         return null;
     }
