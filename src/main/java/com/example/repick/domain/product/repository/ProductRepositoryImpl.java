@@ -429,9 +429,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         return products.stream()
                 .map(p -> {
-                    LocalDate createdDate = p.getCreatedDate().toLocalDate();
-                    LocalDate endDate = createdDate.plusDays(90);
-                    String dateRange = String.format("%s ~ %s", createdDate.format(formatter), endDate.format(formatter));
+                    LocalDate salesStartDate = p.getSalesStartDate().toLocalDate();
+                    LocalDate endDate = salesStartDate.plusDays(90);
+                    String dateRange = String.format("%s ~ %s", salesStartDate.format(formatter), endDate.format(formatter));
 
                     return new GetClothingSalesProduct(
                             p.getProductCode(),
