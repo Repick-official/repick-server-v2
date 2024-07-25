@@ -139,8 +139,9 @@ public class ClothingSalesController {
     @GetMapping("/products/{userId}/{clothingSalesCount}/{productStateType}")
     public SuccessResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(@PathVariable Long userId,
                                                                                   @PathVariable Integer clothingSalesCount,
-                                                                                  @PathVariable ProductStateType productStateType) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(userId, clothingSalesCount, productStateType));
+                                                                                  @PathVariable ProductStateType productStateType,
+                                                                                  @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(userId, clothingSalesCount, productStateType, pageCondition));
     }
 
     @Operation(summary = "옷장 정리 상품 무게 등록")

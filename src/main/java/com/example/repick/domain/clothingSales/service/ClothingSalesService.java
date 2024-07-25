@@ -398,10 +398,10 @@ public class ClothingSalesService {
         return true;
     }
 
-    public List<GetClothingSalesProduct> getClothingSalesProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType) {
+    public List<GetClothingSalesProduct> getClothingSalesProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
         if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT)
-            return productRepository.getClothingSalesPendingProduct(userId, clothingSalesCount, productStateType);
+            return productRepository.getClothingSalesPendingProduct(userId, clothingSalesCount, productStateType, pageCondition);
 
-        return productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType);
+        return productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType, pageCondition);
     }
 }

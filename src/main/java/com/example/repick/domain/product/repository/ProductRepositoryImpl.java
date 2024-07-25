@@ -417,12 +417,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType) {
+    public List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
+        Pageable pageable = pageCondition.toPageable();
+
         List<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.user.id.eq(userId)
                         .and(product.clothingSalesCount.eq(clothingSalesCount)
                         .and(product.productState.eq(productStateType))))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
@@ -450,12 +454,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType) {
+    public List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
+        Pageable pageable = pageCondition.toPageable();
+
         List<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.user.id.eq(userId)
                         .and(product.clothingSalesCount.eq(clothingSalesCount)
                         .and(product.productState.eq(productStateType))))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
         // TODO: Mock data 제거 및 반송 기능 구현
         return products.stream()

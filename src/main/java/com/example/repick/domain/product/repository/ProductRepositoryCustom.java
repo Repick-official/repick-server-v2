@@ -53,7 +53,7 @@ public interface ProductRepositoryCustom {
 
     List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition);
 
-    List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType);
+    List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition);
 
-    List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType);
+    List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition);
 }
