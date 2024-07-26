@@ -62,7 +62,7 @@ public class ProductScheduler {
         productOrders.forEach(po -> {
             if (Duration.between(po.getCreatedDate(), LocalDateTime.now()).toDays() >= 7) {
                 po.confirmOrder();
-                productOrderService.addPointToSeller(po);
+                productOrderService.applySettlement(po);
             }
         });
         productOrderRepository.saveAll(productOrders);

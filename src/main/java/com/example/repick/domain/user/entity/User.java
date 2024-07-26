@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity @Getter
@@ -34,7 +36,10 @@ public class User extends BaseEntity {
     private Account defaultAccount;
     private String topSize;
     private String bottomSize;
-    private long point;
+
+    private long settlement;
+    private LocalDateTime settlementRequestDate;
+    private LocalDateTime settlementCompleteDate;
 
     // 푸시알림 허용 여부
     private Boolean pushAllow;
@@ -59,7 +64,7 @@ public class User extends BaseEntity {
         this.defaultAccount = defaultAccount;
         this.topSize = topSize;
         this.bottomSize = bottomSize;
-        this.point = 0L;
+        this.settlement = 0L;
         this.profileImage = profileImage;
         this.password = password;
         this.role = role;
@@ -92,7 +97,7 @@ public class User extends BaseEntity {
         this.userClass = userClass;
     }
 
-    public void addPoint(long point) {
-        this.point += point;
+    public void addSettlement(long settlement) {
+        this.settlement += settlement;
     }
 }

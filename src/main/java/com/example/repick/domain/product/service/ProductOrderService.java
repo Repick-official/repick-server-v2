@@ -177,35 +177,33 @@ public class ProductOrderService {
         productOrder.confirmOrder();
         productOrderRepository.save(productOrder);
 
-        addPointToSeller(productOrder);
+        applySettlement(productOrder);
 
         return true;
     }
 
     @Transactional
-    public void addPointToSeller(ProductOrder productOrder){
-        long profit = productOrder.getPayment().getAmount().longValue();
-        if (profit >= 300000) {
-            profit *= 0.8;
-        } else if (profit >= 200000) {
-            profit *= 0.7;
-        } else if (profit >= 100000) {
-            profit *= 0.6;
-        } else if (profit >= 50000) {
-            profit *= 0.5;
-        } else if (profit >= 30000) {
-            profit *= 0.4;
-        } else if (profit >= 10000) {
-            profit *= 0.3;
+    public void applySettlement(ProductOrder productOrder){
+        long settlement = productOrder.getPayment().getAmount().longValue();
+        if (settlement >= 300000) {
+            settlement *= 0.8;
+        } else if (settlement >= 200000) {
+            settlement *= 0.7;
+        } else if (settlement >= 100000) {
+            settlement *= 0.6;
+        } else if (settlement >= 50000) {
+            settlement *= 0.5;
+        } else if (settlement >= 30000) {
+            settlement *= 0.4;
+        } else if (settlement >= 10000) {
+            settlement *= 0.3;
         } else {
-            profit *= 0.2;
+            settlement *= 0.2;
         }
-
-        User seller = productRepository.findById(productOrder.getProductId())
-                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID))
-                .getUser();
-        seller.addPoint(profit);
-        userRepository.save(seller);
+        Product product = productRepository.findById(productOrder.getProductId())
+                .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+        product.updateSettlement(settlement); // 상품 정산금 저장
+        product.getUser().addSettlement(settlement); // 판매자에게 포인트 지급
     }
 
     // 구매 현황 보기
