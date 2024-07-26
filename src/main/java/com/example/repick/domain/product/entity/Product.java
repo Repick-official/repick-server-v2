@@ -41,6 +41,7 @@ public class Product extends BaseEntity {
     private LocalDateTime salesStartDate;
     @Enumerated(EnumType.STRING)
     private ProductStateType productState;
+    private long settlement; // 정산금
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ProductCategory> productCategoryList;
@@ -157,5 +158,9 @@ public class Product extends BaseEntity {
 
     public void updateProductState(ProductStateType productState) {
         this.productState = productState;
+    }
+
+    public void updateSettlement(long settlement) {
+        this.settlement = settlement;
     }
 }

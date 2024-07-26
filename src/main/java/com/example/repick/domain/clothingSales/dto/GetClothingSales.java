@@ -28,6 +28,7 @@ public record GetClothingSales(
 ) {
 
     public static GetClothingSales of(BoxCollect boxCollect, List<Product> products) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return new GetClothingSales(
                 boxCollect.getUser().getId().toString() + "-" + boxCollect.getClothingSalesCount(),
                 boxCollect.getUser().getNickname(),
@@ -35,20 +36,21 @@ public record GetClothingSales(
                 boxCollect.getClothingSalesCount(),
                 true,
                 boxCollect.getClothingSalesState().getValue(),
-                boxCollect.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                boxCollect.getCreatedDate().format(formatter),
                 null,
                 boxCollect.getClothingSalesState() != ClothingSalesStateType.REQUEST_CANCELLED,
-                boxCollect.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
-                boxCollect.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
-                null,
-                null,
+                boxCollect.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(formatter) : null,
+                boxCollect.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(formatter)
+                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(formatter) : null,
+                boxCollect.getUser().getSettlementRequestDate() != null ? boxCollect.getUser().getSettlementRequestDate().format(formatter) : null,
+                boxCollect.getUser().getSettlementCompleteDate() != null ? boxCollect.getUser().getSettlementCompleteDate().format(formatter) : null,
                 false,
                 boxCollect.getClothingSalesState() == ClothingSalesStateType.SELLING_EXPIRED
         );
     }
 
     public static GetClothingSales of(BagInit bagInit, List<Product> products) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return new GetClothingSales(
                 bagInit.getUser().getId().toString() + "-" + bagInit.getClothingSalesCount(),
                 bagInit.getUser().getNickname(),
@@ -56,14 +58,14 @@ public record GetClothingSales(
                 bagInit.getClothingSalesCount(),
                 false,
                 bagInit.getClothingSalesState() != ClothingSalesStateType.BAG_COLLECT_REQUEST? bagInit.getClothingSalesState().getValue() : "리픽백 배송 완료",
-                bagInit.getCreatedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                bagInit.getCreatedDate().format(formatter),
                 bagInit.getBagCollect() != null,
                 bagInit.getClothingSalesState().getId() >= 6,
-                bagInit.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
-                bagInit.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : null,
-                null,
-                null,
+                bagInit.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(formatter) : null,
+                bagInit.getClothingSalesState().getId() >= 14 ? products.get(0).getSalesStartDate().format(formatter)
+                        + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(formatter) : null,
+                bagInit.getUser().getSettlementRequestDate() != null ? bagInit.getUser().getSettlementRequestDate().format(formatter) : null,
+                bagInit.getUser().getSettlementCompleteDate() != null ? bagInit.getUser().getSettlementCompleteDate().format(formatter) : null,
                 false,
                 bagInit.getClothingSalesState() == ClothingSalesStateType.SELLING_EXPIRED
         );

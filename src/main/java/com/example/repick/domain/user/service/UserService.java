@@ -182,6 +182,6 @@ public class UserService {
                 .count();
 
         // 닉네임, 포인트, 배송 정보
-        return GetMyPage.of(user.getNickname(), user.getPoint(), preparing, shipping, delivered, confirmed);
+        return GetMyPage.of(user.getNickname(), user.getSettlement(), preparing, shipping, delivered, confirmed);
     }
 }
