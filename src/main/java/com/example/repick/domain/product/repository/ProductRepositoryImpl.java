@@ -444,7 +444,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                             p.getQualityRate().toString(),
                             dateRange,
                             p.getPrice(),
-                            0,
+                            p.getSettlement(),
                             0,
                             null,
                             null

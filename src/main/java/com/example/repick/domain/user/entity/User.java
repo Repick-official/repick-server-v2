@@ -38,6 +38,8 @@ public class User extends BaseEntity {
     private String bottomSize;
 
     private long settlement;
+
+    // TODO: 정산금 출금 신청 및 정산 완료 API 구현
     private LocalDateTime settlementRequestDate;
     private LocalDateTime settlementCompleteDate;
 
