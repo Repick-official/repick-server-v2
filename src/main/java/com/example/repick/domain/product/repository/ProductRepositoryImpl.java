@@ -8,7 +8,6 @@ import com.example.repick.domain.product.dto.product.GetProductThumbnail;
 import com.example.repick.domain.product.dto.product.ProductFilter;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
-import com.example.repick.global.page.PageCondition;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -389,10 +388,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
-        Pageable pageable = pageCondition.toPageable();
-
-        return jpaQueryFactory
+    public Page<GetClothingSalesProductCount> getClothingSalesProductCount(Pageable pageable) {
+        JPAQuery<GetClothingSalesProductCount> query =  jpaQueryFactory
                 .select(Projections.constructor(GetClothingSalesProductCount.class,
                         product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
                         product.user.nickname,
@@ -410,28 +407,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(bagInit).on(product.user.id.eq(bagInit.user.id).and(product.clothingSalesCount.eq(bagInit.clothingSalesCount)))
                 .leftJoin(boxCollect).on(product.user.id.eq(boxCollect.user.id).and(product.clothingSalesCount.eq(boxCollect.clothingSalesCount)))
                 .groupBy(product.user.id, product.clothingSalesCount)
-                .orderBy(bagInit.createdDate.coalesce(boxCollect.createdDate).max().desc())
+                .orderBy(bagInit.createdDate.coalesce(boxCollect.createdDate).max().desc());
+
+        long total = query.stream().count();
+        List<GetClothingSalesProductCount> content = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+        return new PageImpl<>(content, pageable, total);
+
     }
 
     @Override
-    public List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
-        Pageable pageable = pageCondition.toPageable();
-
-        List<Product> products = jpaQueryFactory
+    public Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable) {
+        JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.user.id.eq(userId)
                         .and(product.clothingSalesCount.eq(clothingSalesCount)
-                        .and(product.productState.eq(productStateType))))
+                        .and(product.productState.eq(productStateType))));
+        long total = products.stream().count();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
+        List<GetClothingSalesProduct> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
-
-        return products.stream()
+                .stream()
                 .map(p -> {
                     LocalDate salesStartDate = p.getSalesStartDate().toLocalDate();
                     LocalDate endDate = salesStartDate.plusDays(90);
@@ -451,22 +450,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                     );
                 })
                 .collect(Collectors.toList());
+        return new PageImpl<>(contents, pageable, total);
     }
 
     @Override
-    public List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
-        Pageable pageable = pageCondition.toPageable();
-
-        List<Product> products = jpaQueryFactory
+    public Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable) {
+        JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.user.id.eq(userId)
                         .and(product.clothingSalesCount.eq(clothingSalesCount)
-                        .and(product.productState.eq(productStateType))))
+                        .and(product.productState.eq(productStateType))));
+        long total = products.stream().count();
+        // TODO: Mock data 제거 및 반송 기능 구현
+        List<GetClothingSalesProduct> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
-        // TODO: Mock data 제거 및 반송 기능 구현
-        return products.stream()
+                .stream()
                 .map(p -> new GetClothingSalesProduct(
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
@@ -480,6 +479,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         false
                 ))
                 .collect(Collectors.toList());
+        return new PageImpl<>(contents, pageable, total);
     }
 
 

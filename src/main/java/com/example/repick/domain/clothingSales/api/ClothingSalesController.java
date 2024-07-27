@@ -131,13 +131,13 @@ public class ClothingSalesController {
 
     @Operation(summary = "상품 종합 현황")
     @GetMapping("/product-count")
-    public SuccessResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
+    public SuccessResponse<PageResponse<List<GetClothingSalesProductCount>>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
         return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
     }
 
     @Operation(summary = "유저 상품 현황")
     @GetMapping("/products/{userId}/{clothingSalesCount}/{productStateType}")
-    public SuccessResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(@PathVariable Long userId,
+    public SuccessResponse<PageResponse<List<GetClothingSalesProduct>>> getClothingSalesProduct(@PathVariable Long userId,
                                                                                   @PathVariable Integer clothingSalesCount,
                                                                                   @PathVariable ProductStateType productStateType,
                                                                                   @ParameterObject PageCondition pageCondition) {

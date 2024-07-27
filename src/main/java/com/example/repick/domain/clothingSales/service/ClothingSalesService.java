@@ -16,6 +16,7 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -374,8 +375,10 @@ public class ClothingSalesService {
         return true;
     }
 
-    public List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition) {
-        return productRepository.getClothingSalesProductCount(pageCondition);
+    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(PageCondition pageCondition) {
+        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable());
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
+
     }
 
     public Boolean updateClothingSalesWeight(PostClothingSalesWeight postClothingSalesWeight) {
@@ -398,11 +401,15 @@ public class ClothingSalesService {
         return true;
     }
 
-    public List<GetClothingSalesProduct> getClothingSalesProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
-        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT)
-            return productRepository.getClothingSalesPendingProduct(userId, clothingSalesCount, productStateType, pageCondition);
-
-        return productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType, pageCondition);
+    public PageResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
+        Page<GetClothingSalesProduct> pages;
+        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
+            pages = productRepository.getClothingSalesPendingProduct(userId, clothingSalesCount, productStateType, pageCondition.toPageable());
+        }
+        else {
+            pages = productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType, pageCondition.toPageable());
+        }
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
     public GetClothingSalesUser getClothingSalesUser(Long userId, Integer clothingSalesCount){

@@ -9,7 +9,6 @@ import com.example.repick.domain.product.dto.product.ProductFilter;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
-import com.example.repick.global.page.PageCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -51,9 +50,9 @@ public interface ProductRepositoryCustom {
 
     List<Product> findRecommendation(Long userId);
 
-    List<GetClothingSalesProductCount> getClothingSalesProductCount(PageCondition pageCondition);
+    Page<GetClothingSalesProductCount> getClothingSalesProductCount(Pageable pageable);
 
-    List<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition);
+    Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable);
 
-    List<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition);
+    Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable);
 }
