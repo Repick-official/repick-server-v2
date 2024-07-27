@@ -150,5 +150,11 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight));
     }
 
+    @Operation(summary = "옷장 정리 유저 정보")
+    @GetMapping("/{userId}/{clothingSalesCount}")
+    public SuccessResponse<GetClothingSalesUser> getClothingSalesUserInfo(@PathVariable Long userId, @PathVariable Integer clothingSalesCount) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesUser(userId, clothingSalesCount));
+    }
+
 }
 

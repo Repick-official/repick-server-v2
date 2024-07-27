@@ -404,4 +404,12 @@ public class ClothingSalesService {
 
         return productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType, pageCondition);
     }
+
+    public GetClothingSalesUser getClothingSalesUser(Long userId, Integer clothingSalesCount){
+        String code = userId + "-" + clothingSalesCount;
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        return GetClothingSalesUser.of(code, user);
+    }
+
+
 }
