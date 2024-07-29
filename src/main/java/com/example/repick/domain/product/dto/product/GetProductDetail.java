@@ -1,9 +1,6 @@
 package com.example.repick.domain.product.dto.product;
 
-import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductCategory;
-import com.example.repick.domain.product.entity.ProductImage;
-import com.example.repick.domain.product.entity.ProductMaterial;
+import com.example.repick.domain.product.entity.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -22,6 +19,7 @@ public record GetProductDetail(
         @Schema(description = "예측정가 대비 할인율",example = "30") Long predictPriceDiscountRate,
         @Schema(description = "좋아요 여부", example = "False") Boolean isLiked,
         @Schema(description = "상품 사이즈 정보") String size,
+        @Schema(description = "상품 사이즈 상세 정보") Size sizeDetail,
         @Schema(description = "상품 소재 정보") List<String> materials
 
 ) {
@@ -40,6 +38,7 @@ public record GetProductDetail(
                 product.getPredictPriceDiscountRate(),
                 isLiked,
                 product.getSize(),
+                product.getSizeInfo(),
                 materials.stream().map(ProductMaterial::getMaterial).toList()
         );
     }
