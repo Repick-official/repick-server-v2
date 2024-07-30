@@ -292,9 +292,9 @@ public class ClothingSalesService {
 
             List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
 
-            Integer productQuantity = productRepository.countByUserIdAndClothingSalesCount(user.getId(), bagInit.getClothingSalesCount());
+            ProductQuantityCounter productQuantityCounter = countProductQuantity(getProductByClothingSalesDtoList);
 
-            return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantity);
+            return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantityCounter.preparingQuantity(), productQuantityCounter.rejectedQuantity());
         }
 
 
@@ -308,13 +308,27 @@ public class ClothingSalesService {
 
             List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
 
-            Integer productQuantity = productRepository.countByUserIdAndClothingSalesCount(user.getId(), boxCollect.getClothingSalesCount());
+            ProductQuantityCounter productQuantity = countProductQuantity(getProductByClothingSalesDtoList);
 
-            return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity);
+            return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity.preparingQuantity(), productQuantity.rejectedQuantity());
         }
 
         throw new CustomException(INVALID_CLOTHING_SALES);
 
+    }
+
+    private ProductQuantityCounter countProductQuantity(List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList) {
+        int preparingQuantity = 0;
+        int rejectedQuantity = 0;
+        for (GetProductByClothingSalesDto getProductByClothingSalesDto : getProductByClothingSalesDtoList) {
+            if (getProductByClothingSalesDto.productState().equals(ProductStateType.PREPARING)) {
+                preparingQuantity++;
+            } else if (getProductByClothingSalesDto.productState().equals(ProductStateType.REJECTED)) {
+                rejectedQuantity++;
+            }
+        }
+
+        return new ProductQuantityCounter(preparingQuantity, rejectedQuantity);
     }
 
     // Admin API
