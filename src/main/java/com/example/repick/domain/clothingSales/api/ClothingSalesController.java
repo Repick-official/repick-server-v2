@@ -86,8 +86,8 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.getSellingClothingSales());
     }
 
-    @Operation(summary = "수거: 판매 가능한 상품 보기", description = """
-            가격 설정 화면: 수거 신청 건에 대한 판매 가능 상품을 조회합니다.
+    @Operation(summary = "수거: 상품 보기", description = """
+            가격 설정 화면: 수거 신청 건에 대한 판매 가능, 불가능 상품을 조회합니다.
             - productList: 상품 리스트
             - requestedQuantity: 신청한 의류 수량
             - productQuantity: 판매 가능한 의류 수량

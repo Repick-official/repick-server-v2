@@ -316,6 +316,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .select(Projections.constructor(GetProductByClothingSalesDto.class,
                         product.id,
                         product.thumbnailImageUrl,
+                        product.productState,
                         product.productName,
                         product.brandName,
                         product.suggestedPrice,
@@ -333,7 +334,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                                 .where(productState.productId.eq(product.id))
                                 .groupBy(productState.productId)
                                 .eq(productState.id))
-                        .and(productState.productStateType.eq(ProductStateType.PREPARING)))
+                        .and(productState.productStateType.eq(ProductStateType.PREPARING))
+                                .or(productState.productStateType.eq(ProductStateType.REJECTED)))
                 .distinct()
                 .fetch();
     }

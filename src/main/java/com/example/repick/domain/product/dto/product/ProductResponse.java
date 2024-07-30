@@ -18,6 +18,10 @@ public record ProductResponse(
         @Schema(description = "상품 품질 등급 (S, A, B)", example = "S") String qualityRate,
         @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender
 ) {
+    public ProductResponse(Long id, Long userId, Integer clothingSalesCount) {
+        this(id, userId, clothingSalesCount, null, null, null, null, null, null, null, null, null, null);
+    }
+
     public static ProductResponse fromProduct(Product product) {
         return new ProductResponse(
                 product.getId(),
@@ -33,6 +37,14 @@ public record ProductResponse(
                 product.getSize(),
                 product.getQualityRate().name(),
                 product.getGender().name()
+        );
+    }
+
+    public static ProductResponse fromRejectedProduct(Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getUser().getId(),
+                product.getClothingSalesCount()
         );
     }
 }

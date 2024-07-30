@@ -12,6 +12,7 @@ public record PostProduct (
         @Schema(description = "판매하는 유저의 id", example = "5") Long userId,
         @Schema(description = "수거 회차", example = "3") Integer clothingSalesCount,
         @Schema(description = "상품 코드", example = "17-1-1") String productCode,
+        @Schema(description = "리젝 여부", example = "false") Boolean isRejected,
         @Schema(description = "상품명", example = "블랙 카라 오버핏 셔츠") String productName,
         @Schema(description = "제안가", example = "40000") Long suggestedPrice,
         @Schema(description = "상품 예측 원가", example = "25000") Long predictPrice,
@@ -24,6 +25,15 @@ public record PostProduct (
         @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender,
         @Schema(description = "상품 소재 목록") List<String> materials
         ) {
+
+    public Product toRejectedProduct(User user) {
+        return Product.builder()
+                .user(user)
+                .clothingSalesCount(this.clothingSalesCount())
+                .productCode(this.productCode())
+                .productState(ProductStateType.REJECTED)
+                .build();
+    }
 
     public Product toProduct(User user, String size) {
         return Product.builder()
