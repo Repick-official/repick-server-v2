@@ -94,6 +94,9 @@ public class ProductService {
         // validate clothing sales info
         productValidator.validateClothingSales(postProduct.clothingSalesCount(), user.getId());
 
+        // handle rejected product
+        if (postProduct.isRejected()) return ProductResponse.fromRejectedProduct(handleRejectedProduct(postProduct, user, images));
+
         // product
         String size  = convertSizeInfo(Category.fromName(postProduct.categories().get(0)), postProduct.sizeInfo());
         Product product = productRepository.save(postProduct.toProduct(user, size));
@@ -106,15 +109,34 @@ public class ProductService {
         addCategory(postProduct.categories(), product);
 
         // productStyle
-        addStyle(postProduct.styles(), product);
+        if (!postProduct.styles().isEmpty()) addStyle(postProduct.styles(), product);
 
         // productMaterial
-        addMaterials(postProduct.materials(), product);
+        if (!postProduct.materials().isEmpty()) addMaterials(postProduct.materials(), product);
 
         // productSellingState
         addProductSellingState(product.getId(), ProductStateType.PREPARING);
 
         return ProductResponse.fromProduct(product);
+
+    }
+
+    private Product handleRejectedProduct(PostProduct postProduct, User user, List<MultipartFile> images) {
+        System.out.println("ProductService.handleRejectedProduct");
+        // product
+        Product product = productRepository.save(postProduct.toRejectedProduct(user));
+
+        System.out.println("ProductService.handleRejectedProduct2");
+        // productImage
+        String thumbnailGeneratedUrl = uploadImage(images, product);
+        product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
+
+        System.out.println("ProductService.handleRejectedProduct3");
+        // productSellingState
+        addProductSellingState(product.getId(), ProductStateType.REJECTED);
+
+        System.out.println("ProductService.handleRejectedProduct4");
+        return product;
 
     }
 
