@@ -320,10 +320,24 @@ public class ClothingSalesService {
     // Admin API
     public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
         List<GetClothingSales> clothingSalesList = new ArrayList<>(bagInitRepository.findAll().stream()
-                .map(bagInit -> GetClothingSales.of(bagInit, productService.findByClothingSales(bagInit.getUser().getId(), bagInit.getClothingSalesCount())))
+                .map(bagInit -> {
+                    List<Product> products = productService.findByClothingSales(bagInit.getUser().getId(), bagInit.getClothingSalesCount());
+                    List<ProductState> productStates = products.stream()
+                            .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
+                            .flatMap(Optional::stream)
+                            .toList();
+                    return GetClothingSales.of(bagInit, products, productStates);
+                })
                 .toList());
         clothingSalesList.addAll(boxCollectRepository.findAll().stream()
-                .map(boxCollect -> GetClothingSales.of(boxCollect, productService.findByClothingSales(boxCollect.getUser().getId(), boxCollect.getClothingSalesCount())))
+                .map(boxCollect -> {
+                    List<Product> products = productService.findByClothingSales(boxCollect.getUser().getId(), boxCollect.getClothingSalesCount());
+                    List<ProductState> productStates = products.stream()
+                            .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
+                            .flatMap(Optional::stream)
+                            .toList();
+                    return GetClothingSales.of(boxCollect, products, productStates);
+                })
                 .toList());
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));

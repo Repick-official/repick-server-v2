@@ -4,6 +4,8 @@ import com.example.repick.domain.clothingSales.entity.BagInit;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.entity.ProductState;
+import com.example.repick.domain.product.entity.ProductStateType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.format.DateTimeFormatter;
@@ -27,7 +29,7 @@ public record GetClothingSales(
         @Schema(description = "판매만료 리턴") Boolean isExpiredAndReturned
 ) {
 
-    public static GetClothingSales of(BoxCollect boxCollect, List<Product> products) {
+    public static GetClothingSales of(BoxCollect boxCollect, List<Product> products, List<ProductState> productStates) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return new GetClothingSales(
                 boxCollect.getUser().getId().toString() + "-" + boxCollect.getClothingSalesCount(),
@@ -44,12 +46,12 @@ public record GetClothingSales(
                         + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(formatter) : null,
                 boxCollect.getUser().getSettlementRequestDate() != null ? boxCollect.getUser().getSettlementRequestDate().format(formatter) : null,
                 boxCollect.getUser().getSettlementCompleteDate() != null ? boxCollect.getUser().getSettlementCompleteDate().format(formatter) : null,
-                false,
+                boxCollect.getClothingSalesState().getId() >= 13? productStates.stream().anyMatch(productState -> productState.getProductStateType() == ProductStateType.REJECTED) : null,
                 boxCollect.getClothingSalesState() == ClothingSalesStateType.SELLING_EXPIRED
         );
     }
 
-    public static GetClothingSales of(BagInit bagInit, List<Product> products) {
+    public static GetClothingSales of(BagInit bagInit, List<Product> products, List<ProductState> productStates) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return new GetClothingSales(
                 bagInit.getUser().getId().toString() + "-" + bagInit.getClothingSalesCount(),
@@ -66,7 +68,7 @@ public record GetClothingSales(
                         + " ~ " + products.get(0).getSalesStartDate().plusDays(90).format(formatter) : null,
                 bagInit.getUser().getSettlementRequestDate() != null ? bagInit.getUser().getSettlementRequestDate().format(formatter) : null,
                 bagInit.getUser().getSettlementCompleteDate() != null ? bagInit.getUser().getSettlementCompleteDate().format(formatter) : null,
-                false,
+                bagInit.getClothingSalesState().getId() >= 13? productStates.stream().anyMatch(productState -> productState.getProductStateType() == ProductStateType.REJECTED) : null,
                 bagInit.getClothingSalesState() == ClothingSalesStateType.SELLING_EXPIRED
         );
     }
