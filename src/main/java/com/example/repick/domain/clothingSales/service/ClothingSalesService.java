@@ -245,9 +245,11 @@ public class ClothingSalesService {
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
-    public GetClothingSalesUser getClothingSalesUser(Long userId, Integer clothingSalesCount){
-        String code = userId + "-" + clothingSalesCount;
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    public GetClothingSalesUser getClothingSalesUser(Long clothingSalesId){
+        ClothingSales clothingSales = clothingSalesRepository.findById(clothingSalesId)
+                .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
+        User user = clothingSales.getUser();
+        String code = user.getId() + "-" + clothingSales.getClothingSalesCount();
         return GetClothingSalesUser.of(code, user);
     }
 
