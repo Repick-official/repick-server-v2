@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface ClothingSalesStateRepository extends JpaRepository<ClothingSalesState, Long>{
-    Optional<ClothingSalesState> findFirstByClothingSalesIdOrderByCreatedDateDesc(Long clothingSalesId);
     @Query("SELECT MAX(c.createdDate) FROM ClothingSalesState c WHERE c.clothingSalesId = :clothingSalesId AND c.clothingSalesStateType = :clothingSalesStateType")
     Optional<LocalDateTime> findLatestCreatedDateByClothingSalesIdAndStateType(@Param("clothingSalesId") Long clothingSalesId, @Param("clothingSalesStateType") ClothingSalesStateType clothingSalesStateType);
 }

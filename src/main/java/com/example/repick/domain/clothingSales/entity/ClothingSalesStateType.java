@@ -4,6 +4,9 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Getter
 public enum ClothingSalesStateType {
     BOX_COLLECT_REQUEST(1, "신청 완료", "박스 신청"),
@@ -25,6 +28,9 @@ public enum ClothingSalesStateType {
     private final int id;
     private final String sellerValue;
     private final String adminValue;
+
+    public static final List<ClothingSalesStateType> AFTER_PRODUCTION = Arrays.asList(PRODUCT_REGISTERED, SELLING, SELLING_EXPIRED);
+    public static final List<ClothingSalesStateType> AFTER_SELLING = Arrays.asList(SELLING, SELLING_EXPIRED);
 
     ClothingSalesStateType(int id, String sellerValue, String adminValue) {
         this.id = id;

@@ -42,6 +42,7 @@ public class ClothingSalesService {
     private final UserRepository userRepository;
     private final ProductService productService;
     private final BagInitRepository bagInitRepository;
+    private final BagInitStateRepository bagInitStateRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final ProductRepository productRepository;
     private final ProductStateRepository productStateRepository;
@@ -67,7 +68,7 @@ public class ClothingSalesService {
                     .orElse(null);
             LocalDateTime shootDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.SHOOTED)
                     .orElse(null);
-            LocalDateTime productDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.PRODUCTED)
+            LocalDateTime productDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.PRODUCT_REGISTERED)
                     .orElse(null);
             pendingClothingSalesList.add(GetPendingClothingSales.of(clothingSales, requestDate, collectDate, shootDate, productDate));
         });
@@ -168,20 +169,26 @@ public class ClothingSalesService {
 
     // Admin API
     public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
-        // TODO: 리픽백 요청 추가?
+        // 수거 신청 정보 조회
         List<GetClothingSales> clothingSalesList = new ArrayList<>(clothingSalesRepository.findAll().stream()
                 .map(clothingSales -> {
-                    ClothingSalesStateType clothingSalesStateType = clothingSalesStateRepository.findFirstByClothingSalesIdOrderByCreatedDateDesc(clothingSales.getId())
-                            .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID))
-                            .getClothingSalesStateType();
                     List<Product> products = clothingSales.getProductList();
                     List<ProductState> productStates = products.stream()
                             .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
                             .flatMap(Optional::stream)
                             .toList();
-                    return GetClothingSales.of(clothingSales, clothingSales instanceof BoxCollect, clothingSalesStateType, productStates);
+                    return GetClothingSales.of(clothingSales, productStates);
                 })
                 .toList());
+        // 리픽백 배송 요청 정보 조회
+        List<GetClothingSales> bagInitList = bagInitRepository.findAll().stream()
+                .map(bagInit -> {
+                    BagInitState bagInitState = bagInitStateRepository.findFirstByBagInitOrderByCreatedDateDesc(bagInit)
+                            .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
+                    return GetClothingSales.of(bagInit, bagInitState);
+                })
+                .toList();
+        clothingSalesList.addAll(bagInitList);
 
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
@@ -208,14 +215,12 @@ public class ClothingSalesService {
 
             clothingSales.updateClothingSalesState(clothingSalesStateType);
             clothingSalesRepository.save(clothingSales);
-
         }
         else{
             BagInit bagInit = bagInitRepository.findById(postClothingSalesState.id())
                     .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
             BagInitState.of(BagInitStateType.fromAdminValue(postClothingSalesState.clothingSalesState()), bagInit);
             bagInitRepository.save(bagInit);
-
         }
         return true;
     }
@@ -227,6 +232,7 @@ public class ClothingSalesService {
 
     }
 
+    @Transactional
     public void updateClothingSalesWeight(PatchClothingSalesWeight patchClothingSalesWeight) {
         ClothingSales clothingSales = clothingSalesRepository.findById(patchClothingSalesWeight.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));

@@ -11,7 +11,6 @@ import java.util.Optional;
 public interface ClothingSalesRepository extends JpaRepository<ClothingSales, Long> {
     List<ClothingSales> findByUserAndClothingSalesState(User user, ClothingSalesStateType clothingSalesStateType);
     List<ClothingSales> findByUserOrderByCreatedDateDesc(User user);
-    int countByUser(User user);
-
     Optional<ClothingSales> findByUserAndClothingSalesCount(User user, Integer clothingSalesCount);
+    int countByUser(User user);
 }
