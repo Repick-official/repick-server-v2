@@ -65,7 +65,7 @@ public class BagService {
         }
 
         // BagCollect
-        BagCollect bagCollect = postBagCollect.toEntity(bagInit, user, clothingSalesRepository.countByUser(user));
+        BagCollect bagCollect = postBagCollect.toEntity(bagInit, user, clothingSalesRepository.countByUser(user) + 1);
         bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
         bagCollectRepository.save(bagCollect);
 

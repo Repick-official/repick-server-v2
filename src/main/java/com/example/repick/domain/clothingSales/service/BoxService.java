@@ -33,7 +33,7 @@ public class BoxService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         // BoxCollect
-        BoxCollect boxCollect = postBoxCollect.toEntity(user, clothingSalesRepository.countByUser(user));
+        BoxCollect boxCollect = postBoxCollect.toEntity(user, clothingSalesRepository.countByUser(user) + 1);
         boxCollect.updateImageUrl(s3UploadService.saveFile(postBoxCollect.image(), "clothingSales/boxCollect/" + user.getId() + "/" + boxCollect.getId()));
         boxCollectRepository.save(boxCollect);
 

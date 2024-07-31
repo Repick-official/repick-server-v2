@@ -29,14 +29,14 @@ public record GetClothingSales(
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
 
     // 수거 요청일 경우
-    public static GetClothingSales of(ClothingSales clothingSales, List<ProductState> productStates) {
+    public static GetClothingSales ofClothingSales(ClothingSales clothingSales, List<ProductState> productStates) {
         ClothingSalesStateType clothingSalesState = clothingSales.getClothingSalesState();
         boolean isBoxCollect = clothingSales instanceof BoxCollect;
         boolean isProducted = ClothingSalesStateType.AFTER_PRODUCTION.contains(clothingSalesState);
         boolean isSelling = ClothingSalesStateType.AFTER_SELLING.contains(clothingSalesState);
 
         return GetClothingSales.builder()
-                .isBagDelivered(false)
+                .isBagDelivered(isBoxCollect? null : true)
                 .code(clothingSales.getUser().getId().toString() + "-" + clothingSales.getClothingSalesCount())
                 .name(clothingSales.getUser().getNickname())
                 .isBoxCollect(isBoxCollect)
@@ -54,7 +54,7 @@ public record GetClothingSales(
     }
 
     // 백 배송 요청일 경우
-    public static GetClothingSales of(BagInit bagInit, BagInitState bagInitState) {
+    public static GetClothingSales ofBagInit(BagInit bagInit, BagInitState bagInitState) {
         return GetClothingSales.builder()
                 .isBagDelivered(false)
                 .name(bagInit.getUser().getNickname())

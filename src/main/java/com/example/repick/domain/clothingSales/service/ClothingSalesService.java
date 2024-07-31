@@ -1,5 +1,6 @@
 package com.example.repick.domain.clothingSales.service;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.repository.*;
@@ -177,18 +178,21 @@ public class ClothingSalesService {
                             .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
                             .flatMap(Optional::stream)
                             .toList();
-                    return GetClothingSales.of(clothingSales, productStates);
+                    return GetClothingSales.ofClothingSales(clothingSales, productStates);
                 })
                 .toList());
+        System.out.println(clothingSalesList);
         // 리픽백 배송 요청 정보 조회
         List<GetClothingSales> bagInitList = bagInitRepository.findAll().stream()
                 .map(bagInit -> {
                     BagInitState bagInitState = bagInitStateRepository.findFirstByBagInitOrderByCreatedDateDesc(bagInit)
                             .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-                    return GetClothingSales.of(bagInit, bagInitState);
+                    return GetClothingSales.ofBagInit(bagInit, bagInitState);
                 })
                 .toList();
+        System.out.println(bagInitList);
         clothingSalesList.addAll(bagInitList);
+        System.out.println(clothingSalesList);
 
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
