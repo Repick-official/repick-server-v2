@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.entity;
 
+import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -13,11 +14,18 @@ import java.util.List;
 
 @Entity @NoArgsConstructor(access = AccessLevel.PROTECTED) @Getter
 public class Product extends BaseEntity {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clothing_sales_id")
+    private ClothingSales clothingSales;
+
     private Integer clothingSalesCount;
     private String productCode;
     private String productName;

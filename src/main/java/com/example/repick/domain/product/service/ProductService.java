@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.service;
 
+import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
@@ -41,6 +42,7 @@ public class ProductService {
     private final ProductMaterialRepository productMaterialRepository;
     private final ProductValidator productValidator;
     private final RecommendationService recommendationService;
+    private final ClothingSalesRepository clothingSalesRepository;
 
     private String uploadImage(List<MultipartFile> images, Product product) {
         String thumbnailGeneratedUrl = null;
@@ -92,7 +94,9 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         // validate clothing sales info
-        productValidator.validateClothingSales(postProduct.clothingSalesCount(), user.getId());
+        if(clothingSalesRepository.findByUserAndClothingSalesCount(user, postProduct.clothingSalesCount()).isEmpty()) {
+            throw new CustomException(CLOTHING_SALES_NOT_FOUND);
+        }
 
         // handle rejected product
         if (postProduct.isRejected()) return ProductResponse.fromRejectedProduct(handleRejectedProduct(postProduct, user, images));

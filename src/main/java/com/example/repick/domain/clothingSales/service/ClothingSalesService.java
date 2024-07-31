@@ -5,8 +5,10 @@ import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.repository.*;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.entity.Product;
+import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.domain.product.service.ProductService;
@@ -16,6 +18,7 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +26,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,125 +37,43 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
+@Transactional(readOnly = true)
 @Service @RequiredArgsConstructor
 public class ClothingSalesService {
 
     private final UserRepository userRepository;
-    private final BagService bagService;
-    private final BoxService boxService;
     private final ProductService productService;
     private final BagInitRepository bagInitRepository;
-    private final BoxCollectRepository boxCollectRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final ProductRepository productRepository;
     private final ProductStateRepository productStateRepository;
-    private final BoxCollectStateRepository boxCollectStateRepository;
-    private final BagInitStateRepository bagInitStateRepository;
-    private final BagCollectStateRepository bagCollectStateRepository;
-
-    public Boolean getIsBoxCollect(long userId, int clothingSalesCount) {
-        return boxCollectRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount).isPresent();
-    }
+    private final ClothingSalesRepository clothingSalesRepository;
+    private final ClothingSalesStateRepository clothingSalesStateRepository;
+    private final ProductOrderRepository productOrderRepository;
 
     public void updateSellingExpired(Product product) {
-        if(getIsBoxCollect(product.getUser().getId(), product.getClothingSalesCount())){
-            BoxCollect boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(product.getUser().getId(), product.getClothingSalesCount())
-                    .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-            boxCollect.updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
-            boxCollectRepository.save(boxCollect);
-        }
-        else{
-            BagInit bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(product.getUser().getId(), product.getClothingSalesCount())
-                    .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-            bagInit.updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
-            bagInitRepository.save(bagInit);
-        }
+        ClothingSalesState clothingSalesState = ClothingSalesState.of(product.getClothingSales().getId(), ClothingSalesStateType.SELLING_EXPIRED);
+        clothingSalesStateRepository.save(clothingSalesState);
     }
 
     public List<GetPendingClothingSales> getPendingClothingSales() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        List<GetPendingClothingSales> clothingSalesList = new ArrayList<>();
-
-        AtomicReference<Boolean> isCanceledOrCompleted = new AtomicReference<>(false);
-
-        AtomicReference<String> requestDate = new AtomicReference<>();
-        AtomicReference<String> bagArriveDate = new AtomicReference<>();
-        AtomicReference<String> collectDate = new AtomicReference<>();
-        AtomicReference<String> productDate = new AtomicReference<>();
-
-        // get bag inits
-        bagService.getBagInitByUser(user.getId()).forEach(bagInit -> {
-            requestDate.set(null);
-            bagArriveDate.set(null);
-            collectDate.set(null);
-            productDate.set(null);
-            isCanceledOrCompleted.set(false);
-
-            bagInit.getBagInitStateList().forEach(bagInitState -> {
-                if (bagInitState.getBagInitStateType().equals(BagInitStateType.PENDING)) {
-                    requestDate.set(bagInitState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-                } else if (bagInitState.getBagInitStateType().equals(BagInitStateType.DELIVERED)) {
-                    bagArriveDate.set(bagInitState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-
-                    // if bagInit is delivered, get bag collects
-                    bagInit.getBagCollect().getBagCollectStateList().forEach(bagCollectState -> {
-                        if (bagCollectState.getBagCollectStateType().equals(BagCollectStateType.DELIVERED)) {
-                            collectDate.set(bagCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-                        } else if (bagCollectState.getBagCollectStateType().equals(BagCollectStateType.INSPECTION_COMPLETED)) {
-                            productDate.set(bagCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-                        } else if (bagCollectState.getBagCollectStateType().equals(BagCollectStateType.CANCELED)) {
-                            isCanceledOrCompleted.set(true);
-                        } else if (bagCollectState.getBagCollectStateType().equals(BagCollectStateType.SELLING)) {
-                            isCanceledOrCompleted.set(true);
-                        }
-                    });
-                } else if (bagInitState.getBagInitStateType().equals(BagInitStateType.CANCELED)) {
-                    isCanceledOrCompleted.set(true);
-                }
-            });
-
-            if (!isCanceledOrCompleted.get())
-                clothingSalesList.add(GetPendingClothingSales.of(bagInit.getId(), bagInit.getClothingSalesCount(), "백", requestDate.get(), bagArriveDate.get(), collectDate.get(), productDate.get()));
+        List<GetPendingClothingSales> pendingClothingSalesList = new ArrayList<>();
+        List<ClothingSales> clothingSalesList = clothingSalesRepository.findByUserOrderByCreatedDateDesc(user);
+        clothingSalesList.forEach(clothingSales -> {
+            LocalDateTime requestDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), clothingSales instanceof BoxCollect ? ClothingSalesStateType.BOX_COLLECT_REQUEST : ClothingSalesStateType.BAG_COLLECT_REQUEST)
+                    .orElse(null);
+            LocalDateTime collectDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.COLLECTED)
+                    .orElse(null);
+            LocalDateTime shootDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.SHOOTED)
+                    .orElse(null);
+            LocalDateTime productDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.PRODUCTED)
+                    .orElse(null);
+            pendingClothingSalesList.add(GetPendingClothingSales.of(clothingSales, requestDate, collectDate, shootDate, productDate));
         });
-
-
-        // get box collects
-        boxService.getBoxCollectByUser(user.getId()).forEach(boxCollect -> {
-            requestDate.set(null);
-            collectDate.set(null);
-            productDate.set(null);
-            isCanceledOrCompleted.set(false);
-
-            boxCollect.getBoxCollectStateList().forEach(boxCollectState -> {
-                if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.PENDING)) {
-                    requestDate.set(boxCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-                } else if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.DELIVERED)) {
-                    collectDate.set(boxCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-                } else if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.INSPECTION_COMPLETED)) {
-                    productDate.set(boxCollectState.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")));
-                } else if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.CANCELED)) {
-                    isCanceledOrCompleted.set(true);
-                } else if (boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)) {
-                    isCanceledOrCompleted.set(true);
-                }
-            });
-
-            if (!isCanceledOrCompleted.get())
-                clothingSalesList.add(GetPendingClothingSales.of(boxCollect.getId(), boxCollect.getClothingSalesCount(), "박스", requestDate.get(), null, collectDate.get(), productDate.get()));
-        });
-
-        // order by created date
-        clothingSalesList.sort((o1, o2) -> {
-            if (o1.requestDate().equals(o2.requestDate())) {
-                return 0;
-            }
-            return o1.requestDate().compareTo(o2.requestDate());
-        });
-
-        return clothingSalesList;
-
+        return pendingClothingSalesList;
     }
 
     @Transactional
@@ -176,22 +99,13 @@ public class ClothingSalesService {
         });
         productRepository.saveAll(productList);
 
-        Optional<BagInit> bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(user.getId(), productList.get(0).getClothingSalesCount());
-        if(bagInit.isPresent()){
-            BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.SELLING, bagInit.get().getBagCollect());
-            bagCollectStateRepository.save(bagCollectState);
-            bagInit.get().updateClothingSalesState(ClothingSalesStateType.SELLING);
-            return true;
-        }
+        ClothingSales clothingSales = productList.get(0).getClothingSales();
+        ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), ClothingSalesStateType.SELLING);
+        clothingSalesStateRepository.save(clothingSalesState);
+        clothingSales.updateClothingSalesState(ClothingSalesStateType.SELLING);
+        clothingSalesRepository.save(clothingSales);
 
-        Optional<BoxCollect> boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(user.getId(), productList.get(0).getClothingSalesCount());
-        if(boxCollect.isPresent()){
-            BoxCollectState boxCollectState = BoxCollectState.of(BoxCollectStateType.SELLING, boxCollect.get());
-            boxCollectStateRepository.save(boxCollectState);
-            boxCollect.get().updateClothingSalesState(ClothingSalesStateType.SELLING);
-            return true;
-        }
-        throw new CustomException(INVALID_CLOTHING_SALES);
+        return true;
     }
 
     public List<GetSellingClothingSales> getSellingClothingSales() {
@@ -199,122 +113,45 @@ public class ClothingSalesService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         List<GetSellingClothingSales> sellingClothingSalesList = new ArrayList<>();
+        List<ClothingSales> clothingSalesList = clothingSalesRepository.findByUserAndClothingSalesState(user, ClothingSalesStateType.SELLING);
 
-        List<BoxCollect> boxCollectList = boxService.getBoxCollectByUser(user.getId())
-                // boxCollectStateType이 SELLING인 것만 가져온다.
-                .stream()
-                .filter(boxCollect -> boxCollect.getBoxCollectStateList().stream().anyMatch(boxCollectState -> boxCollectState.getBoxCollectStateType().equals(BoxCollectStateType.SELLING)))
-                .toList();
-
-        List<BagInit> bagInitList = bagService.getBagInitByUser(user.getId())
-                // bagCollectStateType이 SELLING인 것만 가져온다.
-                .stream()
-                .filter(bagInit -> bagInit.getBagCollect() != null)
-                .filter(bagInit -> bagInit.getBagCollect().getBagCollectStateList().stream().anyMatch(bagCollectState -> bagCollectState.getBagCollectStateType().equals(BagCollectStateType.SELLING)))
-                .toList();
-
-        boxCollectList.forEach(boxCollect -> {
-            List<Product> productList = productService.findByClothingSales(user.getId(), boxCollect.getClothingSalesCount());
-            AtomicReference<Integer> sellingQuantity = new AtomicReference<>(0);
-            AtomicReference<Integer> pendingQuantity = new AtomicReference<>(0);
-            AtomicReference<Integer> soldQuantity = new AtomicReference<>(0);
-
-            // 각각 상품들에 연결된 productSellingState 중 가장 id값이 높은 것들에 대해서,
-            // 상태가 SELLING인 경우 sellingQuantity를 증가시킨다.
-            // 상태가 SOLD_OUT인 경우, 해당 state의 createdDate가 7일 이후면 soldQuantity를 증가시키고, 7일 이전이면 pendingQuantity를 증가시킨다.
-            productList.forEach(product -> {
-                ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-                if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
-                    sellingQuantity.getAndSet(sellingQuantity.get() + 1);
-                } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {
-                    if (productState.getCreatedDate().plusDays(7).isBefore(LocalDateTime.now())) {
-                        soldQuantity.getAndSet(soldQuantity.get() + 1);
+        for (ClothingSales clothingSales : clothingSalesList) {
+            List<Product> productList = clothingSales.getProductList();
+            LocalDateTime salesStartDate = productList.get(0).getSalesStartDate();
+            int remainingSalesDays = Period.between(LocalDate.now(), salesStartDate.toLocalDate().plusDays(90)).getDays();
+            int sellingQuantity = 0;
+            int pendingQuantity = 0;
+            int soldQuantity = 0;
+            for (Product product : productList) {
+                if (product.getProductState().equals(ProductStateType.SELLING)) {
+                    sellingQuantity++;
+                } else if (product.getProductState().equals(ProductStateType.SOLD_OUT)) {
+                    ProductOrder productOrder = productOrderRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
+                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                    if (productOrder.isConfirmed()) {
+                        soldQuantity++;
                     } else {
-                        pendingQuantity.getAndSet(pendingQuantity.get() + 1);
+                        pendingQuantity++;
                     }
                 }
-            });
-
-            sellingClothingSalesList.add(new GetSellingClothingSales(
-                    boxCollect.getId(),
-                    boxCollect.getClothingSalesCount(),
-                    boxCollect.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")),
-                    sellingQuantity.get(),
-                    pendingQuantity.get(),
-                    soldQuantity.get(),
-                    boxCollect.getPoint()));
-        });
-
-        bagInitList.forEach(bagInit -> {
-            List<Product> productList = productService.findByClothingSales(user.getId(), bagInit.getClothingSalesCount());
-            AtomicReference<Integer> sellingQuantity = new AtomicReference<>(0);
-            AtomicReference<Integer> pendingQuantity = new AtomicReference<>(0);
-            AtomicReference<Integer> soldQuantity = new AtomicReference<>(0);
-
-            productList.forEach(product -> {
-                ProductState productState = productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()).orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-                if (productState.getProductStateType().equals(ProductStateType.SELLING)) {
-                    sellingQuantity.getAndSet(sellingQuantity.get() + 1);
-                } else if (productState.getProductStateType().equals(ProductStateType.SOLD_OUT)) {
-                    if (productState.getCreatedDate().plusDays(7).isBefore(LocalDateTime.now())) {
-                        soldQuantity.getAndSet(soldQuantity.get() + 1);
-                    } else {
-                        pendingQuantity.getAndSet(pendingQuantity.get() + 1);
-                    }
-                }
-            });
-
-            sellingClothingSalesList.add(new GetSellingClothingSales(
-                    bagInit.getId(),
-                    bagInit.getClothingSalesCount(),
-                    bagInit.getCreatedDate().format(DateTimeFormatter.ofPattern("yy.MM.dd")),
-                    sellingQuantity.get(),
-                    pendingQuantity.get(),
-                    soldQuantity.get(),
-                    bagInit.getPoint()));
-        });
-
+            }
+            sellingClothingSalesList.add(GetSellingClothingSales.of(clothingSales, salesStartDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, pendingQuantity, soldQuantity));
+        }
         return sellingClothingSalesList;
 
     }
 
-    public GetProductListByClothingSales getProductsByClothingSalesCount(Integer clothingSalesCount) {
+    public GetProductListByClothingSales getProductsByClothingSalesId(Long clothingSalesId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
-
-        Optional<BagInit> bagInitOptional = bagInitRepository.findByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
-
-        if (bagInitOptional.isPresent()) {
-            BagInit bagInit = bagInitOptional.get();
-
-            // validate bagInitId and user
-            clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
-
-            List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
-
-            ProductQuantityCounter productQuantityCounter = countProductQuantity(getProductByClothingSalesDtoList);
-
-            return new GetProductListByClothingSales(getProductByClothingSalesDtoList, bagInit.getBagQuantity(), productQuantityCounter.preparingQuantity(), productQuantityCounter.rejectedQuantity());
+        ClothingSales clothingSales = clothingSalesRepository.findById(clothingSalesId)
+                .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
+        if(!clothingSales.getUser().getId().equals(user.getId())){
+            throw new CustomException(INVALID_CLOTHING_SALES_ID);
         }
-
-
-        Optional<BoxCollect> boxCollectOptional = boxCollectRepository.findByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
-
-        if (boxCollectOptional.isPresent()) {
-            BoxCollect boxCollect = boxCollectOptional.get();
-
-            // validate boxCollectId and user
-            clothingSalesValidator.userBoxCollectMatches(user.getId(), boxCollect);
-
-            List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByUserIdAndClothingSalesCount(user.getId(), clothingSalesCount);
-
-            ProductQuantityCounter productQuantity = countProductQuantity(getProductByClothingSalesDtoList);
-
-            return new GetProductListByClothingSales(getProductByClothingSalesDtoList, boxCollect.getBoxQuantity(), productQuantity.preparingQuantity(), productQuantity.rejectedQuantity());
-        }
-
-        throw new CustomException(INVALID_CLOTHING_SALES);
-
+        List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList = productRepository.findProductDtoByClothingSalesId(clothingSalesId);
+        ProductQuantityCounter productQuantityCounter = countProductQuantity(getProductByClothingSalesDtoList);
+        return new GetProductListByClothingSales(getProductByClothingSalesDtoList, clothingSales.getQuantity(), productQuantityCounter.preparingQuantity(), productQuantityCounter.rejectedQuantity());
     }
 
     private ProductQuantityCounter countProductQuantity(List<GetProductByClothingSalesDto> getProductByClothingSalesDtoList) {
@@ -333,26 +170,21 @@ public class ClothingSalesService {
 
     // Admin API
     public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
-        List<GetClothingSales> clothingSalesList = new ArrayList<>(bagInitRepository.findAll().stream()
-                .map(bagInit -> {
-                    List<Product> products = productService.findByClothingSales(bagInit.getUser().getId(), bagInit.getClothingSalesCount());
+        // TODO: 리픽백 요청 추가?
+        List<GetClothingSales> clothingSalesList = new ArrayList<>(clothingSalesRepository.findAll().stream()
+                .map(clothingSales -> {
+                    ClothingSalesStateType clothingSalesStateType = clothingSalesStateRepository.findFirstByClothingSalesIdOrderByCreatedDateDesc(clothingSales.getId())
+                            .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID))
+                            .getClothingSalesStateType();
+                    List<Product> products = clothingSales.getProductList();
                     List<ProductState> productStates = products.stream()
                             .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
                             .flatMap(Optional::stream)
                             .toList();
-                    return GetClothingSales.of(bagInit, products, productStates);
+                    return GetClothingSales.of(clothingSales, clothingSales instanceof BoxCollect, clothingSalesStateType, productStates);
                 })
                 .toList());
-        clothingSalesList.addAll(boxCollectRepository.findAll().stream()
-                .map(boxCollect -> {
-                    List<Product> products = productService.findByClothingSales(boxCollect.getUser().getId(), boxCollect.getClothingSalesCount());
-                    List<ProductState> productStates = products.stream()
-                            .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
-                            .flatMap(Optional::stream)
-                            .toList();
-                    return GetClothingSales.of(boxCollect, products, productStates);
-                })
-                .toList());
+
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
 
@@ -368,74 +200,49 @@ public class ClothingSalesService {
 
     @Transactional
     public Boolean updateClothingSalesState(PostClothingSalesState postClothingSalesState) {
-        ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState());
-        if (postClothingSalesState.isBoxCollect()) {
-            // Admin 용 상태 관리
-            BoxCollect boxCollect = boxCollectRepository.findByUserIdAndClothingSalesCount(postClothingSalesState.userId(), postClothingSalesState.clothingSalesCount())
-                    .orElseThrow(() -> new CustomException(INVALID_BOX_COLLECT_ID));
-            boxCollect.updateClothingSalesState(clothingSalesStateType);
+        if (postClothingSalesState.isBagDelivered()){
+            ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesState.id())
+                    .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
 
-            // User 용 상태 관리
-            BoxCollectStateType boxCollectStateType = BoxCollectStateType.fromClothingSalesStateType(clothingSalesStateType);
-            if (boxCollectStateType != null) {
-                BoxCollectState boxCollectState = BoxCollectState.of(boxCollectStateType, boxCollect);
-                boxCollectStateRepository.save(boxCollectState);
-            }
-        } else {
-            // Admin 용 상태 관리
-            BagInit bagInit = bagInitRepository.findByUserIdAndClothingSalesCount(postClothingSalesState.userId(), postClothingSalesState.clothingSalesCount())
+            ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromAdminValue(postClothingSalesState.clothingSalesState());
+            ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), clothingSalesStateType);
+            clothingSalesStateRepository.save(clothingSalesState);
+
+            clothingSales.updateClothingSalesState(clothingSalesStateType);
+            clothingSalesRepository.save(clothingSales);
+
+        }
+        else{
+            BagInit bagInit = bagInitRepository.findById(postClothingSalesState.id())
                     .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-            bagInit.updateClothingSalesState(ClothingSalesStateType.fromValue(postClothingSalesState.clothingSalesState()));
+            BagInitState.of(BagInitStateType.fromAdminValue(postClothingSalesState.clothingSalesState()), bagInit);
+            bagInitRepository.save(bagInit);
 
-            // User 용 상태 관리
-            if (postClothingSalesState.isBagDelivered()) {
-                BagCollect bagCollect = bagInit.getBagCollect();
-                BagCollectStateType bagCollectStateType = BagCollectStateType.fromClothingSalesStateType(clothingSalesStateType);
-                if (bagCollectStateType != null) {
-                    BagCollectState bagCollectState = BagCollectState.of(bagCollectStateType, bagCollect);
-                    bagCollectStateRepository.save(bagCollectState);
-                }
-            } else {
-                BagInitState bagInitState = BagInitState.of(BagInitStateType.fromClothingSalesStateType(clothingSalesStateType), bagInit);
-                bagInitStateRepository.save(bagInitState);
-            }
         }
         return true;
     }
 
+    @Transactional
     public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(PageCondition pageCondition) {
         Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable());
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
 
     }
 
-    public Boolean updateClothingSalesWeight(PostClothingSalesWeight postClothingSalesWeight) {
-
-        if (postClothingSalesWeight.isBoxCollect()) {
-            boxCollectRepository.findByUserIdAndClothingSalesCount(postClothingSalesWeight.userId(), postClothingSalesWeight.clothingSalesCount())
-                    .ifPresent(boxCollect -> {
-                        boxCollect.updateWeight(postClothingSalesWeight.weight());
-                        boxCollectRepository.save(boxCollect);
-                    });
-        }
-        else {
-            bagInitRepository.findByUserIdAndClothingSalesCount(postClothingSalesWeight.userId(), postClothingSalesWeight.clothingSalesCount())
-                    .ifPresent(bagInit -> {
-                        bagInit.updateWeight(postClothingSalesWeight.weight());
-                        bagInitRepository.save(bagInit);
-                    });
-        }
-
-        return true;
+    public void updateClothingSalesWeight(PostClothingSalesWeight postClothingSalesWeight) {
+        ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesWeight.clothingSalesId())
+                .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
+        clothingSales.updateWeight(postClothingSalesWeight.weight());
+        clothingSalesRepository.save(clothingSales);
     }
 
-    public PageResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, PageCondition pageCondition) {
+    public PageResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, PageCondition pageCondition) {
         Page<GetClothingSalesProduct> pages;
         if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
-            pages = productRepository.getClothingSalesPendingProduct(userId, clothingSalesCount, productStateType, pageCondition.toPageable());
+            pages = productRepository.getClothingSalesPendingProduct(clothingSalesId, productStateType, pageCondition.toPageable());
         }
         else {
-            pages = productRepository.getClothingSalesCancelledProduct(userId, clothingSalesCount, productStateType, pageCondition.toPageable());
+            pages = productRepository.getClothingSalesCancelledProduct(clothingSalesId, productStateType, pageCondition.toPageable());
         }
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }

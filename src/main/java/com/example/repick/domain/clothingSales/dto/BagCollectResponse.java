@@ -9,13 +9,13 @@ public record BagCollectResponse(
         @Schema(description = "의류 사진 url", example = "https://repick.s3.ap-northeast-2.amazonaws.com/repick/2021/09/15/1631690136_1.jpg") String imageUrl,
         @Schema(description = "백 수량", example = "3") Integer bagQuantity,
         Address address,
-        @Schema(description = "백 상태", example = "대기중") String bagInitState
+        @Schema(description = "백 상태", example = "신청 완료") String bagCollectState
 ) {
     public static BagCollectResponse of(BagCollect bagCollect, String bagCollectStateType) {
         return new BagCollectResponse(
                 bagCollect.getId(),
                 bagCollect.getImageUrl(),
-                bagCollect.getBagQuantity(),
+                bagCollect.getQuantity(),
                 bagCollect.getAddress(),
                 bagCollectStateType
         );

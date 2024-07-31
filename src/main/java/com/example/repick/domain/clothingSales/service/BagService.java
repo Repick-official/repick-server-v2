@@ -17,8 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
 
 @Service @RequiredArgsConstructor
@@ -28,33 +26,24 @@ public class BagService {
     private final BagInitRepository bagInitRepository;
     private final BagInitStateRepository bagInitStateRepository;
     private final BagCollectRepository bagCollectRepository;
-    private final BagCollectStateRepository bagCollectStateRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final S3UploadService s3UploadService;
-    private final BoxCollectRepository boxCollectRepository;
+    private final ClothingSalesRepository clothingSalesRepository;
+    private final ClothingSalesStateRepository clothingSalesStateRepository;
 
     @Transactional
     public BagInitResponse registerBagInit(PostBagInit postBagInit) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-
-        // Count the number of the clothingSalesCount of the user
-        Integer bagInitCount = bagInitRepository.countByUserId(user.getId());
-        Integer boxCollectCount = boxCollectRepository.countByUserId(user.getId());
-
         // BagInit
-        BagInit bagInit = postBagInit.toEntity(user, bagInitCount + boxCollectCount + 1);
-
-        bagInit.updateImageUrl(s3UploadService.saveFile(postBagInit.image(), "clothingSales/bagInit/" + user.getId() + "/" + bagInit.getId()));
-
+        BagInit bagInit = postBagInit.toEntity(user);
         bagInitRepository.save(bagInit);
 
         // BagInitState
         BagInitState bagInitState = BagInitState.of(BagInitStateType.PENDING, bagInit);
         bagInitStateRepository.save(bagInitState);
 
-        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getValue());
+        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getSellerValue());
 
     }
 
@@ -66,34 +55,27 @@ public class BagService {
         BagInit bagInit = bagInitRepository.findById(postBagCollect.bagInitId())
                 .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
 
+        if(!bagInit.getUser().getId().equals(user.getId())) {
+            throw new CustomException(INVALID_BAG_INIT_ID);
+        }
+
         // 만약 bagInit의 state에 배송완료가 없다면 자동으로 추가한다.
         if (!bagInitStateRepository.existsByBagInitIdAndBagInitStateType(bagInit.getId(), BagInitStateType.DELIVERED)) {
             BagInitState bagInitState = BagInitState.of(BagInitStateType.DELIVERED, bagInit);
             bagInitStateRepository.save(bagInitState);
         }
 
-        // Validations
-        clothingSalesValidator.userBagInitMatches(user.getId(), bagInit);
-        clothingSalesValidator.duplicateBagCollectExists(bagInit.getId());
-
         // BagCollect
-        BagCollect bagCollect = postBagCollect.toEntity(bagInit, user);
-
+        BagCollect bagCollect = postBagCollect.toEntity(bagInit, user, clothingSalesRepository.countByUser(user));
         bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
-
         bagCollectRepository.save(bagCollect);
 
         // BagCollectState
-        BagCollectState bagCollectState = BagCollectState.of(BagCollectStateType.PENDING, bagCollect);
-        bagCollectStateRepository.save(bagCollectState);
-        bagInit.updateClothingSalesState(ClothingSalesStateType.BAG_COLLECT_REQUEST);
+        ClothingSalesState clothingSalesState = ClothingSalesState.of(bagCollect.getId(), ClothingSalesStateType.BAG_COLLECT_REQUEST);
+        clothingSalesStateRepository.save(clothingSalesState);
 
-        return BagCollectResponse.of(bagCollect, bagCollectState.getBagCollectStateType().getValue());
+        return BagCollectResponse.of(bagCollect, clothingSalesState.getClothingSalesStateType().getSellerValue());
 
-    }
-
-    public List<BagInit> getBagInitByUser(Long userId) {
-        return bagInitRepository.findByUserId(userId);
     }
 
 }

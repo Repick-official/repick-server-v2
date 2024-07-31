@@ -21,12 +21,12 @@ public record PostBoxCollect (
     public BoxCollect toEntity(User user, Integer clothingSalesCount) {
         return BoxCollect.builder()
                 .user(user)
-                .boxQuantity(boxQuantity)
+                .quantity(boxQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
                 .collectionDate(LocalDate.parse(collectionDate))
-                .clothingSalesState(ClothingSalesStateType.BOX_REQUEST)
                 .clothingSalesCount(clothingSalesCount)
                 .point(0L)
+                .clothingSalesState(ClothingSalesStateType.BOX_COLLECT_REQUEST)
                 .build();
     }
 }

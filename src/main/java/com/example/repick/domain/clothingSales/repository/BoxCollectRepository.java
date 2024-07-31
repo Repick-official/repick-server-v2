@@ -9,7 +9,5 @@ import java.util.Optional;
 public interface BoxCollectRepository extends JpaRepository<BoxCollect, Long> {
     List<BoxCollect> findByUserId(Long userId);
 
-    Integer countByUserId(Long userId);
-
     Optional<BoxCollect> findByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
 }

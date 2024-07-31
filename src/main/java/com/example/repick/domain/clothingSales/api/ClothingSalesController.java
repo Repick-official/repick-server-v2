@@ -92,9 +92,9 @@ public class ClothingSalesController {
             - requestedQuantity: 신청한 의류 수량
             - productQuantity: 판매 가능한 의류 수량
             """)
-    @GetMapping("/products/{clothingSalesCount}")
-    public SuccessResponse<GetProductListByClothingSales> getProductsByClothingSalesCount(@PathVariable Integer clothingSalesCount) {
-        return SuccessResponse.success(clothingSalesService.getProductsByClothingSalesCount(clothingSalesCount));
+    @GetMapping("/products/{clothingSalesId}")
+    public SuccessResponse<GetProductListByClothingSales> getProductsByClothingSalesId(@PathVariable Long clothingSalesId) {
+        return SuccessResponse.success(clothingSalesService.getProductsByClothingSalesId(clothingSalesId));
     }
 
     @Operation(summary = "상품 가격 입력하기", description = """
@@ -136,18 +136,18 @@ public class ClothingSalesController {
     }
 
     @Operation(summary = "유저 상품 현황")
-    @GetMapping("/products/{userId}/{clothingSalesCount}/{productStateType}")
-    public SuccessResponse<PageResponse<List<GetClothingSalesProduct>>> getClothingSalesProduct(@PathVariable Long userId,
-                                                                                  @PathVariable Integer clothingSalesCount,
+    @GetMapping("/products/{clothingSalesId}/{productStateType}")
+    public SuccessResponse<PageResponse<List<GetClothingSalesProduct>>> getClothingSalesProduct(@PathVariable Long clothingSalesId,
                                                                                   @PathVariable ProductStateType productStateType,
                                                                                   @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(userId, clothingSalesCount, productStateType, pageCondition));
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(clothingSalesId, productStateType, pageCondition));
     }
 
     @Operation(summary = "옷장 정리 상품 무게 등록")
     @PostMapping("/weight")
     public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PostClothingSalesWeight postClothingSalesWeight) {
-        return SuccessResponse.success(clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight));
+        clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight);
+        return SuccessResponse.success(true);
     }
 
     @Operation(summary = "옷장 정리 유저 정보")

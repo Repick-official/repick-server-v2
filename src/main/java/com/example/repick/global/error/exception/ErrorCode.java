@@ -40,16 +40,17 @@ public enum ErrorCode {
     PRODUCT_STATE_NOT_FOUND(400, "P030", "상품 상태가 존재하지 않습니다."),
     DUPLICATE_PRODUCT_CART(400, "P031", "이미 장바구니에 담긴 상품입니다."),
     // ClothingSales
-    INVALID_CLOTHING_SALES_STATE_NAME(400, "C001", "존재하지 않는 옷장 정리 상태 이름입니다."),
+    INVALID_CLOTHING_SALES_STATE_NAME(400, "C101", "존재하지 않는 옷장 정리 상태 이름입니다."),
+    INVALID_CLOTHING_SALES_ID(404, "C102", "존재하지 않거나 권한이 없는 옷장 정리 ID입니다."),
+    CLOTHING_SALES_NOT_FOUND(404, "C103", "존재하지 않는 옷장 정리입니다."),
+    CLOTHING_SALES_NOT_MATCH_USER(400, "C104", "옷장 정리와 사용자가 일치하지 않습니다."),
     // BagInit
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect
     INVALID_BAG_COLLECT_ID(400, "B101", "존재하지 않는 백 수거 ID입니다."),
-    BAG_INIT_NOT_MATCH_USER(400, "B102", "백 요청 ID와 사용자 ID가 일치하지 않습니다."),
     BAG_COLLECT_DUPLICANT(400, "B103", "이미 수거된 백입니다."),
     // BoxCollect
     INVALID_BOX_COLLECT_ID(400, "B201", "존재하지 않는 박스 수거 ID입니다."),
-    BOX_COLLECT_NOT_MATCH_USER(400, "B202", "박스 수거 ID와 사용자 ID가 일치하지 않습니다."),
     // BagInitStateType
     INVALID_BAG_INIT_STATUS_ID(400, "B301", "존재하지 않는 백 요청 상태 ID입니다."),
     INVALID_BAG_INIT_STATUS_NAME(400, "B302", "존재하지 않는 백 요청 상태 이름입니다."),
@@ -59,8 +60,6 @@ public enum ErrorCode {
     // BoxCollectStateType
     INVALID_BOX_COLLECT_STATUS_ID(400, "B501", "존재하지 않는 박스 수거 상태 ID입니다."),
     INVALID_BOX_COLLECT_STATUS_NAME(400, "B502", "존재하지 않는 박스 수거 상태 이름입니다."),
-    // ClothingSales
-    INVALID_CLOTHING_SALES(400, "B601", "존재하지 않는 수거 요청입니다."),
     // ProductSellingState
     INVALID_SELLING_STATE_ID(400, "P031", "존재하지 않는 판매 상태 ID입니다."),
     INVALID_SELLING_STATE_NAME(400, "P042", "존재하지 않는 판매 상태 이름입니다."),

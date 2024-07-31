@@ -31,28 +31,4 @@ public class ProductValidator {
         }
     }
 
-    public void validateClothingSales(Integer clothingSalesCount, Long userId) {
-        Optional<BagInit> bagInitOptional = bagInitRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount);
-
-        bagInitOptional.ifPresentOrElse(bagInit -> validateBagInit(bagInit, userId), () -> {
-            Optional<BoxCollect> boxCollectOptional = boxCollectRepository.findByUserIdAndClothingSalesCount(userId, clothingSalesCount);
-
-            boxCollectOptional.ifPresentOrElse(boxCollect -> validateBoxCollect(boxCollect, userId), () -> {
-                throw new CustomException(INVALID_CLOTHING_SALES);
-            });
-        });
-    }
-
-    private void validateBagInit(BagInit bagInit, Long userId) {
-        if (!Objects.equals(bagInit.getUser().getId(), userId)) {
-            throw new CustomException(BAG_INIT_NOT_MATCH_USER);
-        }
-    }
-
-    private void validateBoxCollect(BoxCollect boxCollect, Long userId) {
-        if (!Objects.equals(boxCollect.getUser().getId(), userId)) {
-            throw new CustomException(BOX_COLLECT_NOT_MATCH_USER);
-        }
-    }
-
 }
