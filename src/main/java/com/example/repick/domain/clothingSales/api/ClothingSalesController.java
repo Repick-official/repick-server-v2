@@ -144,9 +144,9 @@ public class ClothingSalesController {
     }
 
     @Operation(summary = "옷장 정리 상품 무게 등록")
-    @PostMapping("/weight")
-    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PostClothingSalesWeight postClothingSalesWeight) {
-        clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight);
+    @PatchMapping("/weight")
+    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PatchClothingSalesWeight patchClothingSalesWeight) {
+        clothingSalesService.updateClothingSalesWeight(patchClothingSalesWeight);
         return SuccessResponse.success(true);
     }
 

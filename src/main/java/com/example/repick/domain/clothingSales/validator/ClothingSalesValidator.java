@@ -1,9 +1,5 @@
 package com.example.repick.domain.clothingSales.validator;
 
-import com.example.repick.domain.clothingSales.entity.BagInit;
-import com.example.repick.domain.clothingSales.entity.BoxCollect;
-import com.example.repick.domain.clothingSales.entity.ClothingSales;
-import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
@@ -20,8 +16,6 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 
 @Service @RequiredArgsConstructor
 public class ClothingSalesValidator {
-
-    private final BagCollectRepository bagCollectRepository;
     private final ProductStateRepository productSellingStateRepository;
 
     public void productUserMatches(Product product, User user) {

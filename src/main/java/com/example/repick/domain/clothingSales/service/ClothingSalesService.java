@@ -18,7 +18,6 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -229,10 +227,10 @@ public class ClothingSalesService {
 
     }
 
-    public void updateClothingSalesWeight(PostClothingSalesWeight postClothingSalesWeight) {
-        ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesWeight.clothingSalesId())
+    public void updateClothingSalesWeight(PatchClothingSalesWeight patchClothingSalesWeight) {
+        ClothingSales clothingSales = clothingSalesRepository.findById(patchClothingSalesWeight.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
-        clothingSales.updateWeight(postClothingSalesWeight.weight());
+        clothingSales.updateWeight(patchClothingSalesWeight.weight());
         clothingSalesRepository.save(clothingSales);
     }
 

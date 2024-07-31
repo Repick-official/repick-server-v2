@@ -48,7 +48,6 @@ public enum ErrorCode {
     INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect
     INVALID_BAG_COLLECT_ID(400, "B101", "존재하지 않는 백 수거 ID입니다."),
-    BAG_COLLECT_DUPLICANT(400, "B103", "이미 수거된 백입니다."),
     // BoxCollect
     INVALID_BOX_COLLECT_ID(400, "B201", "존재하지 않는 박스 수거 ID입니다."),
     // BagInitStateType

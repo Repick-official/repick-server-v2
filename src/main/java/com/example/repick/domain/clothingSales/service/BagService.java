@@ -26,7 +26,6 @@ public class BagService {
     private final BagInitRepository bagInitRepository;
     private final BagInitStateRepository bagInitStateRepository;
     private final BagCollectRepository bagCollectRepository;
-    private final ClothingSalesValidator clothingSalesValidator;
     private final S3UploadService s3UploadService;
     private final ClothingSalesRepository clothingSalesRepository;
     private final ClothingSalesStateRepository clothingSalesStateRepository;

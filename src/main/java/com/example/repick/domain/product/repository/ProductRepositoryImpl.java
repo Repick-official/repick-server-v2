@@ -24,8 +24,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.repick.domain.clothingSales.entity.QBagInit.bagInit;
-import static com.example.repick.domain.clothingSales.entity.QBoxCollect.boxCollect;
 import static com.example.repick.domain.clothingSales.entity.QClothingSales.clothingSales;
 import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;

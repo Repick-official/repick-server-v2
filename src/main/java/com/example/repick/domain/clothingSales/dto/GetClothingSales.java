@@ -1,10 +1,7 @@
 package com.example.repick.domain.clothingSales.dto;
 
-import com.example.repick.domain.clothingSales.entity.BagInit;
-import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
-import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
 import io.swagger.v3.oas.annotations.media.Schema;
