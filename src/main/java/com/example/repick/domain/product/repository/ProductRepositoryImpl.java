@@ -401,7 +401,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.REJECTED).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
-                        clothingSales.weight.sum(),
+                        clothingSales.weight,
                         clothingSales.createdDate
                 ))
                 .from(product)
