@@ -327,14 +327,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(productState).on(product.id.eq(productState.productId))
                 .where(product.clothingSales.id.eq(clothingSalesId)
                         .and(product.isDeleted.isFalse())
-                        .and(JPAExpressions
-                                .select(productState.id.max())
-                                .from(productState)
-                                .where(productState.productId.eq(product.id))
-                                .groupBy(productState.productId)
-                                .eq(productState.id))
-                        .and(productState.productStateType.eq(ProductStateType.PREPARING))
-                                .or(productState.productStateType.eq(ProductStateType.REJECTED)))
+                        .and(product.productState.eq(ProductStateType.PREPARING).or(product.productState.eq(ProductStateType.REJECTED))))
                 .distinct()
                 .fetch();
     }
