@@ -42,7 +42,7 @@ public interface ProductRepositoryCustom {
 
     Page<GetProductCart> findCartedProducts(Long userId, Pageable pageable);
 
-    List<GetProductByClothingSalesDto> findProductDtoByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount);
+    List<GetProductByClothingSalesDto> findProductDtoByClothingSalesId(long clothingSalesId);
 
     List<Product> findByProductSellingStateType(ProductStateType productStateType);
 
@@ -52,7 +52,7 @@ public interface ProductRepositoryCustom {
 
     Page<GetClothingSalesProductCount> getClothingSalesProductCount(Pageable pageable);
 
-    Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable);
+    Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 
-    Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable);
+    Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 }

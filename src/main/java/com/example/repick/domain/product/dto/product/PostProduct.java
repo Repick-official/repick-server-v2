@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.dto.product;
 
+import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,18 +27,20 @@ public record PostProduct (
         @Schema(description = "상품 소재 목록") List<String> materials
         ) {
 
-    public Product toRejectedProduct(User user) {
+    public Product toRejectedProduct(User user, ClothingSales clothingSales) {
         return Product.builder()
                 .user(user)
+                .clothingSales(clothingSales)
                 .clothingSalesCount(this.clothingSalesCount())
                 .productCode(this.productCode())
                 .productState(ProductStateType.REJECTED)
                 .build();
     }
 
-    public Product toProduct(User user, String size) {
+    public Product toProduct(User user, ClothingSales clothingSales, String size) {
         return Product.builder()
                 .user(user)
+                .clothingSales(clothingSales)
                 .clothingSalesCount(this.clothingSalesCount())
                 .productCode(this.productCode())
                 .productName(this.productName())

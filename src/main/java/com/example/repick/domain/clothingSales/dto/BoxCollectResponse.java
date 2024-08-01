@@ -15,7 +15,7 @@ public record BoxCollectResponse(
         return new BoxCollectResponse(
                 boxCollect.getId(),
                 boxCollect.getImageUrl(),
-                boxCollect.getBoxQuantity(),
+                boxCollect.getQuantity(),
                 boxCollect.getAddress(),
                 boxCollectStateType
         );

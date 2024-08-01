@@ -1,7 +1,6 @@
 package com.example.repick.domain.clothingSales.dto;
 
 import com.example.repick.domain.clothingSales.entity.BagInit;
-import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,14 +15,11 @@ public record PostBagInit(
 
 ) {
 
-    public BagInit toEntity(User user, Integer clothingSalesCount) {
+    public BagInit toEntity(User user) {
         return BagInit.builder()
                 .user(user)
                 .bagQuantity(bagQuantity)
                 .address(new Address(postalCode, mainAddress, detailAddress))
-                .clothingSalesState(ClothingSalesStateType.BAG_REQUEST)
-                .clothingSalesCount(clothingSalesCount)
-                .point(0L)
                 .build();
     }
 

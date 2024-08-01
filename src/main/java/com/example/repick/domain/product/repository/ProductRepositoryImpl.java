@@ -24,8 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.repick.domain.clothingSales.entity.QBagInit.bagInit;
-import static com.example.repick.domain.clothingSales.entity.QBoxCollect.boxCollect;
+import static com.example.repick.domain.clothingSales.entity.QClothingSales.clothingSales;
 import static com.example.repick.domain.product.entity.QProduct.product;
 import static com.example.repick.domain.product.entity.QProductCart.productCart;
 import static com.example.repick.domain.product.entity.QProductCategory.productCategory;
@@ -311,7 +310,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<GetProductByClothingSalesDto> findProductDtoByUserIdAndClothingSalesCount(Long userId, Integer clothingSalesCount) {
+    public List<GetProductByClothingSalesDto> findProductDtoByClothingSalesId(long clothingSalesId) {
         return jpaQueryFactory
                 .select(Projections.constructor(GetProductByClothingSalesDto.class,
                         product.id,
@@ -325,7 +324,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.discountRate,
                         product.predictPriceDiscountRate))
                 .from(product)
-                .where(product.clothingSalesCount.eq(clothingSalesCount)
+                .leftJoin(productState).on(product.id.eq(productState.productId))
+                .where(product.clothingSales.id.eq(clothingSalesId)
                         .and(product.isDeleted.isFalse())
                         .and(product.productState.eq(ProductStateType.PREPARING).or(product.productState.eq(ProductStateType.REJECTED))))
                 .distinct()
@@ -388,20 +388,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
                         product.user.nickname,
                         product.user.id,
-                        bagInit.clothingSalesCount.coalesce(boxCollect.clothingSalesCount),
+                        clothingSales.clothingSalesCount,
                         product.count().intValue(),
                         product.productState.when(ProductStateType.SELLING).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SOLD_OUT).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.REJECTED).then(1).otherwise(0).sum(),
                         product.productState.when(ProductStateType.SELLING_END).then(1).otherwise(0).sum(),
-                        bagInit.weight.coalesce(boxCollect.weight).max(),
-                        bagInit.createdDate.coalesce(boxCollect.createdDate).max()
+                        clothingSales.weight,
+                        clothingSales.createdDate
                 ))
                 .from(product)
-                .leftJoin(bagInit).on(product.user.id.eq(bagInit.user.id).and(product.clothingSalesCount.eq(bagInit.clothingSalesCount)))
-                .leftJoin(boxCollect).on(product.user.id.eq(boxCollect.user.id).and(product.clothingSalesCount.eq(boxCollect.clothingSalesCount)))
+                .leftJoin(clothingSales).on(product.clothingSales.id.eq(clothingSales.id))
                 .groupBy(product.user.id, product.clothingSalesCount)
-                .orderBy(bagInit.createdDate.coalesce(boxCollect.createdDate).max().desc());
+                .orderBy(clothingSales.createdDate.max().desc());
 
         long total = query.stream().count();
         List<GetClothingSalesProductCount> content = query
@@ -413,12 +412,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
-                .where(product.user.id.eq(userId)
-                        .and(product.clothingSalesCount.eq(clothingSalesCount)
-                        .and(product.productState.eq(productStateType))));
+                .where(product.clothingSales.id.eq(clothingSalesId)
+                        .and(product.productState.eq(productStateType)));
         long total = products.stream().count();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
         List<GetClothingSalesProduct> contents = products
@@ -448,12 +446,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long userId, Integer clothingSalesCount, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
-                .where(product.user.id.eq(userId)
-                        .and(product.clothingSalesCount.eq(clothingSalesCount)
-                        .and(product.productState.eq(productStateType))));
+                .where(product.clothingSales.id.eq(clothingSalesId)
+                        .and(product.productState.eq(productStateType)));
         long total = products.stream().count();
         // TODO: Mock data 제거 및 반송 기능 구현
         List<GetClothingSalesProduct> contents = products
@@ -475,7 +472,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .collect(Collectors.toList());
         return new PageImpl<>(contents, pageable, total);
     }
-
 
     private BooleanExpression notExistsUserPreferenceProduct(Long userId) {
 

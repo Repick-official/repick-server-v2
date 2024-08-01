@@ -25,7 +25,7 @@ public class ClothingSalesController {
 
     @Operation(summary = "백 초기 요청", description = """
             백 초기 요청을 합니다.
-            백 초기 요청 등록 시 '대기중' 상태로 등록됩니다.
+            백 초기 요청 등록 시 '신청 완료' 상태로 등록됩니다.
             
             MediaType: multipart/form-data
             """)
@@ -36,7 +36,7 @@ public class ClothingSalesController {
 
     @Operation(summary = "백 수거 요청", description = """
             백 수거 요청을 합니다.
-            백 수거 요청 등록 시 '대기중' 상태로 등록됩니다.
+            백 수거 요청 등록 시 '신청 완료' 상태로 등록됩니다.
             
             MediaType: multipart/form-data
             """)
@@ -47,8 +47,8 @@ public class ClothingSalesController {
 
     @Operation(summary = "박스 수거 요청", description = """
             박스 수거 요청을 합니다.
-            박스 수거 요청 등록 시 '대기중' 상태로 등록됩니다.
-            
+            박스 수거 요청 등록 시 '신청 완료' 상태로 등록됩니다.
+           
             MediaType: multipart/form-data
             """)
     @PostMapping(value = "/box/collection", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -58,28 +58,14 @@ public class ClothingSalesController {
 
     @Operation(summary = "옷장 정리 통합 조회: 진행 중인 수거", description = """
             옷장 정리 통합 조회: 진행 중인 수거, 신청 완료일 순으로 정렬되어 리스트로 반환합니다.
-            - id: 수거 ID, '백 수거 요청' 시 '백 요청 ID'를 조회하기 위해 사용됩니다.
-            - clothingSalesCount: 수거 회차(각각의 유저에 대해 고유한 값입니다).
-            - type: 박스/백
-            - requestDate: 신청 완료일
-            - bagArriveDate: 백 도착일 (박스의 경우 항상 null)
-            - collectDate: 수거 완료일
-            - productDate: 상품화 완료일
             """)
     @GetMapping("/pending")
     public SuccessResponse<List<GetPendingClothingSales>> getPendingClothingSales() {
-        return SuccessResponse.createSuccess(clothingSalesService.getPendingClothingSales());
+        return SuccessResponse.success(clothingSalesService.getPendingClothingSales());
     }
 
     @Operation(summary = "옷장 정리 통합 조회: 판매 중인 옷장", description = """
-            옷장 정리 통합 조회: 판매 중인 옷장, 신청 완료일 순으로 정렬되어 리스트로 반환합니다.
-            - id: 수거 ID
-            - clothingSalesCount: 수거 회차(각각의 유저에 대해 고유한 값입니다).
-            - clothingSalesPeriod: 신청 완료일 ~ 판매 진행 시작일
-            - sellingQuantity: 판매 중인 의류 수량
-            - pendingQuantity: 구매 확정 대기 수량
-            - soldQuantity: 판매 완료 수량
-            - totalPoint: 총 포인트
+            옷장 정리 통합 조회: 판매 중인 옷장, 신청 완료일 내림차순으로 정렬되어 리스트로 반환합니다.
             """)
     @GetMapping("/selling")
     public SuccessResponse<List<GetSellingClothingSales>> getSellingClothingSales() {
@@ -92,9 +78,9 @@ public class ClothingSalesController {
             - requestedQuantity: 신청한 의류 수량
             - productQuantity: 판매 가능한 의류 수량
             """)
-    @GetMapping("/products/{clothingSalesCount}")
-    public SuccessResponse<GetProductListByClothingSales> getProductsByClothingSalesCount(@PathVariable Integer clothingSalesCount) {
-        return SuccessResponse.success(clothingSalesService.getProductsByClothingSalesCount(clothingSalesCount));
+    @GetMapping("/products/{clothingSalesId}")
+    public SuccessResponse<GetProductListByClothingSales> getProductsByClothingSalesId(@PathVariable Long clothingSalesId) {
+        return SuccessResponse.success(clothingSalesService.getProductsByClothingSalesId(clothingSalesId));
     }
 
     @Operation(summary = "상품 가격 입력하기", description = """
@@ -108,7 +94,7 @@ public class ClothingSalesController {
             """)
     @PatchMapping("/products/price")
     public SuccessResponse<Boolean> updateProductPrice(@RequestBody List<PostProductPrice> postProductPriceList) {
-        return SuccessResponse.createSuccess(clothingSalesService.updateProductPrice(postProductPriceList));
+        return SuccessResponse.success(clothingSalesService.updateProductPrice(postProductPriceList));
     }
 
     // TODO: ADMIN ACCESS
@@ -136,24 +122,24 @@ public class ClothingSalesController {
     }
 
     @Operation(summary = "유저 상품 현황")
-    @GetMapping("/products/{userId}/{clothingSalesCount}/{productStateType}")
-    public SuccessResponse<PageResponse<List<GetClothingSalesProduct>>> getClothingSalesProduct(@PathVariable Long userId,
-                                                                                  @PathVariable Integer clothingSalesCount,
+    @GetMapping("/products/{clothingSalesId}/{productStateType}")
+    public SuccessResponse<PageResponse<List<GetClothingSalesProduct>>> getClothingSalesProduct(@PathVariable Long clothingSalesId,
                                                                                   @PathVariable ProductStateType productStateType,
                                                                                   @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(userId, clothingSalesCount, productStateType, pageCondition));
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(clothingSalesId, productStateType, pageCondition));
     }
 
     @Operation(summary = "옷장 정리 상품 무게 등록")
-    @PostMapping("/weight")
-    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PostClothingSalesWeight postClothingSalesWeight) {
-        return SuccessResponse.success(clothingSalesService.updateClothingSalesWeight(postClothingSalesWeight));
+    @PatchMapping("/weight")
+    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PatchClothingSalesWeight patchClothingSalesWeight) {
+        clothingSalesService.updateClothingSalesWeight(patchClothingSalesWeight);
+        return SuccessResponse.success(true);
     }
 
     @Operation(summary = "옷장 정리 유저 정보")
-    @GetMapping("/{userId}/{clothingSalesCount}")
-    public SuccessResponse<GetClothingSalesUser> getClothingSalesUserInfo(@PathVariable Long userId, @PathVariable Integer clothingSalesCount) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesUser(userId, clothingSalesCount));
+    @GetMapping("/{clothingSalesId}")
+    public SuccessResponse<GetClothingSalesUser> getClothingSalesUserInfo(@PathVariable Long clothingSalesId) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesUser(clothingSalesId));
     }
 
 }
