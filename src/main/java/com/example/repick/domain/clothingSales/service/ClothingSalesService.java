@@ -1,6 +1,5 @@
 package com.example.repick.domain.clothingSales.service;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.*;
 import com.example.repick.domain.clothingSales.repository.*;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -64,14 +62,19 @@ public class ClothingSalesService {
         List<GetPendingClothingSales> pendingClothingSalesList = new ArrayList<>();
         List<ClothingSales> clothingSalesList = clothingSalesRepository.findByUserOrderByCreatedDateDesc(user);
         clothingSalesList.forEach(clothingSales -> {
-            LocalDateTime requestDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), clothingSales instanceof BoxCollect ? ClothingSalesStateType.BOX_COLLECT_REQUEST : ClothingSalesStateType.BAG_COLLECT_REQUEST)
-                    .orElse(null);
-            LocalDateTime collectDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.COLLECTED)
-                    .orElse(null);
-            LocalDateTime shootDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.SHOOTED)
-                    .orElse(null);
-            LocalDateTime productDate = clothingSalesStateRepository.findLatestCreatedDateByClothingSalesIdAndStateType(clothingSales.getId(), ClothingSalesStateType.PRODUCT_REGISTERED)
-                    .orElse(null);
+            List<ClothingSalesState> clothingSalesStateList = clothingSalesStateRepository.findByClothingSalesId(clothingSales.getId());
+            LocalDateTime requestDate = null;
+            LocalDateTime collectDate = null;
+            LocalDateTime shootDate = null;
+            LocalDateTime productDate = null;
+            for (ClothingSalesState clothingSalesState : clothingSalesStateList) {
+                switch (clothingSalesState.getClothingSalesStateType()) {
+                    case BOX_COLLECT_REQUEST, BAG_COLLECT_REQUEST -> requestDate = clothingSalesState.getCreatedDate();
+                    case COLLECTED -> collectDate = clothingSalesState.getCreatedDate();
+                    case SHOOTED -> shootDate = clothingSalesState.getCreatedDate();
+                    case PRODUCT_REGISTERED -> productDate = clothingSalesState.getCreatedDate();
+                }
+            }
             pendingClothingSalesList.add(GetPendingClothingSales.of(clothingSales, requestDate, collectDate, shootDate, productDate));
         });
         return pendingClothingSalesList;
