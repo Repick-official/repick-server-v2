@@ -126,22 +126,18 @@ public class ProductService {
     }
 
     private Product handleRejectedProduct(PostProduct postProduct, User user, List<MultipartFile> images) {
-        System.out.println("ProductService.handleRejectedProduct");
         ClothingSales clothingSales = clothingSalesRepository.findByUserAndClothingSalesCount(user, postProduct.clothingSalesCount())
                 .orElseThrow(() -> new CustomException(CLOTHING_SALES_NOT_FOUND));
         // product
         Product product = productRepository.save(postProduct.toRejectedProduct(user, clothingSales));
 
-        System.out.println("ProductService.handleRejectedProduct2");
         // productImage
         String thumbnailGeneratedUrl = uploadImage(images, product);
         product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
-        System.out.println("ProductService.handleRejectedProduct3");
         // productSellingState
         addProductSellingState(product.getId(), ProductStateType.REJECTED);
 
-        System.out.println("ProductService.handleRejectedProduct4");
         return product;
 
     }
@@ -405,10 +401,6 @@ public class ProductService {
         product.updateDiscountPrice(PriceUtil.calculateDiscountPrice(product.getPrice(), product.getDiscountRate()));
         product.updatePredictDiscountRate(PriceUtil.calculateDiscountRate(product.getPredictPrice(), product.getDiscountPrice()));
         productRepository.save(product);
-    }
-
-    public List<Product> findByClothingSales(Long userId, Integer clothingSalesCount) {
-        return productRepository.findProductByUserIdAndClothingSalesCount(userId, clothingSalesCount);
     }
 
     public List<GetClassificationEach> getProductStyleTypes() {
