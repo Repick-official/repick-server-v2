@@ -61,7 +61,7 @@ public class ClothingSalesController {
             """)
     @GetMapping("/pending")
     public SuccessResponse<List<GetPendingClothingSales>> getPendingClothingSales() {
-        return SuccessResponse.createSuccess(clothingSalesService.getPendingClothingSales());
+        return SuccessResponse.success(clothingSalesService.getPendingClothingSales());
     }
 
     @Operation(summary = "옷장 정리 통합 조회: 판매 중인 옷장", description = """
@@ -94,7 +94,7 @@ public class ClothingSalesController {
             """)
     @PatchMapping("/products/price")
     public SuccessResponse<Boolean> updateProductPrice(@RequestBody List<PostProductPrice> postProductPriceList) {
-        return SuccessResponse.createSuccess(clothingSalesService.updateProductPrice(postProductPriceList));
+        return SuccessResponse.success(clothingSalesService.updateProductPrice(postProductPriceList));
     }
 
     // TODO: ADMIN ACCESS

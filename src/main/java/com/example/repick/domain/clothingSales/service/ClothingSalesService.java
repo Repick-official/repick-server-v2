@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -117,8 +118,11 @@ public class ClothingSalesService {
 
         for (ClothingSales clothingSales : clothingSalesList) {
             List<Product> productList = clothingSales.getProductList();
+            if(productList.isEmpty()) {
+                continue;
+            }
             LocalDateTime salesStartDate = productList.get(0).getSalesStartDate();
-            int remainingSalesDays = Period.between(LocalDate.now(), salesStartDate.toLocalDate().plusDays(90)).getDays();
+            int remainingSalesDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), salesStartDate.toLocalDate().plusDays(90));
             int sellingQuantity = 0;
             int pendingQuantity = 0;
             int soldQuantity = 0;

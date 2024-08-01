@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.service;
 
+import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
@@ -93,17 +94,16 @@ public class ProductService {
         User user = userRepository.findById(postProduct.userId())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        // validate clothing sales info
-        if(clothingSalesRepository.findByUserAndClothingSalesCount(user, postProduct.clothingSalesCount()).isEmpty()) {
-            throw new CustomException(CLOTHING_SALES_NOT_FOUND);
-        }
+        // get clothingSales
+        ClothingSales clothingSales = clothingSalesRepository.findByUserAndClothingSalesCount(user, postProduct.clothingSalesCount())
+                .orElseThrow(() -> new CustomException(CLOTHING_SALES_NOT_FOUND));
 
         // handle rejected product
         if (postProduct.isRejected()) return ProductResponse.fromRejectedProduct(handleRejectedProduct(postProduct, user, images));
 
         // product
         String size  = convertSizeInfo(Category.fromName(postProduct.categories().get(0)), postProduct.sizeInfo());
-        Product product = productRepository.save(postProduct.toProduct(user, size));
+        Product product = productRepository.save(postProduct.toProduct(user, clothingSales, size));
 
         // productImage
         String thumbnailGeneratedUrl = uploadImage(images, product);
@@ -127,8 +127,10 @@ public class ProductService {
 
     private Product handleRejectedProduct(PostProduct postProduct, User user, List<MultipartFile> images) {
         System.out.println("ProductService.handleRejectedProduct");
+        ClothingSales clothingSales = clothingSalesRepository.findByUserAndClothingSalesCount(user, postProduct.clothingSalesCount())
+                .orElseThrow(() -> new CustomException(CLOTHING_SALES_NOT_FOUND));
         // product
-        Product product = productRepository.save(postProduct.toRejectedProduct(user));
+        Product product = productRepository.save(postProduct.toRejectedProduct(user, clothingSales));
 
         System.out.println("ProductService.handleRejectedProduct2");
         // productImage

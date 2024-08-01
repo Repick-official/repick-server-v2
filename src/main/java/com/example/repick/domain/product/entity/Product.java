@@ -63,6 +63,7 @@ public class Product extends BaseEntity {
     @Builder
     public Product(
             User user,
+            ClothingSales clothingSales,
             Integer clothingSalesCount,
             String productCode,
             String productName,
@@ -81,6 +82,7 @@ public class Product extends BaseEntity {
             Gender gender,
             ProductStateType productState) {
         this.user = user;
+        this.clothingSales = clothingSales;
         this.clothingSalesCount = clothingSalesCount;
         this.productCode = productCode;
         this.productName = productName;

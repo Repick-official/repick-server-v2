@@ -11,6 +11,7 @@ import java.util.List;
 
 @Builder
 public record GetClothingSales(
+        @Schema(description = "옷장 정리 id (리픽백 배송 요청인 경우 리픽백 배송 요청 id)") Long id,
         @Schema(description = "(백일 경우) 백 배송 여부, true: 백 배송까지 단계 false: 백 수거부터") Boolean isBagDelivered,
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
@@ -36,6 +37,7 @@ public record GetClothingSales(
         boolean isSelling = ClothingSalesStateType.AFTER_SELLING.contains(clothingSalesState);
 
         return GetClothingSales.builder()
+                .id(clothingSales.getId())
                 .isBagDelivered(isBoxCollect? null : true)
                 .code(clothingSales.getUser().getId().toString() + "-" + clothingSales.getClothingSalesCount())
                 .name(clothingSales.getUser().getNickname())
@@ -56,6 +58,7 @@ public record GetClothingSales(
     // 백 배송 요청일 경우
     public static GetClothingSales ofBagInit(BagInit bagInit, BagInitState bagInitState) {
         return GetClothingSales.builder()
+                .id(bagInit.getId())
                 .isBagDelivered(false)
                 .name(bagInit.getUser().getNickname())
                 .status(bagInitState.getBagInitStateType().getAdminValue())
