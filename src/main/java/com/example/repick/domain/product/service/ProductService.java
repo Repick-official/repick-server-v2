@@ -403,10 +403,6 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public List<Product> findByClothingSales(Long userId, Integer clothingSalesCount) {
-        return productRepository.findProductByUserIdAndClothingSalesCount(userId, clothingSalesCount);
-    }
-
     public List<GetClassificationEach> getProductStyleTypes() {
         List<GetClassificationEach> types = new ArrayList<>();
 
