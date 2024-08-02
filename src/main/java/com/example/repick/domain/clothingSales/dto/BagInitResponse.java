@@ -13,7 +13,7 @@ public record BagInitResponse(
     public static BagInitResponse of(BagCollect bagCollect) {
         return new BagInitResponse(
                 bagCollect.getId(),
-                bagCollect.getQuantity(),
+                bagCollect.getBagQuantity(),
                 bagCollect.getInitAddress(),
                 bagCollect.getClothingSalesState().getSellerValue()
         );
