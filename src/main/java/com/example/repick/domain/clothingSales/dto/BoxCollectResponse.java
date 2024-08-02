@@ -11,13 +11,13 @@ public record BoxCollectResponse(
         Address address,
         @Schema(description = "박스 상태", example = "대기중") String boxInitState
 ) {
-    public static BoxCollectResponse of(BoxCollect boxCollect, String boxCollectStateType) {
+    public static BoxCollectResponse of(BoxCollect boxCollect) {
         return new BoxCollectResponse(
                 boxCollect.getId(),
                 boxCollect.getImageUrl(),
                 boxCollect.getQuantity(),
                 boxCollect.getAddress(),
-                boxCollectStateType
+                boxCollect.getClothingSalesState().getSellerValue()
         );
     }
 }

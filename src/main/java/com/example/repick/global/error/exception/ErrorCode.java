@@ -44,8 +44,6 @@ public enum ErrorCode {
     INVALID_CLOTHING_SALES_ID(404, "C102", "존재하지 않거나 권한이 없는 옷장 정리 ID입니다."),
     CLOTHING_SALES_NOT_FOUND(404, "C103", "존재하지 않는 옷장 정리입니다."),
     CLOTHING_SALES_NOT_MATCH_USER(400, "C104", "옷장 정리와 사용자가 일치하지 않습니다."),
-    // BagInit
-    INVALID_BAG_INIT_ID(400, "B001", "존재하지 않는 백 요청 ID입니다."),
     // BagCollect
     INVALID_BAG_COLLECT_ID(400, "B101", "존재하지 않는 백 수거 ID입니다."),
     // BoxCollect
