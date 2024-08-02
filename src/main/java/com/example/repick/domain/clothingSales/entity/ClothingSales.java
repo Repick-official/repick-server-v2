@@ -55,6 +55,7 @@ public abstract class ClothingSales {
     @Column(name = "collection_date")
     private LocalDate collectionDate;
 
+    @Enumerated(EnumType.STRING)
     private ClothingSalesStateType clothingSalesState;
 
     @OneToMany(mappedBy = "clothingSales")

@@ -21,8 +21,6 @@ import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +45,6 @@ public class ClothingSalesService {
     private final ClothingSalesRepository clothingSalesRepository;
     private final ClothingSalesStateRepository clothingSalesStateRepository;
     private final ProductOrderRepository productOrderRepository;
-    private final BagCollectRepository bagCollectRepository;
 
     public void updateSellingExpired(Product product) {
         ClothingSalesState clothingSalesState = ClothingSalesState.of(product.getClothingSales().getId(), ClothingSalesStateType.SELLING_EXPIRED);
@@ -177,30 +174,10 @@ public class ClothingSalesService {
     // Admin API
     public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
         // 수거 신청 정보 조회
-        List<GetClothingSales> clothingSalesList = new ArrayList<>(clothingSalesRepository.findAll().stream()
-                .map(clothingSales -> {
-                    List<Product> products = clothingSales.getProductList();
-                    return GetClothingSales.ofClothingSales(clothingSales, products);
-                })
-                .toList());
-
-        // 리픽백 배송 요청 정보 조회
-        List<GetClothingSales> bagCollectList = bagCollectRepository.findAll().stream()
-                .map(GetClothingSales::ofBagCollect)
-                .toList();
-
-        clothingSalesList.addAll(bagCollectList);
-
-        // createdAt 순서로 내림차순 정렬
-        clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
-
-        // Paging 처리
-        Pageable pageable = pageCondition.toPageable();
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), clothingSalesList.size());
-        List<GetClothingSales> pagedList = clothingSalesList.subList(start, end);
-        PageImpl<GetClothingSales> page = new PageImpl<>(pagedList, pageable, clothingSalesList.size());
-        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
+        Page<ClothingSales> clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+        List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
+                .map(GetClothingSales::of).toList();
+        return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
 
