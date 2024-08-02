@@ -88,4 +88,9 @@ public abstract class ClothingSales {
         this.clothingSalesState = clothingSalesState;
     }
 
+    public void updateBagCollectInfo(Integer bagQuantity, String postalCode, String mainAddress, String detailAddress, String collectionDate) {
+        this.quantity = bagQuantity;
+        this.address = new Address(postalCode, mainAddress, detailAddress);
+        this.collectionDate = LocalDate.parse(collectionDate);
+    }
 }

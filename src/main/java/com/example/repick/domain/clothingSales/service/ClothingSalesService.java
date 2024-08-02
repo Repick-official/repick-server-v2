@@ -1,16 +1,18 @@
 package com.example.repick.domain.clothingSales.service;
 
 import com.example.repick.domain.clothingSales.dto.*;
-import com.example.repick.domain.clothingSales.entity.*;
-import com.example.repick.domain.clothingSales.repository.*;
+import com.example.repick.domain.clothingSales.entity.ClothingSales;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
+import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
+import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
+import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
-import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
-import com.example.repick.domain.product.repository.ProductStateRepository;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
@@ -31,7 +33,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -41,14 +42,12 @@ public class ClothingSalesService {
 
     private final UserRepository userRepository;
     private final ProductService productService;
-    private final BagInitRepository bagInitRepository;
-    private final BagInitStateRepository bagInitStateRepository;
     private final ClothingSalesValidator clothingSalesValidator;
     private final ProductRepository productRepository;
-    private final ProductStateRepository productStateRepository;
     private final ClothingSalesRepository clothingSalesRepository;
     private final ClothingSalesStateRepository clothingSalesStateRepository;
     private final ProductOrderRepository productOrderRepository;
+    private final BagCollectRepository bagCollectRepository;
 
     public void updateSellingExpired(Product product) {
         ClothingSalesState clothingSalesState = ClothingSalesState.of(product.getClothingSales().getId(), ClothingSalesStateType.SELLING_EXPIRED);
@@ -69,7 +68,7 @@ public class ClothingSalesService {
             LocalDateTime productDate = null;
             for (ClothingSalesState clothingSalesState : clothingSalesStateList) {
                 switch (clothingSalesState.getClothingSalesStateType()) {
-                    case BOX_COLLECT_REQUEST, BAG_COLLECT_REQUEST -> requestDate = clothingSalesState.getCreatedDate();
+                    case BOX_COLLECT_REQUEST, BAG_INIT_REQUEST -> requestDate = clothingSalesState.getCreatedDate();
                     case COLLECTED -> collectDate = clothingSalesState.getCreatedDate();
                     case SHOOTED -> shootDate = clothingSalesState.getCreatedDate();
                     case PRODUCT_REGISTERED -> productDate = clothingSalesState.getCreatedDate();
@@ -181,25 +180,16 @@ public class ClothingSalesService {
         List<GetClothingSales> clothingSalesList = new ArrayList<>(clothingSalesRepository.findAll().stream()
                 .map(clothingSales -> {
                     List<Product> products = clothingSales.getProductList();
-                    List<ProductState> productStates = products.stream()
-                            .map(product -> productStateRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId()))
-                            .flatMap(Optional::stream)
-                            .toList();
-                    return GetClothingSales.ofClothingSales(clothingSales, productStates);
+                    return GetClothingSales.ofClothingSales(clothingSales, products);
                 })
                 .toList());
-        System.out.println(clothingSalesList);
+
         // 리픽백 배송 요청 정보 조회
-        List<GetClothingSales> bagInitList = bagInitRepository.findAll().stream()
-                .map(bagInit -> {
-                    BagInitState bagInitState = bagInitStateRepository.findFirstByBagInitOrderByCreatedDateDesc(bagInit)
-                            .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-                    return GetClothingSales.ofBagInit(bagInit, bagInitState);
-                })
+        List<GetClothingSales> bagCollectList = bagCollectRepository.findAll().stream()
+                .map(GetClothingSales::ofBagCollect)
                 .toList();
-        System.out.println(bagInitList);
-        clothingSalesList.addAll(bagInitList);
-        System.out.println(clothingSalesList);
+
+        clothingSalesList.addAll(bagCollectList);
 
         // createdAt 순서로 내림차순 정렬
         clothingSalesList.sort((o1, o2) -> o2.requestDate().compareTo(o1.requestDate()));
@@ -216,23 +206,15 @@ public class ClothingSalesService {
 
     @Transactional
     public Boolean updateClothingSalesState(PostClothingSalesState postClothingSalesState) {
-        if (postClothingSalesState.isBagDelivered()){
-            ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesState.id())
-                    .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
+        ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesState.id())
+                .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
 
-            ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromAdminValue(postClothingSalesState.clothingSalesState());
-            ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), clothingSalesStateType);
-            clothingSalesStateRepository.save(clothingSalesState);
+        ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromAdminValue(postClothingSalesState.clothingSalesState());
+        ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), clothingSalesStateType);
+        clothingSalesStateRepository.save(clothingSalesState);
 
-            clothingSales.updateClothingSalesState(clothingSalesStateType);
-            clothingSalesRepository.save(clothingSales);
-        }
-        else{
-            BagInit bagInit = bagInitRepository.findById(postClothingSalesState.id())
-                    .orElseThrow(() -> new CustomException(INVALID_BAG_INIT_ID));
-            BagInitState.of(BagInitStateType.fromAdminValue(postClothingSalesState.clothingSalesState()), bagInit);
-            bagInitRepository.save(bagInit);
-        }
+        clothingSales.updateClothingSalesState(clothingSalesStateType);
+        clothingSalesRepository.save(clothingSales);
         return true;
     }
 

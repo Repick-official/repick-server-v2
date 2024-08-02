@@ -1,5 +1,6 @@
 package com.example.repick.domain.clothingSales.validator;
 
+import com.example.repick.domain.clothingSales.entity.BagCollect;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductState;
 import com.example.repick.domain.product.entity.ProductStateType;
@@ -42,6 +43,12 @@ public class ClothingSalesValidator {
     public void productPriceNotSet(Product product) {
         if (product.getPrice() == null) {
             throw new CustomException(PRICE_NOT_EXISTS);
+        }
+    }
+
+    public static void bagCollectUserMathes(BagCollect bagCollect, User user) {
+        if (!Objects.equals(bagCollect.getUser().getId(), user.getId())) {
+            throw new CustomException(ACCESS_DENIED);
         }
     }
 }
