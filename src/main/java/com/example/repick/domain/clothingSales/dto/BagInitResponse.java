@@ -1,6 +1,6 @@
 package com.example.repick.domain.clothingSales.dto;
 
-import com.example.repick.domain.clothingSales.entity.BagInit;
+import com.example.repick.domain.clothingSales.entity.BagCollect;
 import com.example.repick.global.entity.Address;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -10,12 +10,12 @@ public record BagInitResponse(
         Address address,
         @Schema(description = "백 상태", example = "대기중") String bagInitState
 ) {
-    public static BagInitResponse of(BagInit bagInit, String bagInitStateType) {
+    public static BagInitResponse of(BagCollect bagCollect) {
         return new BagInitResponse(
-                bagInit.getId(),
-                bagInit.getBagQuantity(),
-                bagInit.getAddress(),
-                bagInitStateType
+                bagCollect.getId(),
+                bagCollect.getQuantity(),
+                bagCollect.getInitAddress(),
+                bagCollect.getClothingSalesState().getSellerValue()
         );
     }
 }

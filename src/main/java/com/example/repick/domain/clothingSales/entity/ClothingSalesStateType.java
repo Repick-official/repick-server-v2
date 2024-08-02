@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public enum ClothingSalesStateType {
     BOX_COLLECT_REQUEST(1, "신청 완료", "박스 신청"),
-    BAG_REQUEST(2, "신청 완료", "리픽백 신청"),
+    BAG_INIT_REQUEST(2, "신청 완료", "리픽백 신청"),
     REQUEST_CANCELLED(3,"요청 취소", "요청 취소"),
     BAG_DELIVERY(4, "배송 중", "리픽백 배송"),
     BAG_DELIVERED(5, "배송 완료", "리픽백 배송 완료"),

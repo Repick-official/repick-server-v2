@@ -1,7 +1,6 @@
 package com.example.repick.domain.clothingSales.dto;
 
 import com.example.repick.domain.clothingSales.entity.BagCollect;
-import com.example.repick.domain.clothingSales.entity.BagInit;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.global.entity.Address;

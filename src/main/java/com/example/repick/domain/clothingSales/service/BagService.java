@@ -4,9 +4,10 @@ import com.example.repick.domain.clothingSales.dto.BagCollectResponse;
 import com.example.repick.domain.clothingSales.dto.BagInitResponse;
 import com.example.repick.domain.clothingSales.dto.PostBagCollect;
 import com.example.repick.domain.clothingSales.dto.PostBagInit;
-import com.example.repick.domain.clothingSales.entity.*;
+import com.example.repick.domain.clothingSales.entity.BagCollect;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.clothingSales.repository.*;
-import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.aws.S3UploadService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.example.repick.global.error.exception.ErrorCode.INVALID_BAG_INIT_ID;
+import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
 
 @Service @RequiredArgsConstructor
 public class BagService {
@@ -33,16 +35,17 @@ public class BagService {
     @Transactional
     public BagInitResponse registerBagInit(PostBagInit postBagInit) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        // BagInit
-        BagInit bagInit = postBagInit.toEntity(user);
-        bagInitRepository.save(bagInit);
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
-        // BagInitState
-        BagInitState bagInitState = BagInitState.of(BagInitStateType.PENDING, bagInit);
-        bagInitStateRepository.save(bagInitState);
+        // BagCollect
+        BagCollect bagCollect = postBagInit.toEntity(user, clothingSalesRepository.countByUser(user) + 1);
+        bagCollectRepository.save(bagCollect);
 
-        return BagInitResponse.of(bagInit, bagInitState.getBagInitStateType().getSellerValue());
+        // BagCollectState
+        ClothingSalesState clothingSalesState = ClothingSalesState.of(bagCollect.getId(), ClothingSalesStateType.BAG_INIT_REQUEST);
+        clothingSalesStateRepository.save(clothingSalesState);
+
+        return BagInitResponse.of(bagCollect);
 
     }
 

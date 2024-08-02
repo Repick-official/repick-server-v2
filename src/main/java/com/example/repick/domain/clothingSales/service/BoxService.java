@@ -41,7 +41,7 @@ public class BoxService {
         ClothingSalesState clothingSalesState = ClothingSalesState.of(boxCollect.getId(), ClothingSalesStateType.BOX_COLLECT_REQUEST);
         clothingSalesStateRepository.save(clothingSalesState);
 
-        return BoxCollectResponse.of(boxCollect, clothingSalesState.getClothingSalesStateType().getSellerValue());
+        return BoxCollectResponse.of(boxCollect);
 
     }
 }
