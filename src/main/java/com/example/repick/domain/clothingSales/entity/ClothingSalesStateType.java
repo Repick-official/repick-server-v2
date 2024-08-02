@@ -29,6 +29,7 @@ public enum ClothingSalesStateType {
     private final String sellerValue;
     private final String adminValue;
 
+    public static final List<ClothingSalesStateType> BEFORE_COLLECTION = Arrays.asList(BAG_INIT_REQUEST, REQUEST_CANCELLED, BAG_DELIVERY, BAG_DELIVERED);
     public static final List<ClothingSalesStateType> AFTER_PRODUCTION = Arrays.asList(PRODUCT_REGISTERED, SELLING, SELLING_EXPIRED);
     public static final List<ClothingSalesStateType> AFTER_SELLING = Arrays.asList(SELLING, SELLING_EXPIRED);
 

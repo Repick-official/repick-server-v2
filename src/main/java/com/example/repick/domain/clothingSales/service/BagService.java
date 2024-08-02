@@ -65,10 +65,9 @@ public class BagService {
         // BagCollect
         bagCollect.updateBagCollectInfo(postBagCollect.bagQuantity(), postBagCollect.postalCode(), postBagCollect.mainAddress(), postBagCollect.detailAddress(), postBagCollect.collectionDate());
         bagCollect.updateImageUrl(s3UploadService.saveFile(postBagCollect.image(), "clothingSales/bagCollect/" + user.getId() + "/" + bagCollect.getId()));
-        bagCollectRepository.save(bagCollect);
-
-        // BagCollectState
         ClothingSalesState clothingSalesState = ClothingSalesState.of(bagCollect.getId(), ClothingSalesStateType.BAG_COLLECT_REQUEST);
+        bagCollect.updateClothingSalesState(ClothingSalesStateType.BAG_COLLECT_REQUEST);
+        bagCollectRepository.save(bagCollect);
         clothingSalesStateRepository.save(clothingSalesState);
 
         return BagCollectResponse.of(bagCollect, clothingSalesState.getClothingSalesStateType().getSellerValue());

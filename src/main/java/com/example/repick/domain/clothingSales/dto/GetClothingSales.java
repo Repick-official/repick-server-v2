@@ -1,16 +1,13 @@
 package com.example.repick.domain.clothingSales.dto;
 
-import com.example.repick.domain.clothingSales.entity.BagCollect;
 import com.example.repick.domain.clothingSales.entity.BoxCollect;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
-import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Builder
 public record GetClothingSales(
@@ -32,7 +29,7 @@ public record GetClothingSales(
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
 
     // 수거 요청일 경우
-    public static GetClothingSales ofClothingSales(ClothingSales clothingSales, List<Product> products) {
+    public static GetClothingSales of(ClothingSales clothingSales) {
         ClothingSalesStateType clothingSalesState = clothingSales.getClothingSalesState();
         boolean isBoxCollect = clothingSales instanceof BoxCollect;
         boolean isProducted = ClothingSalesStateType.AFTER_PRODUCTION.contains(clothingSalesState);
@@ -45,23 +42,14 @@ public record GetClothingSales(
                 .isBoxCollect(isBoxCollect)
                 .status(clothingSalesState.getAdminValue())
                 .requestDate(clothingSales.getCreatedDate().format(formatter))
-                .isForCollect(clothingSalesState != ClothingSalesStateType.REQUEST_CANCELLED)
+                .isForCollect(!ClothingSalesStateType.BEFORE_COLLECTION.contains(clothingSalesState))
                 .productStartDate(isSelling? clothingSales.getProductList().get(0).getSalesStartDate().format(formatter) : null)
                 .salesPeriod(isSelling? clothingSales.getProductList().get(0).getSalesStartDate().format(formatter)
                         + " ~ " + clothingSales.getProductList().get(0).getSalesStartDate().plusDays(90).format(formatter) : null)
                 .settlementRequestDate(clothingSales.getUser().getSettlementRequestDate() != null ? clothingSales.getUser().getSettlementRequestDate().format(formatter) : null)
                 .settlementCompleteDate(clothingSales.getUser().getSettlementCompleteDate() != null ? clothingSales.getUser().getSettlementCompleteDate().format(formatter) : null)
-                .isRejected(isProducted? products.stream().anyMatch(product -> product.getProductState() == ProductStateType.REJECTED) : null)
+                .isRejected(isProducted? clothingSales.getProductList().stream().anyMatch(product -> product.getProductState() == ProductStateType.REJECTED) : null)
                 .isExpiredAndReturned(clothingSalesState == ClothingSalesStateType.SELLING_EXPIRED)
-                .build();
-    }
-
-    public static GetClothingSales ofBagCollect(BagCollect bagCollect) {
-        return GetClothingSales.builder()
-                .id(bagCollect.getId())
-                .name(bagCollect.getUser().getNickname())
-                .status(bagCollect.getClothingSalesState().getAdminValue())
-                .requestDate(bagCollect.getCreatedDate().format(formatter))
                 .build();
     }
 }
