@@ -318,11 +318,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.productState,
                         product.productName,
                         product.brandName,
-                        product.suggestedPrice,
-                        product.price,
-                        product.discountPrice,
-                        product.discountRate,
-                        product.predictPriceDiscountRate))
+                        product.suggestedPrice))
                 .from(product)
                 .leftJoin(productState).on(product.id.eq(productState.productId))
                 .where(product.clothingSales.id.eq(clothingSalesId)
