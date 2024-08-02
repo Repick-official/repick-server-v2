@@ -33,7 +33,6 @@ public record PostProduct (
                 .clothingSales(clothingSales)
                 .clothingSalesCount(this.clothingSalesCount())
                 .productCode(this.productCode())
-                .productName(this.productName())
                 .brandName(this.brandName())
                 .productState(ProductStateType.REJECTED)
                 .build();
