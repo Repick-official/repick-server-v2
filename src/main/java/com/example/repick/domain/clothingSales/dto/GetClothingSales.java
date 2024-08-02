@@ -15,7 +15,6 @@ import java.util.List;
 @Builder
 public record GetClothingSales(
         @Schema(description = "옷장 정리 id (리픽백 배송 요청인 경우 리픽백 배송 요청 id)") Long id,
-        @Schema(description = "(백일 경우) 백 배송 여부, true: 백 배송까지 단계 false: 백 수거부터") Boolean isBagDelivered,
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
         @Schema(description = "박스 수거 여부, true: 박스 수거 false: 백 수거", example = "true") Boolean isBoxCollect,
@@ -41,7 +40,6 @@ public record GetClothingSales(
 
         return GetClothingSales.builder()
                 .id(clothingSales.getId())
-                .isBagDelivered(isBoxCollect? null : true)
                 .code(clothingSales.getUser().getId().toString() + "-" + clothingSales.getClothingSalesCount())
                 .name(clothingSales.getUser().getNickname())
                 .isBoxCollect(isBoxCollect)
@@ -61,7 +59,6 @@ public record GetClothingSales(
     public static GetClothingSales ofBagCollect(BagCollect bagCollect) {
         return GetClothingSales.builder()
                 .id(bagCollect.getId())
-                .isBagDelivered(!List.of(ClothingSalesStateType.BAG_INIT_REQUEST, ClothingSalesStateType.BAG_DELIVERY, ClothingSalesStateType.BAG_DELIVERED).contains(bagCollect.getClothingSalesState()))
                 .name(bagCollect.getUser().getNickname())
                 .status(bagCollect.getClothingSalesState().getAdminValue())
                 .requestDate(bagCollect.getCreatedDate().format(formatter))
