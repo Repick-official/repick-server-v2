@@ -13,4 +13,6 @@ import lombok.experimental.SuperBuilder;
 public class BagCollect extends ClothingSales{
     @Embedded
     private Address initAddress;
+    @Column(name = "bag_quantity")
+    private Integer bagQuantity;
 }

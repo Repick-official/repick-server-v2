@@ -17,7 +17,7 @@ public record PostBagInit(
     public BagCollect toEntity(User user, Integer clothingSalesCount) {
         return BagCollect.builder()
                 .user(user)
-                .quantity(bagQuantity)
+                .bagQuantity(bagQuantity)
                 .initAddress(new Address(postalCode, mainAddress, detailAddress))
                 .clothingSalesCount(clothingSalesCount)
                 .point(0L)
