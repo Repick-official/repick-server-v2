@@ -21,6 +21,7 @@ import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -197,9 +198,15 @@ public class ClothingSalesService {
 
     @Transactional
     public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(PageCondition pageCondition) {
-        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable());
+        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), null);
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
 
+    }
+
+    @Transactional
+    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCountByUserId(Long userId, PageCondition pageCondition) {
+        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
     @Transactional

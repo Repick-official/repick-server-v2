@@ -117,8 +117,12 @@ public class ClothingSalesController {
 
     @Operation(summary = "상품 종합 현황")
     @GetMapping("/product-count")
-    public SuccessResponse<PageResponse<List<GetClothingSalesProductCount>>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
+    public SuccessResponse<PageResponse<List<GetClothingSalesProductCount>>> getClothingSalesProductCount(@RequestParam(required = false) Long userId, @ParameterObject PageCondition pageCondition) {
+        if (userId != null) {
+            return SuccessResponse.success(clothingSalesService.getClothingSalesProductCountByUserId(userId, pageCondition));
+        } else {
+            return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
+        }
     }
 
     @Operation(summary = "유저 상품 현황")
