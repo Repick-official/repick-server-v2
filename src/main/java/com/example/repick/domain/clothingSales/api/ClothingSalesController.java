@@ -5,6 +5,7 @@ import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.global.page.DateRangePageCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
@@ -14,6 +15,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController @RequestMapping("/clothing-sales") @RequiredArgsConstructor
@@ -105,8 +107,8 @@ public class ClothingSalesController {
 
     @Operation(summary = "옷장 정리 현황")
     @GetMapping("/status")
-    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(pageCondition));
+    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject DateRangePageCondition dateRangePageCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(dateRangePageCondition));
     }
 
     @Operation(summary = "옷장 정리 상태 업데이트")

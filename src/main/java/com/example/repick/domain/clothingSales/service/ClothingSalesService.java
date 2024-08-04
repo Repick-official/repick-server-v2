@@ -4,7 +4,6 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
-import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
@@ -17,11 +16,11 @@ import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.page.DateRangePageCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -173,11 +173,23 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(DateRangePageCondition dateRangePageCondition){
         // 수거 신청 정보 조회
-        Page<ClothingSales> clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+        Page<ClothingSales> clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(dateRangePageCondition.toPageable());
         List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
                 .map(GetClothingSales::of).toList();
+        // 기간 필터링
+        LocalDate startDate = dateRangePageCondition.startDate();
+        LocalDate endDate = dateRangePageCondition.endDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
+        if (startDate != null && endDate != null) {
+            clothingSalesList = clothingSalesList.stream()
+                    .filter(sales -> {
+                        LocalDate requestDate = LocalDate.parse(sales.requestDate(), formatter);
+                        return !requestDate.isBefore(startDate) && !requestDate.isAfter(endDate);
+                    })
+                    .collect(Collectors.toList());
+        }
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
