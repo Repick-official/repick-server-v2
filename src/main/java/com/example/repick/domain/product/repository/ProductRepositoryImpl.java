@@ -396,12 +396,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .from(product)
                 .leftJoin(clothingSales).on(product.clothingSales.id.eq(clothingSales.id))
                 .groupBy(
-                        product.user.id,
-                        product.clothingSalesCount,
-                        product.user.nickname,
-                        clothingSales.clothingSalesCount,
-                        clothingSales.weight,
-                        clothingSales.createdDate
+                        product.clothingSales.id
                 )
 
                 .orderBy(clothingSales.createdDate.max().desc());

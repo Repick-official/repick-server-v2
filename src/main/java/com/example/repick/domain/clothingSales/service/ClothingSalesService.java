@@ -16,7 +16,7 @@ import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.error.exception.CustomException;
-import com.example.repick.global.page.DateRangePageCondition;
+import com.example.repick.global.page.DateCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -173,23 +173,23 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(DateRangePageCondition dateRangePageCondition){
-        // 수거 신청 정보 조회
-        Page<ClothingSales> clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(dateRangePageCondition.toPageable());
-        List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
-                .map(GetClothingSales::of).toList();
-        // 기간 필터링
-        LocalDate startDate = dateRangePageCondition.startDate();
-        LocalDate endDate = dateRangePageCondition.endDate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
-        if (startDate != null && endDate != null) {
-            clothingSalesList = clothingSalesList.stream()
-                    .filter(sales -> {
-                        LocalDate requestDate = LocalDate.parse(sales.requestDate(), formatter);
-                        return !requestDate.isBefore(startDate) && !requestDate.isAfter(endDate);
-                    })
-                    .collect(Collectors.toList());
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition PageCondition, DateCondition dateCondition) {Page<ClothingSales> clothingSalesPage;
+        if (dateCondition.hasValidDateRange()) {
+            // 날짜 범위에 맞는 데이터 페이징 처리
+            LocalDateTime startDateTime = dateCondition.startDate().atStartOfDay(); // 시작일의 자정
+            LocalDateTime endDateTime = dateCondition.endDate().atTime(LocalTime.MAX); // 종료일의 마지막 시간
+            clothingSalesPage = clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(
+                    startDateTime, endDateTime, PageCondition.toPageable()
+            );
+        } else {
+            // 날짜 조건이 없으면 전체 데이터 페이징 처리
+            clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(PageCondition.toPageable());
         }
+
+        List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
+                .map(GetClothingSales::of)
+                .collect(Collectors.toList());
+        // 페이지 응답 반환
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
