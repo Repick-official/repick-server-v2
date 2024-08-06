@@ -5,6 +5,7 @@ import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.global.page.DateCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
@@ -105,8 +106,8 @@ public class ClothingSalesController {
 
     @Operation(summary = "옷장 정리 현황")
     @GetMapping("/status")
-    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(pageCondition));
+    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject  PageCondition pageCondition, @ParameterObject DateCondition dateCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(pageCondition, dateCondition));
     }
 
     @Operation(summary = "옷장 정리 상태 업데이트")
@@ -117,8 +118,9 @@ public class ClothingSalesController {
 
     @Operation(summary = "상품 종합 현황")
     @GetMapping("/product-count")
-    public SuccessResponse<PageResponse<List<GetClothingSalesProductCount>>> getClothingSalesProductCount(@ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(pageCondition));
+    public SuccessResponse<PageResponse<List<GetClothingSalesProductCount>>> getClothingSalesProductCount(@RequestParam(required = false) Long userId,
+                                                                                                          @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(userId, pageCondition));
     }
 
     @Operation(summary = "유저 상품 현황")
