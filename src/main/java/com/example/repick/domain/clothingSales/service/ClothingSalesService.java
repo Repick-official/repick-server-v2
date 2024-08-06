@@ -209,14 +209,7 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(PageCondition pageCondition) {
-        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), null);
-        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
-
-    }
-
-    @Transactional
-    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCountByUserId(Long userId, PageCondition pageCondition) {
+    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(Long userId, PageCondition pageCondition) {
         Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
