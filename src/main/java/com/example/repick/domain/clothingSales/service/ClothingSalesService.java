@@ -4,7 +4,6 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
-import com.example.repick.domain.clothingSales.repository.BagCollectRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
@@ -17,6 +16,7 @@ import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.domain.user.entity.User;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.global.error.exception.CustomException;
+import com.example.repick.global.page.DateCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +24,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
 
@@ -172,11 +173,23 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition pageCondition){
-        // 수거 신청 정보 조회
-        Page<ClothingSales> clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition PageCondition, DateCondition dateCondition) {Page<ClothingSales> clothingSalesPage;
+        if (dateCondition.hasValidDateRange()) {
+            // 날짜 범위에 맞는 데이터 페이징 처리
+            LocalDateTime startDateTime = dateCondition.startDate().atStartOfDay(); // 시작일의 자정
+            LocalDateTime endDateTime = dateCondition.endDate().atTime(LocalTime.MAX); // 종료일의 마지막 시간
+            clothingSalesPage = clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(
+                    startDateTime, endDateTime, PageCondition.toPageable()
+            );
+        } else {
+            // 날짜 조건이 없으면 전체 데이터 페이징 처리
+            clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(PageCondition.toPageable());
+        }
+
         List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
-                .map(GetClothingSales::of).toList();
+                .map(GetClothingSales::of)
+                .collect(Collectors.toList());
+        // 페이지 응답 반환
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
@@ -196,10 +209,9 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(PageCondition pageCondition) {
-        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable());
+    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(Long userId, PageCondition pageCondition) {
+        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
-
     }
 
     @Transactional
