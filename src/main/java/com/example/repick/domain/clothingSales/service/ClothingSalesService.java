@@ -211,28 +211,11 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(Long userId, PageCondition pageCondition) {
-        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
-        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
-    }
-
-    @Transactional
     public void updateClothingSalesWeight(PatchClothingSalesWeight patchClothingSalesWeight) {
         ClothingSales clothingSales = clothingSalesRepository.findById(patchClothingSalesWeight.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
         clothingSales.updateWeight(patchClothingSalesWeight.weight());
         clothingSalesRepository.save(clothingSales);
-    }
-
-    public PageResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, PageCondition pageCondition) {
-        Page<GetClothingSalesProduct> pages;
-        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
-            pages = productRepository.getClothingSalesPendingProduct(clothingSalesId, productStateType, pageCondition.toPageable());
-        }
-        else {
-            pages = productRepository.getClothingSalesCancelledProduct(clothingSalesId, productStateType, pageCondition.toPageable());
-        }
-        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
     public GetClothingSalesUser getClothingSalesUser(Long clothingSalesId){

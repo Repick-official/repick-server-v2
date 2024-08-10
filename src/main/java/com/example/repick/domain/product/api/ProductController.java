@@ -1,7 +1,10 @@
 package com.example.repick.domain.product.api;
 
+import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
+import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
 import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
+import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
@@ -226,6 +229,21 @@ public class ProductController {
     @PatchMapping("/return")
     public SuccessResponse<Boolean> patchProductReturn(@RequestBody PatchProductReturn patchProductReturn) {
         return SuccessResponse.success(productService.updateProductReturnState(patchProductReturn));
+    }
+
+    @Operation(summary = "상품 종합 현황")
+    @GetMapping("/count")
+    public SuccessResponse<PageResponse<List<GetProductCountClothingSales>>> getProductCountByClothingSales(@RequestParam(required = false) Long userId,
+                                                                                                            @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productService.getProductCountByClothingSales(userId, pageCondition));
+    }
+
+    @Operation(summary = "유저 상품 현황")
+    @GetMapping("/{clothingSalesId}/{productStateType}")
+    public SuccessResponse<PageResponse<List<GetProductsClothingSales>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
+                                                                                                        @PathVariable ProductStateType productStateType,
+                                                                                                        @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productService.getProductsByUserClothingSales(clothingSalesId, productStateType, pageCondition));
     }
 
 }

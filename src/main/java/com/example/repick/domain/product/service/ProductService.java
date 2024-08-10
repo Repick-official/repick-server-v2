@@ -1,5 +1,7 @@
 package com.example.repick.domain.product.service;
 
+import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
+import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.product.dto.product.*;
@@ -476,6 +478,23 @@ public class ProductService {
             productRepository.save(product);
         });
         return true;
+    }
+
+    @Transactional
+    public PageResponse<List<GetProductCountClothingSales>> getProductCountByClothingSales(Long userId, PageCondition pageCondition) {
+        Page<GetProductCountClothingSales> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
+    }
+
+    public PageResponse<List<GetProductsClothingSales>> getProductsByUserClothingSales(Long clothingSalesId, ProductStateType productStateType, PageCondition pageCondition) {
+        Page<GetProductsClothingSales> pages;
+        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
+            pages = productRepository.getClothingSalesPendingProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+        }
+        else {
+            pages = productRepository.getClothingSalesCancelledProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+        }
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
 

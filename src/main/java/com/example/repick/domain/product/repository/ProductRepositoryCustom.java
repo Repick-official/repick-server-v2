@@ -1,7 +1,7 @@
 package com.example.repick.domain.product.repository;
 
-import com.example.repick.domain.clothingSales.dto.GetClothingSalesProduct;
-import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
+import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
+import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.dto.product.GetProductThumbnail;
@@ -50,9 +50,9 @@ public interface ProductRepositoryCustom {
 
     List<Product> findRecommendation(Long userId);
 
-    Page<GetClothingSalesProductCount> getClothingSalesProductCount(Pageable pageable, Long userId);
+    Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId);
 
-    Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+    Page<GetProductsClothingSales> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 
-    Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+    Page<GetProductsClothingSales> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 }

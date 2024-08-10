@@ -1,7 +1,7 @@
 package com.example.repick.domain.product.repository;
 
-import com.example.repick.domain.clothingSales.dto.GetClothingSalesProduct;
-import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
+import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
+import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
 import com.example.repick.domain.product.dto.product.GetBrandList;
 import com.example.repick.domain.product.dto.product.GetProductThumbnail;
@@ -378,9 +378,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetClothingSalesProductCount> getClothingSalesProductCount(Pageable pageable, Long userId) {
-        JPAQuery<GetClothingSalesProductCount> query =  jpaQueryFactory
-                .select(Projections.constructor(GetClothingSalesProductCount.class,
+    public Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId) {
+        JPAQuery<GetProductCountClothingSales> query =  jpaQueryFactory
+                .select(Projections.constructor(GetProductCountClothingSales.class,
                         product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
                         product.user.nickname,
                         product.user.id,
@@ -406,7 +406,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         }
 
         long total = query.stream().count();
-        List<GetClothingSalesProductCount> content = query
+        List<GetProductCountClothingSales> content = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -415,14 +415,14 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetProductsClothingSales> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.clothingSales.id.eq(clothingSalesId)
                         .and(product.productState.eq(productStateType)));
         long total = products.stream().count();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
-        List<GetClothingSalesProduct> contents = products
+        List<GetProductsClothingSales> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .stream()
@@ -431,7 +431,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                     LocalDate endDate = salesStartDate.plusDays(90);
                     String dateRange = String.format("%s ~ %s", salesStartDate.format(formatter), endDate.format(formatter));
 
-                    return new GetClothingSalesProduct(
+                    return new GetProductsClothingSales(
                             p.getProductCode(),
                             p.getThumbnailImageUrl(),
                             p.getProductName(),
@@ -449,18 +449,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetProductsClothingSales> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.clothingSales.id.eq(clothingSalesId)
                         .and(product.productState.eq(productStateType)));
         long total = products.stream().count();
         // TODO: Mock data 제거 및 반송 기능 구현
-        List<GetClothingSalesProduct> contents = products
+        List<GetProductsClothingSales> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .stream()
-                .map(p -> new GetClothingSalesProduct(
+                .map(p -> new GetProductsClothingSales(
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
