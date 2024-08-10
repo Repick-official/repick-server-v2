@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface ClothingSalesRepository extends JpaRepository<ClothingSales, Long> {
     Page<ClothingSales> findAllByOrderByCreatedDateDesc(Pageable pageable);
+    List<ClothingSales> findByClothingSalesState(ClothingSalesStateType clothingSalesStateType);
     List<ClothingSales> findByUserAndClothingSalesState(User user, ClothingSalesStateType clothingSalesStateType);
     Page<ClothingSales> findByCreatedDateBetweenOrderByCreatedDateDesc(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     List<ClothingSales> findByUserOrderByCreatedDateDesc(User user);

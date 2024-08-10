@@ -427,7 +427,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .stream()
                 .map(p -> {
-                    LocalDate salesStartDate = p.getSalesStartDate().toLocalDate();
+                    LocalDate salesStartDate = p.getClothingSales().getSalesStartDate().toLocalDate();
                     LocalDate endDate = salesStartDate.plusDays(90);
                     String dateRange = String.format("%s ~ %s", salesStartDate.format(formatter), endDate.format(formatter));
 
