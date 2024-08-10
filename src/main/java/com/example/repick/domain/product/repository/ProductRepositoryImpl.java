@@ -1,11 +1,11 @@
 package com.example.repick.domain.product.repository;
 
-import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
-import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
+import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
-import com.example.repick.domain.product.dto.product.GetBrandList;
-import com.example.repick.domain.product.dto.product.GetProductThumbnail;
-import com.example.repick.domain.product.dto.product.ProductFilter;
+import com.example.repick.domain.product.dto.productClothingSales.GetKgSellProductClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetProductCountClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetProductsClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetReturnedProductClothingSales;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.querydsl.core.types.OrderSpecifier;
@@ -439,10 +439,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                             dateRange,
                             p.getDiscountPrice(),
                             p.getSettlement(),
-                            p.getDiscountPrice() - p.getSettlement(),
-                            null,
-                            null,
-                            null
+                            p.getDiscountPrice() - p.getSettlement()
                     );
                 })
                 .collect(Collectors.toList());
@@ -450,35 +447,29 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetProductsClothingSales> getClothingSalesReturnedProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetReturnedProductClothingSales> getClothingSalesReturnedProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.clothingSales.id.eq(clothingSalesId)
                         .and(product.productState.eq(productStateType)));
         long total = products.stream().count();
-        List<GetProductsClothingSales> contents = products
+        List<GetReturnedProductClothingSales> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .stream()
-                .map(p -> new GetProductsClothingSales(
+                .map(p -> new GetReturnedProductClothingSales(
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
                         p.getQualityRate().toString(),
-                        null,
-                        null,
-                        null,
-                        null,
-                        p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")),
-                        null,
-                        null
+                        p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy"))
                 ))
                 .collect(Collectors.toList());
         return new PageImpl<>(contents, pageable, total);
     }
 
     @Override
-    public Page<GetProductsClothingSales> getClothingSalesKgSellProduct(Long clothingSalesId, Boolean isExpired, Pageable pageable) {
+    public Page<GetKgSellProductClothingSales> getClothingSalesKgSellProduct(Long clothingSalesId, Boolean isExpired, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.clothingSales.id.eq(clothingSalesId)
@@ -488,19 +479,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             else products.where(product.productState.ne(ProductStateType.REJECTED));
         }
         long total = products.stream().count();
-        List<GetProductsClothingSales> contents = products
+        List<GetKgSellProductClothingSales> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .stream()
-                .map(p -> new GetProductsClothingSales(
+                .map(p -> new GetKgSellProductClothingSales(
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
                         p.getQualityRate().toString(),
-                        null,
-                        null,
-                        null,
-                        null,
                         p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")),
                         isExpired != null ? isExpired : p.getProductState().equals(ProductStateType.SELLING_END),
                         null  // TODO: kg 매입 정산 플로우

@@ -1,10 +1,8 @@
 package com.example.repick.domain.product.api;
 
-import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
-import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetProductCountClothingSales;
 import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
-import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.service.ProductService;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
@@ -244,7 +242,7 @@ public class ProductController {
                     isExpired: kg 매입 화면에서만 사용 (true: 만료된 상품 조회, false: 리젝 상품 조회)
                     """)
     @GetMapping("/{clothingSalesId}/{productState}")
-    public SuccessResponse<PageResponse<List<GetProductsClothingSales>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
+    public SuccessResponse<PageResponse<List<?>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
                                                                                                         @PathVariable String productState,
                                                                                                         @ParameterObject PageCondition pageCondition,
                                                                                                         @RequestParam(required = false) Boolean isExpired) {

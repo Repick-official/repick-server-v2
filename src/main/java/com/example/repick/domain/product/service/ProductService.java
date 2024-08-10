@@ -1,10 +1,10 @@
 package com.example.repick.domain.product.service;
 
-import com.example.repick.domain.product.dto.product.GetProductsClothingSales;
-import com.example.repick.domain.product.dto.product.GetProductCountClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetProductCountClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.product.dto.product.*;
+import com.example.repick.domain.product.dto.productClothingSales.GetKgSellProductClothingSales;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
@@ -486,12 +486,12 @@ public class ProductService {
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
-    public PageResponse<List<GetProductsClothingSales>> getProductsByUserClothingSales(Long clothingSalesId, String productState, Boolean isExpired, PageCondition pageCondition) {
+    public PageResponse<List<?>> getProductsByUserClothingSales(Long clothingSalesId, String productState, Boolean isExpired, PageCondition pageCondition) {
         if (productState.equals("kg-sell")) { // kg 매입 상품(리젝, 만료되었을 경우 kg 매입 가능)
-            Page<GetProductsClothingSales> pages = productRepository.getClothingSalesKgSellProduct(clothingSalesId, isExpired, pageCondition.toPageable());
+            Page<GetKgSellProductClothingSales> pages = productRepository.getClothingSalesKgSellProduct(clothingSalesId, isExpired, pageCondition.toPageable());
             return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
         }
-        Page<GetProductsClothingSales> pages;
+        Page<?> pages;
         ProductStateType productStateType = ProductStateType.fromEngValue(productState);
         // 판매 중, 판매 완료 상품
         if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {

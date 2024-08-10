@@ -1,16 +1,12 @@
-package com.example.repick.domain.product.dto.product;
+package com.example.repick.domain.product.dto.productClothingSales;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record GetProductsClothingSales(
+public record GetKgSellProductClothingSales(
         @Schema(description = "상품코드") String productCode,
         @Schema(description = "썸네일") String thumbnailImageUrl,
         @Schema(description = "상품명") String productName,
         @Schema(description = "등급") String grade,
-        @Schema(description = "판매기간") String salesPeriod,
-        @Schema(description = "판매 금액") Long salesPrice,
-        @Schema(description = "정산금") Long settlementPrice,
-        @Schema(description = "수수료") Long fee,
         @Schema(description = "신청일") String requestDate,
         @Schema(description = "만료 여부 (kg 매입 경로용)") Boolean isExpired,
         @Schema(description = "kg 매입 정산 상태") Boolean settlementStatus
