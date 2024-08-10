@@ -12,6 +12,7 @@ public record GetProductsClothingSales(
         @Schema(description = "정산금") Long settlementPrice,
         @Schema(description = "수수료") Long fee,
         @Schema(description = "신청일") String requestDate,
-        @Schema(description = "반송 여부") Boolean isReturned
+        @Schema(description = "만료 여부 (kg 매입 경로용)") Boolean isExpired,
+        @Schema(description = "kg 매입 정산 상태") Boolean settlementStatus
 ) {
 }

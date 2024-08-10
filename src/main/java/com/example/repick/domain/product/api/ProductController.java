@@ -238,12 +238,17 @@ public class ProductController {
         return SuccessResponse.success(productService.getProductCountByClothingSales(userId, pageCondition));
     }
 
-    @Operation(summary = "유저 상품 현황")
-    @GetMapping("/{clothingSalesId}/{productStateType}")
+    @Operation(summary = "유저 상품 현황",
+            description = """
+                    productState: selling, sold-out, rejected, selling-end
+                    isExpired: kg 매입 화면에서만 사용 (true: 만료된 상품 조회, false: 리젝 상품 조회)
+                    """)
+    @GetMapping("/{clothingSalesId}/{productState}")
     public SuccessResponse<PageResponse<List<GetProductsClothingSales>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
-                                                                                                        @PathVariable ProductStateType productStateType,
-                                                                                                        @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(productService.getProductsByUserClothingSales(clothingSalesId, productStateType, pageCondition));
+                                                                                                        @PathVariable String productState,
+                                                                                                        @ParameterObject PageCondition pageCondition,
+                                                                                                        @RequestParam(required = false) Boolean isExpired) {
+        return SuccessResponse.success(productService.getProductsByUserClothingSales(clothingSalesId, productState, isExpired, pageCondition));
     }
 
 }

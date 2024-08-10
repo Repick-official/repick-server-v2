@@ -52,7 +52,9 @@ public interface ProductRepositoryCustom {
 
     Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId);
 
-    Page<GetProductsClothingSales> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+    Page<GetProductsClothingSales> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 
-    Page<GetProductsClothingSales> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+    Page<GetProductsClothingSales> getClothingSalesReturnedProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+
+    Page<GetProductsClothingSales> getClothingSalesKgSellProduct(Long clothingSalesId, Boolean isExpired, Pageable pageable);
 }

@@ -486,13 +486,20 @@ public class ProductService {
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
-    public PageResponse<List<GetProductsClothingSales>> getProductsByUserClothingSales(Long clothingSalesId, ProductStateType productStateType, PageCondition pageCondition) {
-        Page<GetProductsClothingSales> pages;
-        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
-            pages = productRepository.getClothingSalesPendingProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+    public PageResponse<List<GetProductsClothingSales>> getProductsByUserClothingSales(Long clothingSalesId, String productState, Boolean isExpired, PageCondition pageCondition) {
+        if (productState.equals("kg-sell")) { // kg 매입 상품(리젝, 만료되었을 경우 kg 매입 가능)
+            Page<GetProductsClothingSales> pages = productRepository.getClothingSalesKgSellProduct(clothingSalesId, isExpired, pageCondition.toPageable());
+            return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
         }
+        Page<GetProductsClothingSales> pages;
+        ProductStateType productStateType = ProductStateType.fromEngValue(productState);
+        // 판매 중, 판매 완료 상품
+        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
+            pages = productRepository.getClothingSalesProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+        }
+        // 리젝, 만료 상품
         else {
-            pages = productRepository.getClothingSalesCancelledProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+            pages = productRepository.getClothingSalesReturnedProduct(clothingSalesId, productStateType, pageCondition.toPageable());
         }
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }

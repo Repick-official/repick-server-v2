@@ -415,7 +415,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetProductsClothingSales> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetProductsClothingSales> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.clothingSales.id.eq(clothingSalesId)
@@ -441,6 +441,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                             p.getSettlement(),
                             p.getDiscountPrice() - p.getSettlement(),
                             null,
+                            null,
                             null
                     );
                 })
@@ -449,13 +450,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetProductsClothingSales> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
+    public Page<GetProductsClothingSales> getClothingSalesReturnedProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable) {
         JPAQuery<Product> products = jpaQueryFactory
                 .selectFrom(product)
                 .where(product.clothingSales.id.eq(clothingSalesId)
                         .and(product.productState.eq(productStateType)));
         long total = products.stream().count();
-        // TODO: Mock data 제거 및 반송 기능 구현
         List<GetProductsClothingSales> contents = products
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -469,12 +469,46 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         null,
                         null,
                         null,
-                        "07/09/24",
-                        false
+                        p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")),
+                        null,
+                        null
                 ))
                 .collect(Collectors.toList());
         return new PageImpl<>(contents, pageable, total);
     }
+
+    @Override
+    public Page<GetProductsClothingSales> getClothingSalesKgSellProduct(Long clothingSalesId, Boolean isExpired, Pageable pageable) {
+        JPAQuery<Product> products = jpaQueryFactory
+                .selectFrom(product)
+                .where(product.clothingSales.id.eq(clothingSalesId)
+                        .and(product.returnState.eq(ProductReturnStateType.KG_SELL)));
+        if (isExpired != null){
+            if (isExpired) products.where(product.productState.eq(ProductStateType.SELLING_END));
+            else products.where(product.productState.ne(ProductStateType.REJECTED));
+        }
+        long total = products.stream().count();
+        List<GetProductsClothingSales> contents = products
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .stream()
+                .map(p -> new GetProductsClothingSales(
+                        p.getProductCode(),
+                        p.getThumbnailImageUrl(),
+                        p.getProductName(),
+                        p.getQualityRate().toString(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")),
+                        isExpired != null ? isExpired : p.getProductState().equals(ProductStateType.SELLING_END),
+                        null  // TODO: kg 매입 정산 플로우
+                ))
+                .collect(Collectors.toList());
+        return new PageImpl<>(contents, pageable, total);
+    }
+
 
     private BooleanExpression notExistsUserPreferenceProduct(Long userId) {
 
