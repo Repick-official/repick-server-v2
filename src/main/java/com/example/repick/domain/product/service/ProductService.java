@@ -340,6 +340,7 @@ public class ProductService {
         return sizes;
     }
 
+    @Transactional
     public Boolean toggleLike(Long productId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -465,5 +466,17 @@ public class ProductService {
         recommendationService.adjustUserPreferenceOnDetail(userId, productId, new double[]{1.03, 1.01, 0.99});
 
     }
+
+    @Transactional
+    public Boolean updateProductReturnState(PatchProductReturn patchProductReturn){
+        patchProductReturn.productIds().forEach(productId -> {
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+            product.updateReturnState(ProductReturnStateType.fromValue(patchProductReturn.returnState()));
+            productRepository.save(product);
+        });
+        return true;
+    }
+
 
 }

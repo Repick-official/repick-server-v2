@@ -214,4 +214,18 @@ public class ProductController {
         return SuccessResponse.success(productService.getProductDetail(productId));
     }
 
+    @Operation(summary = "상품 리턴 상태 변경",
+        description = """
+                    상품 리턴 상태 변경은 다음 상황에서 사용합니다:
+                    
+                    (리젝된 경우, 만료된 경우)
+                    사용자: kg 매입 신청/돌려받기 신청
+                    관리자: 반송 완료 업데이트
+                    
+                    """)
+    @PatchMapping("/return")
+    public SuccessResponse<Boolean> patchProductReturn(@RequestBody PatchProductReturn patchProductReturn) {
+        return SuccessResponse.success(productService.updateProductReturnState(patchProductReturn));
+    }
+
 }

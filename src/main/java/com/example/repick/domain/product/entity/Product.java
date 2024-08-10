@@ -49,6 +49,10 @@ public class Product extends BaseEntity {
     private LocalDateTime salesStartDate;
     @Enumerated(EnumType.STRING)
     private ProductStateType productState;
+
+    @Enumerated(EnumType.STRING)
+    private ProductReturnStateType returnState; // 리젝되거나 만료된 상품의 상태
+
     private long settlement; // 정산금
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -168,6 +172,10 @@ public class Product extends BaseEntity {
 
     public void updateProductState(ProductStateType productState) {
         this.productState = productState;
+    }
+
+    public void updateReturnState(ProductReturnStateType returnState) {
+        this.returnState = returnState;
     }
 
     public void updateSettlement(long settlement) {

@@ -49,7 +49,9 @@ public class ClothingSalesService {
 
     public void updateSellingExpired(Product product) {
         ClothingSalesState clothingSalesState = ClothingSalesState.of(product.getClothingSales().getId(), ClothingSalesStateType.SELLING_EXPIRED);
+        product.getClothingSales().updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
         clothingSalesStateRepository.save(clothingSalesState);
+        clothingSalesRepository.save(product.getClothingSales());
     }
 
     public List<GetPendingClothingSales> getPendingClothingSales() {
