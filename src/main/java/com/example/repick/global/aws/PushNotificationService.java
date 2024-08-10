@@ -9,7 +9,6 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
-import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 
 import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
 
@@ -36,8 +35,7 @@ public class PushNotificationService {
                 .payload(payload)
                 .build();
 
-        InvokeResponse res = awsLambda.invoke(request);
-
+        awsLambda.invoke(request);
 
     }
 

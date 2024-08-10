@@ -15,4 +15,11 @@ public class BagCollect extends ClothingSales{
     private Address initAddress;
     @Column(name = "bag_quantity")
     private Integer bagQuantity;
+
+    @Column(name = "notify_count")
+    private int notifyCount = 0;
+
+    public void updateNotifyCount(int notifyCount) {
+        this.notifyCount = notifyCount;
+    }
 }
