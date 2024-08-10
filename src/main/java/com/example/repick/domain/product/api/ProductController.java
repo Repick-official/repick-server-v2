@@ -225,6 +225,8 @@ public class ProductController {
                     
                     관리자: 반송 완료 업데이트
                     
+                    **returnState: kg 매입, 반송 요청, 반송 완료**
+                    
                     """)
     @PatchMapping("/return")
     public SuccessResponse<Boolean> patchProductReturn(@RequestBody PatchProductReturn patchProductReturn) {
