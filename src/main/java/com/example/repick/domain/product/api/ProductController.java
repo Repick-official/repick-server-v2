@@ -220,7 +220,9 @@ public class ProductController {
                     상품 리턴 상태 변경은 다음 상황에서 사용합니다:
                     
                     (리젝된 경우, 만료된 경우)
+                    
                     사용자: kg 매입 신청/돌려받기 신청
+                    
                     관리자: 반송 완료 업데이트
                     
                     """)
@@ -238,8 +240,11 @@ public class ProductController {
 
     @Operation(summary = "유저 상품 현황",
             description = """
-                    productState: selling, sold-out, rejected, selling-end
+                    
+                    productState: selling, sold-out, rejected, selling-end, kg-sell
+                    
                     isExpired: kg 매입 화면에서만 사용 (true: 만료된 상품 조회, false: 리젝 상품 조회)
+                    
                     """)
     @GetMapping("/{clothingSalesId}/{productState}")
     public SuccessResponse<PageResponse<List<?>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
