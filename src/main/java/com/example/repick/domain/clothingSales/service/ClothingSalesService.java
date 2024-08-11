@@ -167,17 +167,15 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition PageCondition, DateCondition dateCondition) {Page<ClothingSales> clothingSalesPage;
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(String type, PageCondition PageCondition, DateCondition dateCondition) {Page<ClothingSales> clothingSalesPage;
         if (dateCondition.hasValidDateRange()) {
             // 날짜 범위에 맞는 데이터 페이징 처리
             LocalDateTime startDateTime = dateCondition.startDate().atStartOfDay(); // 시작일의 자정
             LocalDateTime endDateTime = dateCondition.endDate().atTime(LocalTime.MAX); // 종료일의 마지막 시간
-            clothingSalesPage = clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(
-                    startDateTime, endDateTime, PageCondition.toPageable()
-            );
+            clothingSalesPage = getClothingSalesByDateRangeAndSort(type, startDateTime, endDateTime, PageCondition);
         } else {
             // 날짜 조건이 없으면 전체 데이터 페이징 처리
-            clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(PageCondition.toPageable());
+            clothingSalesPage = getClothingSalesBasedOnSort(type, PageCondition);
         }
 
         List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
@@ -187,6 +185,20 @@ public class ClothingSalesService {
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
+    private Page<ClothingSales> getClothingSalesByDateRangeAndSort(String type, LocalDateTime startDateTime, LocalDateTime endDateTime, PageCondition pageCondition) {
+        return switch (type) {
+            case "oldest" -> clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
+            case "latest" -> clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
+            default -> throw new CustomException(INVALID_SORT_TYPE);
+        };
+    }
+    private Page<ClothingSales> getClothingSalesBasedOnSort(String type, PageCondition pageCondition) {
+        return switch (type) {
+            case "oldest" -> clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
+            case "latest" -> clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+            default -> throw new CustomException(INVALID_SORT_TYPE);
+        };
+    }
 
     @Transactional
     public Boolean updateClothingSalesState(PostClothingSalesState postClothingSalesState) {

@@ -9,6 +9,7 @@ import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
 import com.example.repick.global.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
@@ -105,8 +106,10 @@ public class ClothingSalesController {
 
     @Operation(summary = "옷장 정리 현황")
     @GetMapping("/status")
-    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@ParameterObject  PageCondition pageCondition, @ParameterObject DateCondition dateCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(pageCondition, dateCondition));
+    public SuccessResponse<PageResponse<List<GetClothingSales>>> getClothingSalesStatus(@Parameter(description = "조회 타입 (latest, oldest)") @RequestParam(value = "type", defaultValue = "latest", required = false) String type,
+                                                                                        @ParameterObject  PageCondition pageCondition,
+                                                                                        @ParameterObject DateCondition dateCondition) {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesInformation(type, pageCondition, dateCondition));
     }
 
     @Operation(summary = "옷장 정리 상태 업데이트")
