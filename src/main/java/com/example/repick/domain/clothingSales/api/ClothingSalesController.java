@@ -4,7 +4,6 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
-import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.global.page.DateCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
@@ -114,21 +113,6 @@ public class ClothingSalesController {
     @PostMapping("/status")
     public SuccessResponse<Boolean> updateClothingSalesStatus(@RequestBody PostClothingSalesState postClothingSalesState) {
         return SuccessResponse.success(clothingSalesService.updateClothingSalesState(postClothingSalesState));
-    }
-
-    @Operation(summary = "상품 종합 현황")
-    @GetMapping("/product-count")
-    public SuccessResponse<PageResponse<List<GetClothingSalesProductCount>>> getClothingSalesProductCount(@RequestParam(required = false) Long userId,
-                                                                                                          @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProductCount(userId, pageCondition));
-    }
-
-    @Operation(summary = "유저 상품 현황")
-    @GetMapping("/products/{clothingSalesId}/{productStateType}")
-    public SuccessResponse<PageResponse<List<GetClothingSalesProduct>>> getClothingSalesProduct(@PathVariable Long clothingSalesId,
-                                                                                  @PathVariable ProductStateType productStateType,
-                                                                                  @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(clothingSalesService.getClothingSalesProduct(clothingSalesId, productStateType, pageCondition));
     }
 
     @Operation(summary = "옷장 정리 상품 무게 등록")

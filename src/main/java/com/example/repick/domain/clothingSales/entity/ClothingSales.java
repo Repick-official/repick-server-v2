@@ -61,6 +61,9 @@ public abstract class ClothingSales {
     @OneToMany(mappedBy = "clothingSales")
     private List<Product> productList;
 
+    private LocalDateTime salesStartDate; // 판매 시작일
+    private LocalDateTime returnRequestDate; // kg 매입요청/반송 요청일
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdDate;
@@ -93,5 +96,13 @@ public abstract class ClothingSales {
         this.quantity = bagQuantity;
         this.address = new Address(postalCode, mainAddress, detailAddress);
         this.collectionDate = LocalDate.parse(collectionDate);
+    }
+
+    public void updateSalesStartDate(LocalDateTime salesStartDate) {
+        this.salesStartDate = salesStartDate;
+    }
+
+    public void updateReturnRequestDate(LocalDateTime returnRequestDate) {
+        this.returnRequestDate = returnRequestDate;
     }
 }

@@ -1,10 +1,10 @@
-package com.example.repick.domain.clothingSales.dto;
+package com.example.repick.domain.product.dto.productClothingSales;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
-public record GetClothingSalesProductCount (
+public record GetProductCountClothingSales(
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
         @Schema(description = "유저 ID") Long userId,

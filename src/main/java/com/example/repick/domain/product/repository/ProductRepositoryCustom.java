@@ -1,11 +1,11 @@
 package com.example.repick.domain.product.repository;
 
-import com.example.repick.domain.clothingSales.dto.GetClothingSalesProduct;
-import com.example.repick.domain.clothingSales.dto.GetClothingSalesProductCount;
+import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.clothingSales.dto.GetProductByClothingSalesDto;
-import com.example.repick.domain.product.dto.product.GetBrandList;
-import com.example.repick.domain.product.dto.product.GetProductThumbnail;
-import com.example.repick.domain.product.dto.product.ProductFilter;
+import com.example.repick.domain.product.dto.productClothingSales.GetKgSellProductClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetProductCountClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetProductsClothingSales;
+import com.example.repick.domain.product.dto.productClothingSales.GetReturnedProductClothingSales;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductStateType;
@@ -50,9 +50,11 @@ public interface ProductRepositoryCustom {
 
     List<Product> findRecommendation(Long userId);
 
-    Page<GetClothingSalesProductCount> getClothingSalesProductCount(Pageable pageable, Long userId);
+    Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId);
 
-    Page<GetClothingSalesProduct> getClothingSalesPendingProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+    Page<GetProductsClothingSales> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 
-    Page<GetClothingSalesProduct> getClothingSalesCancelledProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+    Page<GetReturnedProductClothingSales> getClothingSalesReturnedProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
+
+    Page<GetKgSellProductClothingSales> getClothingSalesKgSellProduct(Long clothingSalesId, Boolean isExpired, Pageable pageable);
 }

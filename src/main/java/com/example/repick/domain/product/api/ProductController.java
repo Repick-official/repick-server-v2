@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.api;
 
+import com.example.repick.domain.product.dto.productClothingSales.GetProductCountClothingSales;
 import com.example.repick.domain.product.dto.product.*;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.service.ProductService;
@@ -212,6 +213,47 @@ public class ProductController {
     public SuccessResponse<GetProductDetail> getProductDetail(
             @Parameter(description = "상품ID", example = "3") @PathVariable Long productId) {
         return SuccessResponse.success(productService.getProductDetail(productId));
+    }
+
+    @Operation(summary = "상품 리턴 상태 변경",
+        description = """
+                    상품 리턴 상태 변경은 다음 상황에서 사용합니다:
+                    
+                    (리젝된 경우, 만료된 경우)
+                    
+                    사용자: kg 매입 신청/돌려받기 신청
+                    
+                    관리자: 반송 완료 업데이트
+                    
+                    **returnState: kg 매입, 반송 요청, 반송 완료**
+                    
+                    """)
+    @PatchMapping("/return")
+    public SuccessResponse<Boolean> patchProductReturn(@RequestBody PatchProductReturn patchProductReturn) {
+        return SuccessResponse.success(productService.updateProductReturnState(patchProductReturn));
+    }
+
+    @Operation(summary = "상품 종합 현황")
+    @GetMapping("/count")
+    public SuccessResponse<PageResponse<List<GetProductCountClothingSales>>> getProductCountByClothingSales(@RequestParam(required = false) Long userId,
+                                                                                                            @ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productService.getProductCountByClothingSales(userId, pageCondition));
+    }
+
+    @Operation(summary = "유저 상품 현황",
+            description = """
+                    
+                    productState: selling, sold-out, rejected, selling-end, kg-sell
+                    
+                    isExpired: kg 매입 화면에서만 사용 (true: 만료된 상품 조회, false: 리젝 상품 조회)
+                    
+                    """)
+    @GetMapping("/{clothingSalesId}/{productState}")
+    public SuccessResponse<PageResponse<List<?>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
+                                                                                                        @PathVariable String productState,
+                                                                                                        @ParameterObject PageCondition pageCondition,
+                                                                                                        @RequestParam(required = false) Boolean isExpired) {
+        return SuccessResponse.success(productService.getProductsByUserClothingSales(clothingSalesId, productState, isExpired, pageCondition));
     }
 
 }

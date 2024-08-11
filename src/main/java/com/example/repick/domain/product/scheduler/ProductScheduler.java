@@ -1,5 +1,10 @@
 package com.example.repick.domain.product.scheduler;
 
+import com.example.repick.domain.clothingSales.entity.ClothingSales;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
+import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
+import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
+import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
@@ -25,35 +30,48 @@ public class ProductScheduler {
     private final ProductOrderRepository productOrderRepository;
     private final ProductOrderService productOrderService;
     private final ProductService productService;
-    private final ClothingSalesService clothingSalesService;
+    private final ClothingSalesRepository clothingSalesRepository;
+    private final ClothingSalesStateRepository clothingSalesStateRepository;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateProductDiscountRate() {
-        List<Product> sellingProducts = productRepository.findByProductSellingStateType(ProductStateType.SELLING);
-
-        updateDiscountRate(sellingProducts, p -> p.getPrice() >= 300000, 60);
-        updateDiscountRate(sellingProducts, p -> p.getPrice() >= 200000 && p.getPrice() < 300000, 70);
-        updateDiscountRate(sellingProducts, p -> p.getPrice() >= 100000 && p.getPrice() < 200000, 80);
-        updateDiscountRate(sellingProducts, p -> p.getPrice() < 100000, 90);
-
-        sellingProducts.forEach(productService::calculateDiscountPriceAndPredictDiscountRateAndSave);
+        List<ClothingSales> clothingSales = clothingSalesRepository.findByClothingSalesState(ClothingSalesStateType.SELLING);
+        clothingSales.forEach(cs -> {
+            long days = Duration.between(cs.getSalesStartDate(), LocalDateTime.now()).toDays();
+            if (days >= 90) handleExpiredSales(cs);
+            else updateDiscountRate(cs.getProductList(), days);
+            cs.getProductList().forEach(productService::calculateDiscountPriceAndPredictDiscountRateAndSave);
+        });
     }
 
-    private void updateDiscountRate(List<Product> products, Predicate<Product> priceRange, long maxDiscountRate) {
-        products.stream()
-                .filter(priceRange)
-                .forEach(p -> {
-                    long days = Duration.between(p.getSalesStartDate(), LocalDateTime.now()).toDays();
-                    if (days >= 30 && days < 60) p.updateDiscountRate(maxDiscountRate / 2);
-                    else if (days >= 60 && days < 90) p.updateDiscountRate(maxDiscountRate);
-                    else if (days >= 90) {
-                        productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
-                        // Product 엔티티의 productState 업데이트
-                        p.updateProductState(ProductStateType.SELLING_END);
-                        productRepository.save(p);
-                        clothingSalesService.updateSellingExpired(p);
-                    }
-                });
+    private void handleExpiredSales(ClothingSales clothingSales) {
+        clothingSales.getProductList().forEach(p -> {
+            productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
+            p.updateProductState(ProductStateType.SELLING_END);
+            productRepository.save(p);
+        });
+        ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), ClothingSalesStateType.SELLING_EXPIRED);
+        clothingSales.updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
+        clothingSalesStateRepository.save(clothingSalesState);
+        clothingSalesRepository.save(clothingSales);
+    }
+
+    private void updateDiscountRate(List<Product> products, long days) {
+        products.forEach(p -> {
+            long price = p.getPrice();
+            if (days >= 30 && days < 60){
+                if (price >= 300000) p.updateDiscountRate(30L);
+                else if (price >= 200000) p.updateDiscountRate(35L);
+                else if (price >= 100000) p.updateDiscountRate(40L);
+                else p.updateDiscountRate(45L);
+            }
+            else if (days >= 60 && days < 90){
+                if (price >= 300000) p.updateDiscountRate(60L);
+                else if (price >= 200000) p.updateDiscountRate(70L);
+                else if (price >= 100000) p.updateDiscountRate(80L);
+                else p.updateDiscountRate(90L);
+            }
+        });
     }
 
     @Scheduled(cron = "0 0 0 * * *")

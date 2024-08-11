@@ -1,8 +1,10 @@
 package com.example.repick.domain.product.service;
 
+import com.example.repick.domain.product.dto.productClothingSales.GetProductCountClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.product.dto.product.*;
+import com.example.repick.domain.product.dto.productClothingSales.GetKgSellProductClothingSales;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
@@ -340,6 +342,7 @@ public class ProductService {
         return sizes;
     }
 
+    @Transactional
     public Boolean toggleLike(Long productId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
@@ -465,5 +468,43 @@ public class ProductService {
         recommendationService.adjustUserPreferenceOnDetail(userId, productId, new double[]{1.03, 1.01, 0.99});
 
     }
+
+    @Transactional
+    public Boolean updateProductReturnState(PatchProductReturn patchProductReturn){
+        patchProductReturn.productIds().forEach(productId -> {
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+            product.updateReturnState(ProductReturnStateType.fromValue(patchProductReturn.returnState()));
+            productRepository.save(product);
+        });
+        return true;
+    }
+
+    @Transactional
+    public PageResponse<List<GetProductCountClothingSales>> getProductCountByClothingSales(Long userId, PageCondition pageCondition) {
+        Page<GetProductCountClothingSales> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
+    }
+
+    public PageResponse<List<?>> getProductsByUserClothingSales(Long clothingSalesId, String productState, Boolean isExpired, PageCondition pageCondition) {
+        Page<?> pages;
+        if (productState.equals("kg-sell")) { // kg 매입 상품(리젝, 만료되었을 경우 kg 매입 가능)
+            pages = productRepository.getClothingSalesKgSellProduct(clothingSalesId, isExpired, pageCondition.toPageable());
+            return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
+        }
+        else{
+            ProductStateType productStateType = ProductStateType.fromEngValue(productState);
+            // 판매 중, 판매 완료 상품
+            if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
+                pages = productRepository.getClothingSalesProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+            }
+            // 리젝, 만료 상품
+            else {
+                pages = productRepository.getClothingSalesReturnedProduct(clothingSalesId, productStateType, pageCondition.toPageable());
+            }
+        }
+        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
+    }
+
 
 }

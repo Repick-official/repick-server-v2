@@ -47,11 +47,6 @@ public class ClothingSalesService {
     private final ClothingSalesStateRepository clothingSalesStateRepository;
     private final ProductOrderRepository productOrderRepository;
 
-    public void updateSellingExpired(Product product) {
-        ClothingSalesState clothingSalesState = ClothingSalesState.of(product.getClothingSales().getId(), ClothingSalesStateType.SELLING_EXPIRED);
-        clothingSalesStateRepository.save(clothingSalesState);
-    }
-
     public List<GetPendingClothingSales> getPendingClothingSales() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
@@ -96,7 +91,6 @@ public class ClothingSalesService {
         productList.forEach(product -> {
             productService.calculateDiscountPriceAndPredictDiscountRateAndSave(product);
             productService.changeSellingState(product, ProductStateType.SELLING);
-            product.updateSalesStartDate(LocalDateTime.now());
         });
         productRepository.saveAll(productList);
 
@@ -104,6 +98,7 @@ public class ClothingSalesService {
         ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), ClothingSalesStateType.SELLING);
         clothingSalesStateRepository.save(clothingSalesState);
         clothingSales.updateClothingSalesState(ClothingSalesStateType.SELLING);
+        clothingSales.updateSalesStartDate(LocalDateTime.now());
         clothingSalesRepository.save(clothingSales);
 
         return true;
@@ -121,8 +116,7 @@ public class ClothingSalesService {
             if(productList.isEmpty()) {
                 continue;
             }
-            LocalDateTime salesStartDate = productList.get(0).getSalesStartDate();
-            int remainingSalesDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), salesStartDate.toLocalDate().plusDays(90));
+            int remainingSalesDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), clothingSales.getSalesStartDate().toLocalDate().plusDays(90));
             int sellingQuantity = 0;
             int pendingQuantity = 0;
             int soldQuantity = 0;
@@ -139,7 +133,7 @@ public class ClothingSalesService {
                     }
                 }
             }
-            sellingClothingSalesList.add(GetSellingClothingSales.of(clothingSales, salesStartDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, pendingQuantity, soldQuantity));
+            sellingClothingSalesList.add(GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, pendingQuantity, soldQuantity));
         }
         return sellingClothingSalesList;
 
@@ -209,28 +203,11 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public PageResponse<List<GetClothingSalesProductCount>> getClothingSalesProductCount(Long userId, PageCondition pageCondition) {
-        Page<GetClothingSalesProductCount> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
-        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
-    }
-
-    @Transactional
     public void updateClothingSalesWeight(PatchClothingSalesWeight patchClothingSalesWeight) {
         ClothingSales clothingSales = clothingSalesRepository.findById(patchClothingSalesWeight.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
         clothingSales.updateWeight(patchClothingSalesWeight.weight());
         clothingSalesRepository.save(clothingSales);
-    }
-
-    public PageResponse<List<GetClothingSalesProduct>> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, PageCondition pageCondition) {
-        Page<GetClothingSalesProduct> pages;
-        if (productStateType == ProductStateType.SELLING || productStateType == ProductStateType.SOLD_OUT) {
-            pages = productRepository.getClothingSalesPendingProduct(clothingSalesId, productStateType, pageCondition.toPageable());
-        }
-        else {
-            pages = productRepository.getClothingSalesCancelledProduct(clothingSalesId, productStateType, pageCondition.toPageable());
-        }
-        return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
     public GetClothingSalesUser getClothingSalesUser(Long clothingSalesId){

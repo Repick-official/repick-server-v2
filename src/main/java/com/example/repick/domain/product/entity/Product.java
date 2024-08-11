@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity @NoArgsConstructor(access = AccessLevel.PROTECTED) @Getter
@@ -46,9 +45,10 @@ public class Product extends BaseEntity {
     private Gender gender;
     @Column(length = 1000)
     private String thumbnailImageUrl;
-    private LocalDateTime salesStartDate;
     @Enumerated(EnumType.STRING)
     private ProductStateType productState;
+    @Enumerated(EnumType.STRING)
+    private ProductReturnStateType returnState; // 리젝되거나 만료된 상품의 상태
     private long settlement; // 정산금
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
@@ -162,12 +162,12 @@ public class Product extends BaseEntity {
         this.thumbnailImageUrl = thumbnailImageUrl;
     }
 
-    public void updateSalesStartDate(LocalDateTime salesStartDate) {
-        this.salesStartDate = salesStartDate;
-    }
-
     public void updateProductState(ProductStateType productState) {
         this.productState = productState;
+    }
+
+    public void updateReturnState(ProductReturnStateType returnState) {
+        this.returnState = returnState;
     }
 
     public void updateSettlement(long settlement) {
