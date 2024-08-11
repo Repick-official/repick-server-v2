@@ -172,10 +172,10 @@ public class ClothingSalesService {
             // 날짜 범위에 맞는 데이터 페이징 처리
             LocalDateTime startDateTime = dateCondition.startDate().atStartOfDay(); // 시작일의 자정
             LocalDateTime endDateTime = dateCondition.endDate().atTime(LocalTime.MAX); // 종료일의 마지막 시간
-            clothingSalesPage = getClothingSalesByDateRangeAndSort(type, startDateTime, endDateTime, PageCondition);
+            clothingSalesPage = getClothingSales(type, PageCondition, startDateTime, endDateTime);
         } else {
             // 날짜 조건이 없으면 전체 데이터 페이징 처리
-            clothingSalesPage = getClothingSalesBasedOnSort(type, PageCondition);
+            clothingSalesPage = getClothingSales(type, PageCondition, null, null);
         }
 
         List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
@@ -185,20 +185,24 @@ public class ClothingSalesService {
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
-    private Page<ClothingSales> getClothingSalesByDateRangeAndSort(String type, LocalDateTime startDateTime, LocalDateTime endDateTime, PageCondition pageCondition) {
-        return switch (type) {
-            case "oldest" -> clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
-            case "latest" -> clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
-            default -> throw new CustomException(INVALID_SORT_TYPE);
-        };
+    private Page<ClothingSales> getClothingSales(String type, PageCondition pageCondition, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        if ("oldest".equals(type)) {
+            if (startDateTime != null && endDateTime != null) {
+                return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
+            } else {
+                return clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
+            }
+        } else if ("latest".equals(type)) {
+            if (startDateTime != null && endDateTime != null) {
+                return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
+            } else {
+                return clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+            }
+        } else {
+            throw new CustomException(INVALID_SORT_TYPE);
+        }
     }
-    private Page<ClothingSales> getClothingSalesBasedOnSort(String type, PageCondition pageCondition) {
-        return switch (type) {
-            case "oldest" -> clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
-            case "latest" -> clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
-            default -> throw new CustomException(INVALID_SORT_TYPE);
-        };
-    }
+
 
     @Transactional
     public Boolean updateClothingSalesState(PostClothingSalesState postClothingSalesState) {
