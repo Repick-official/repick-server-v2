@@ -50,7 +50,7 @@ public interface ProductRepositoryCustom {
 
     List<Product> findRecommendation(Long userId);
 
-    Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId);
+    Page<GetProductCountClothingSales> getClothingSalesProductCount(String type, Pageable pageable, Long userId);
 
     Page<GetProductsClothingSales> getClothingSalesProduct(Long clothingSalesId, ProductStateType productStateType, Pageable pageable);
 
