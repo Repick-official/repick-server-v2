@@ -2,7 +2,9 @@ package com.example.repick.domain.product.entity;
 
 import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
+import lombok.Getter;
 
+@Getter
 public enum QualityRate {
     S(1, "S"),
     A(2, "A"),
@@ -14,14 +16,6 @@ public enum QualityRate {
     QualityRate(int id, String value) {
         this.id = id;
         this.value = value;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public static QualityRate fromId(int id) {

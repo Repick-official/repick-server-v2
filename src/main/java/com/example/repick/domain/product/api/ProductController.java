@@ -249,10 +249,8 @@ public class ProductController {
                     
                     """)
     @GetMapping("/{clothingSalesId}/{productState}")
-    public SuccessResponse<PageResponse<List<?>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId,
-                                                                                                        @PathVariable String productState,
-                                                                                                        @ParameterObject PageCondition pageCondition,
-                                                                                                        @RequestParam(required = false) Boolean isExpired) {
+    public SuccessResponse<PageResponse<List<?>>> getProductsByUserClothingSales(@PathVariable Long clothingSalesId, @PathVariable String productState,
+                                                                                 @ParameterObject PageCondition pageCondition, @RequestParam(required = false) Boolean isExpired) {
         return SuccessResponse.success(productService.getProductsByUserClothingSales(clothingSalesId, productState, isExpired, pageCondition));
     }
 
