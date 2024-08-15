@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -265,6 +266,30 @@ public class ProductOrderService {
         productOrder.updateProductOrderState(ProductOrderState.fromValue(productOrderStateRequest.state()));
         productOrderRepository.save(productOrder);
         return true;
+    }
+
+    public GetProductOrderCount getProductOrderCount(){
+        List<ProductOrder> productOrders = productOrderRepository.findByCreatedDateAfter(LocalDateTime.now().minusMonths(1));
+        long paymentCompletedCount = 0;
+        long shippingCount = 0;
+        long confirmWaitCount = 0;
+        long confirmedCount = 0;
+        long refundRequestCount = 0;
+        for (ProductOrder productOrder : productOrders) {
+            switch (productOrder.getProductOrderState()) {
+                case PAYMENT_COMPLETED -> paymentCompletedCount++;
+                case SHIPPING -> shippingCount++;
+                case DELIVERED -> {
+                    if (productOrder.isConfirmed()) {
+                        confirmedCount++;
+                    } else {
+                        confirmWaitCount++;
+                    }
+                }
+                case RETURN_REQUESTED -> refundRequestCount++;
+            }
+        }
+        return GetProductOrderCount.of(paymentCompletedCount, shippingCount, confirmWaitCount, confirmedCount, refundRequestCount);
     }
 
 }

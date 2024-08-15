@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,5 +22,7 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
     Page<ProductOrder> findByProductOrderStateIn(List<ProductOrderState> productOrderStates, Pageable pageable);
 
     Optional<ProductOrder> findFirstByProductIdOrderByCreatedDateDesc(Long productId);
+
+    List<ProductOrder> findByCreatedDateAfter(LocalDateTime createdDate);
 
 }

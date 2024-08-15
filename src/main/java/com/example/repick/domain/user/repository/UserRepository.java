@@ -12,5 +12,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Long countIsDeletedFalse();
     Long countIsDeletedFalseByCreatedDateAfter(LocalDateTime createdDate);
-    
+
 }
