@@ -23,6 +23,6 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
 
     Optional<ProductOrder> findFirstByProductIdOrderByCreatedDateDesc(Long productId);
 
-    List<ProductOrder> findByCreatedDateAfter(LocalDateTime createdDate);
+    List<ProductOrder> findByLastModifiedDateAfter(LocalDateTime localDateTime);
 
 }

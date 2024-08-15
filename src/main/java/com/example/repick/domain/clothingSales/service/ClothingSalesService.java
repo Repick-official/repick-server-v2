@@ -218,5 +218,23 @@ public class ClothingSalesService {
         return GetClothingSalesUser.of(code, user);
     }
 
+    public GetClothingSalesCount getClothingSalesCount() {
+        List<ClothingSales> clothingSalesList = clothingSalesRepository.findByLastModifiedDateAfter(LocalDateTime.now().minusMonths(1));
+        long collectionRequestCount = 0;
+        long productionProgressCount = 0;
+        long productionCompleteCount = 0;
+        long sellingCount = 0;
+        long settlementRequestCount = 0; // TODO: 정산 요청 수 (정산금 출금 신청 플로우 구현 후 추가)
+        for (ClothingSales clothingSales : clothingSalesList) {
+            switch (clothingSales.getClothingSalesState()) {
+                case BOX_COLLECT_REQUEST, BAG_COLLECT_REQUEST -> collectionRequestCount++;
+                case COLLECTED, SHOOTING, SHOOTED, PRODUCTING -> productionProgressCount++;
+                case PRODUCTED, PRODUCT_REGISTERED -> productionCompleteCount++;
+                case SELLING -> sellingCount++;
+            }
+        }
+        return GetClothingSalesCount.of(collectionRequestCount, productionProgressCount, productionCompleteCount, sellingCount, settlementRequestCount);
+    }
+
 
 }

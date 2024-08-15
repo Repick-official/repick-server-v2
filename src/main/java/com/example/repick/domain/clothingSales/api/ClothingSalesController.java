@@ -128,5 +128,12 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.getClothingSalesUser(clothingSalesId));
     }
 
+    @Operation(summary = "어드민 대시보드 - 옷장 정리 현황",
+            description = "최근 1개월 기준")
+    @GetMapping("/count")
+    public SuccessResponse<GetClothingSalesCount> getClothingSalesCount() {
+        return SuccessResponse.success(clothingSalesService.getClothingSalesCount());
+    }
+
 }
 

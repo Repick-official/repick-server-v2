@@ -269,7 +269,7 @@ public class ProductOrderService {
     }
 
     public GetProductOrderCount getProductOrderCount(){
-        List<ProductOrder> productOrders = productOrderRepository.findByCreatedDateAfter(LocalDateTime.now().minusMonths(1));
+        List<ProductOrder> productOrders = productOrderRepository.findByLastModifiedDateAfter(LocalDateTime.now().minusMonths(1));
         long paymentCompletedCount = 0;
         long shippingCount = 0;
         long confirmWaitCount = 0;
