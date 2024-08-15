@@ -10,7 +10,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByProviderId(String providerId);
 
-    Long countIsDeletedFalse();
-    Long countIsDeletedFalseByCreatedDateAfter(LocalDateTime createdDate);
+    Long countByIsDeletedFalse();
+    Long countByIsDeletedFalseAndCreatedDateAfter(LocalDateTime createdDate);
 
 }

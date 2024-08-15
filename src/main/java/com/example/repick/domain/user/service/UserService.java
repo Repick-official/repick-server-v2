@@ -188,8 +188,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public GetUserStatistics getUserStatistics() {
-        long totalUserCount = userRepository.countIsDeletedFalse();
-        long newUserCount = userRepository.countIsDeletedFalseByCreatedDateAfter(LocalDateTime.now().minusMonths(1));
+        long totalUserCount = userRepository.countByIsDeletedFalse();
+        long newUserCount = userRepository.countByIsDeletedFalseAndCreatedDateAfter(LocalDateTime.now().minusMonths(1));
         return GetUserStatistics.of(totalUserCount, newUserCount);
     }
 }

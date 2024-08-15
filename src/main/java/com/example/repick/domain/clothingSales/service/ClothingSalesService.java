@@ -9,6 +9,7 @@ import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepo
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
+import com.example.repick.domain.product.entity.ProductOrderState;
 import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
@@ -219,14 +220,14 @@ public class ClothingSalesService {
     }
 
     public GetClothingSalesCount getClothingSalesCount() {
-        List<ClothingSales> clothingSalesList = clothingSalesRepository.findByLastModifiedDateAfter(LocalDateTime.now().minusMonths(1));
+        List<ClothingSalesState> clothingSalesStateList = clothingSalesStateRepository.findByCreatedDateAfter(LocalDateTime.now().minusMonths(1));
         long collectionRequestCount = 0;
         long productionProgressCount = 0;
         long productionCompleteCount = 0;
         long sellingCount = 0;
         long settlementRequestCount = 0; // TODO: 정산 요청 수 (정산금 출금 신청 플로우 구현 후 추가)
-        for (ClothingSales clothingSales : clothingSalesList) {
-            switch (clothingSales.getClothingSalesState()) {
+        for (ClothingSalesState clothingSalesState : clothingSalesStateList) {
+            switch (clothingSalesState.getClothingSalesStateType()) {
                 case BOX_COLLECT_REQUEST, BAG_COLLECT_REQUEST -> collectionRequestCount++;
                 case COLLECTED, SHOOTING, SHOOTED, PRODUCTING -> productionProgressCount++;
                 case PRODUCTED, PRODUCT_REGISTERED -> productionCompleteCount++;
@@ -234,6 +235,17 @@ public class ClothingSalesService {
             }
         }
         return GetClothingSalesCount.of(collectionRequestCount, productionProgressCount, productionCompleteCount, sellingCount, settlementRequestCount);
+    }
+
+    public GetClothingSalesAndProductOrderCount getCountToday(){
+        int collectionRequestCount = clothingSalesStateRepository.countByClothingSalesStateTypeInAndCreatedDateAfter(
+                List.of(ClothingSalesStateType.BOX_COLLECT_REQUEST, ClothingSalesStateType.BAG_COLLECT_REQUEST),
+                LocalDate.now().atStartOfDay());
+        int paymentCompleteCount = productOrderRepository.countByProductOrderStateAndLastModifiedDateAfter(
+                ProductOrderState.PAYMENT_COMPLETED, LocalDate.now().atStartOfDay());
+        int returnRequestCount = productOrderRepository.countByProductOrderStateAndLastModifiedDateAfter(
+                ProductOrderState.RETURN_REQUESTED, LocalDate.now().atStartOfDay());
+        return GetClothingSalesAndProductOrderCount.of(collectionRequestCount, paymentCompleteCount, returnRequestCount);
     }
 
 

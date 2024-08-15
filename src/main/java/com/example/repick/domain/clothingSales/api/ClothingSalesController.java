@@ -135,5 +135,11 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.getClothingSalesCount());
     }
 
+    @Operation(summary = "어드민 대시보드 - 오늘의 현황")
+    @GetMapping("/today")
+    public SuccessResponse<GetClothingSalesAndProductOrderCount> getCountToday() {
+        return SuccessResponse.success(clothingSalesService.getCountToday());
+    }
+
 }
 

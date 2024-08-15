@@ -24,5 +24,6 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
     Optional<ProductOrder> findFirstByProductIdOrderByCreatedDateDesc(Long productId);
 
     List<ProductOrder> findByLastModifiedDateAfter(LocalDateTime localDateTime);
+    int countByProductOrderStateAndLastModifiedDateAfter(ProductOrderState productOrderState, LocalDateTime localDateTime);
 
 }
