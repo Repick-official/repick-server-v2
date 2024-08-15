@@ -159,6 +159,7 @@ public class UserService {
         return new TokenResponse(accessToken, postTokenRefresh.refreshToken());
     }
 
+    @Transactional(readOnly = true)
     public GetMyPage getMyPage() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -183,5 +184,12 @@ public class UserService {
 
         // 닉네임, 포인트, 배송 정보
         return GetMyPage.of(user.getNickname(), user.getSettlement(), preparing, shipping, delivered, confirmed);
+    }
+
+    @Transactional(readOnly = true)
+    public GetUserStatistics getUserStatistics() {
+        long totalUserCount = userRepository.countIsDeletedFalse();
+        long newUserCount = userRepository.countIsDeletedFalseByCreatedDateAfter(LocalDateTime.now().minusMonths(1));
+        return GetUserStatistics.of(totalUserCount, newUserCount);
     }
 }

@@ -264,4 +264,10 @@ public class UserController {
         return SuccessResponse.success(userService.getMyPage());
     }
 
+    @Operation(summary = "어드민 대시보드 - 유저 통계")
+    @GetMapping("/statistics")
+    public SuccessResponse<GetUserStatistics> getUserStatistics() {
+        return SuccessResponse.success(userService.getUserStatistics());
+    }
+
 }
