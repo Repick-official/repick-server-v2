@@ -11,6 +11,7 @@ import lombok.*;
 public class UserFcmTokenInfo {
     private Long userId;
     private String fcmToken;
+    private Boolean pushAllow = true;
 
     @DynamoDBHashKey
     public Long getUserId() {
@@ -22,8 +23,17 @@ public class UserFcmTokenInfo {
         return fcmToken;
     }
 
-    public void update(String fcmToken) {
+    @DynamoDBAttribute
+    public Boolean getPushAllow() {
+        return pushAllow;
+    }
+
+    public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken == null ? this.fcmToken : fcmToken;
+    }
+
+    public void updatePushAllow(Boolean pushAllow) {
+        this.pushAllow = pushAllow;
     }
 
     public void setUserId(Long userId) {

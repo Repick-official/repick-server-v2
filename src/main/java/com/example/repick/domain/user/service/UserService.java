@@ -192,4 +192,14 @@ public class UserService {
         long newUserCount = userRepository.countByIsDeletedFalseAndCreatedDateAfter(LocalDateTime.now().minusMonths(1));
         return GetUserStatistics.of(totalUserCount, newUserCount);
     }
+
+    @Transactional
+    public Boolean updatePushAllow(boolean pushAllow) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        userFcmTokenInfoService.updatePushAllow(user.getId(), pushAllow);
+
+        return true;
+    }
 }
