@@ -1,5 +1,6 @@
 package com.example.repick.domain.user.api;
 
+import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
 import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.service.UserService;
 import com.example.repick.global.jwt.TokenResponse;
@@ -34,6 +35,7 @@ public class UserController {
     private final AppleUserService appleUserService;
     private final NaverUserService naverUserService;
     private final GoogleUserService googleUserService;
+    private final UserFcmTokenInfoService userFcmTokenInfoService;
 
     @Operation(summary = "구글 엑세스 토큰으로 내부 토큰 발급하기",
             description = """
@@ -262,6 +264,19 @@ public class UserController {
     @GetMapping("/mypage")
     public SuccessResponse<GetMyPage> getMyPage() {
         return SuccessResponse.success(userService.getMyPage());
+    }
+
+    @Operation(summary = "푸시 알림 허용 여부 수정하기",
+            description = """
+                    푸시 알림 허용 여부를 수정합니다.
+                    
+                    요청값:
+                    - (Query Parameter) pushAllow: 푸시 알림 허용 여부
+                    """)
+    @PatchMapping("/pushAllow")
+    public SuccessResponse<Boolean> patchPushAllow(@Parameter(name = "pushAllow", description = "푸시 알림 허용 여부", required = true)
+                                        @RequestParam boolean pushAllow) {
+        return SuccessResponse.success(userService.updatePushAllow(pushAllow));
     }
 
 }

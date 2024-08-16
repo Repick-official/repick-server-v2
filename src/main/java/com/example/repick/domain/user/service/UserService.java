@@ -184,4 +184,13 @@ public class UserService {
         // 닉네임, 포인트, 배송 정보
         return GetMyPage.of(user.getNickname(), user.getSettlement(), preparing, shipping, delivered, confirmed);
     }
+
+    public Boolean updatePushAllow(boolean pushAllow) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        userFcmTokenInfoService.updatePushAllow(user.getId(), pushAllow);
+
+        return true;
+    }
 }

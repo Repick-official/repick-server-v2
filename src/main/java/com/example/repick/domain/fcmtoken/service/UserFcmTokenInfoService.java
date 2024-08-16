@@ -19,18 +19,25 @@ public class UserFcmTokenInfoService {
     }
 
     public void save(Long userId, String fcmToken) {
-        userFcmTokenInfoRepository.save(new UserFcmTokenInfo(userId, fcmToken));
+        userFcmTokenInfoRepository.save(new UserFcmTokenInfo(userId, fcmToken, false));
     }
 
     public void saveOrUpdate(Long userId, String fcmToken) {
 
         UserFcmTokenInfo userFcmTokenInfo = userFcmTokenInfoRepository.findById(userId)
-                .orElse(new UserFcmTokenInfo(userId, fcmToken));
+                .orElse(new UserFcmTokenInfo(userId, fcmToken, false));
 
-        userFcmTokenInfo.update(fcmToken);
+        userFcmTokenInfo.updateFcmToken(fcmToken);
 
         userFcmTokenInfoRepository.save(userFcmTokenInfo);
 
+    }
+
+    public void updatePushAllow(Long userId, Boolean pushAllow) {
+        UserFcmTokenInfo userFcmTokenInfo = userFcmTokenInfoRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(USER_FCM_TOKEN_NOT_FOUND));
+        userFcmTokenInfo.updatePushAllow(pushAllow);
+        userFcmTokenInfoRepository.save(userFcmTokenInfo);
     }
 
     public void delete(Long userId) {
