@@ -266,6 +266,12 @@ public class UserController {
         return SuccessResponse.success(userService.getMyPage());
     }
 
+    @Operation(summary = "어드민 대시보드 - 유저 통계")
+    @GetMapping("/statistics")
+    public SuccessResponse<GetUserStatistics> getUserStatistics() {
+        return SuccessResponse.success(userService.getUserStatistics());
+    }
+
     @Operation(summary = "푸시 알림 허용 여부 수정하기",
             description = """
                     푸시 알림 허용 여부를 수정합니다.

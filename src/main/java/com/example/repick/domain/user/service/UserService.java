@@ -159,6 +159,7 @@ public class UserService {
         return new TokenResponse(accessToken, postTokenRefresh.refreshToken());
     }
 
+    @Transactional(readOnly = true)
     public GetMyPage getMyPage() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -185,6 +186,14 @@ public class UserService {
         return GetMyPage.of(user.getNickname(), user.getSettlement(), preparing, shipping, delivered, confirmed);
     }
 
+    @Transactional(readOnly = true)
+    public GetUserStatistics getUserStatistics() {
+        long totalUserCount = userRepository.countByIsDeletedFalse();
+        long newUserCount = userRepository.countByIsDeletedFalseAndCreatedDateAfter(LocalDateTime.now().minusMonths(1));
+        return GetUserStatistics.of(totalUserCount, newUserCount);
+    }
+
+    @Transactional
     public Boolean updatePushAllow(boolean pushAllow) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));

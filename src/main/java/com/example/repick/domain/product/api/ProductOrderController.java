@@ -78,4 +78,10 @@ public class ProductOrderController {
         return SuccessResponse.success(productOrderService.updateProductOrderState(productOrderId, productOrderSateRequest));
     }
 
+    @Operation(summary = "어드민 대시보드 - 구매 현황", description = "최근 1개월 기준")
+    @GetMapping("/count")
+    public SuccessResponse<GetProductOrderCount> getProductOrderCount() {
+        return SuccessResponse.success(productOrderService.getProductOrderCount());
+    }
+
 }
