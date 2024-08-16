@@ -11,7 +11,7 @@ import lombok.*;
 public class UserFcmTokenInfo {
     private Long userId;
     private String fcmToken;
-    private Boolean pushAllow = false;
+    private Boolean pushAllow = true;
 
     @DynamoDBHashKey
     public Long getUserId() {
