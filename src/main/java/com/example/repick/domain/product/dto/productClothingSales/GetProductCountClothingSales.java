@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 public record GetProductCountClothingSales(
+        @Schema(description = "옷장 정리 ID") Long clothingSalesId,
         @Schema(description = "코드") String code,
         @Schema(description = "이름") String name,
         @Schema(description = "유저 ID") Long userId,

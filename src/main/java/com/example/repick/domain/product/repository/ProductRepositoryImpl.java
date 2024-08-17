@@ -381,6 +381,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId) {
         JPAQuery<GetProductCountClothingSales> query =  jpaQueryFactory
                 .select(Projections.constructor(GetProductCountClothingSales.class,
+                        product.clothingSales.id,
                         product.user.id.stringValue().concat("-").concat(product.clothingSalesCount.stringValue()),
                         product.user.nickname,
                         product.user.id,
@@ -432,6 +433,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                     String dateRange = String.format("%s ~ %s", salesStartDate.format(formatter), endDate.format(formatter));
 
                     return new GetProductsClothingSales(
+                            p.getId(),
                             p.getProductCode(),
                             p.getThumbnailImageUrl(),
                             p.getProductName(),
@@ -458,6 +460,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .stream()
                 .map(p -> new GetReturnedProductClothingSales(
+                        p.getId(),
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
@@ -484,6 +487,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .stream()
                 .map(p -> new GetKgSellProductClothingSales(
+                        p.getId(),
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
