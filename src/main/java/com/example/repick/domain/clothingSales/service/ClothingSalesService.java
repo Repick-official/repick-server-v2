@@ -167,16 +167,8 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(String type, PageCondition PageCondition, DateCondition dateCondition) {Page<ClothingSales> clothingSalesPage;
-        if (dateCondition.hasValidDateRange()) {
-            // 날짜 범위에 맞는 데이터 페이징 처리
-            LocalDateTime startDateTime = dateCondition.startDate().atStartOfDay(); // 시작일의 자정
-            LocalDateTime endDateTime = dateCondition.endDate().atTime(LocalTime.MAX); // 종료일의 마지막 시간
-            clothingSalesPage = getClothingSales(type, PageCondition, startDateTime, endDateTime);
-        } else {
-            // 날짜 조건이 없으면 전체 데이터 페이징 처리
-            clothingSalesPage = getClothingSales(type, PageCondition, null, null);
-        }
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(String type, PageCondition pageCondition, DateCondition dateCondition) {
+        Page<ClothingSales> clothingSalesPage = getClothingSalesByType(type, pageCondition, dateCondition);
 
         List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
                 .map(GetClothingSales::of)
@@ -185,15 +177,22 @@ public class ClothingSalesService {
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
     }
 
-    private Page<ClothingSales> getClothingSales(String type, PageCondition pageCondition, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    private Page<ClothingSales> getClothingSalesByType(String type, PageCondition pageCondition, DateCondition dateCondition) {
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+
+        if (dateCondition.hasValidDateRange()) {
+            startDateTime = dateCondition.startDate().atStartOfDay();
+            endDateTime = dateCondition.endDate().atTime(LocalTime.MAX);
+        }
         if ("oldest".equals(type)) {
-            if (startDateTime != null && endDateTime != null) {
+            if (dateCondition.hasValidDateRange()) {
                 return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
             } else {
                 return clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
             }
         } else if ("latest".equals(type)) {
-            if (startDateTime != null && endDateTime != null) {
+            if (dateCondition.hasValidDateRange()) {
                 return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
             } else {
                 return clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
