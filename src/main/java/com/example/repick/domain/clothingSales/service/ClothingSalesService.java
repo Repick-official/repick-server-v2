@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -178,13 +179,14 @@ public class ClothingSalesService {
     }
 
     private Page<ClothingSales> getClothingSalesByType(String type, PageCondition pageCondition, DateCondition dateCondition) {
-        LocalDateTime startDateTime = null;
-        LocalDateTime endDateTime = null;
+        LocalDateTime startDateTime = Optional.ofNullable(dateCondition.startDate())
+                .map(LocalDate::atStartOfDay)
+                .orElse(null);
 
-        if (dateCondition.hasValidDateRange()) {
-            startDateTime = dateCondition.startDate().atStartOfDay();
-            endDateTime = dateCondition.endDate().atTime(LocalTime.MAX);
-        }
+        LocalDateTime endDateTime = Optional.ofNullable(dateCondition.endDate())
+                .map(date -> date.atTime(LocalTime.MAX))
+                .orElse(null);
+
         if ("oldest".equals(type)) {
             if (dateCondition.hasValidDateRange()) {
                 return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
