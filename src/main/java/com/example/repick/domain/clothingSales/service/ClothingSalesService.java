@@ -187,20 +187,22 @@ public class ClothingSalesService {
                 .map(date -> date.atTime(LocalTime.MAX))
                 .orElse(null);
 
-        if ("oldest".equals(type)) {
-            if (dateCondition.hasValidDateRange()) {
-                return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
-            } else {
-                return clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
+        switch (type) {
+            case "oldest" -> {
+                if (dateCondition.hasValidDateRange()) {
+                    return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
+                } else {
+                    return clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
+                }
             }
-        } else if ("latest".equals(type)) {
-            if (dateCondition.hasValidDateRange()) {
-                return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
-            } else {
-                return clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+            case "latest" -> {
+                if (dateCondition.hasValidDateRange()) {
+                    return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
+                } else {
+                    return clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+                }
             }
-        } else {
-            throw new CustomException(INVALID_SORT_TYPE);
+            default -> throw new CustomException(INVALID_SORT_TYPE);
         }
     }
 
