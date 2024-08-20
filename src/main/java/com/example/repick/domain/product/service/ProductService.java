@@ -481,8 +481,8 @@ public class ProductService {
     }
 
     @Transactional
-    public PageResponse<List<GetProductCountClothingSales>> getProductCountByClothingSales(Long userId, PageCondition pageCondition) {
-        Page<GetProductCountClothingSales> pages = productRepository.getClothingSalesProductCount(pageCondition.toPageable(), userId);
+    public PageResponse<List<GetProductCountClothingSales>> getProductCountByClothingSales(String type, Long userId, PageCondition pageCondition) {
+        Page<GetProductCountClothingSales> pages = productRepository.getClothingSalesProductCount(type, pageCondition.toPageable(), userId);
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 

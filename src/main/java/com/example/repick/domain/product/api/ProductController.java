@@ -235,9 +235,10 @@ public class ProductController {
 
     @Operation(summary = "상품 종합 현황")
     @GetMapping("/count")
-    public SuccessResponse<PageResponse<List<GetProductCountClothingSales>>> getProductCountByClothingSales(@RequestParam(required = false) Long userId,
+    public SuccessResponse<PageResponse<List<GetProductCountClothingSales>>> getProductCountByClothingSales(@Parameter(description = "조회 타입 (latest, oldest)") @RequestParam(value = "type", defaultValue = "latest", required = false) String type,
+                                                                                                            @RequestParam(required = false) Long userId,
                                                                                                             @ParameterObject PageCondition pageCondition) {
-        return SuccessResponse.success(productService.getProductCountByClothingSales(userId, pageCondition));
+        return SuccessResponse.success(productService.getProductCountByClothingSales(type, userId, pageCondition));
     }
 
     @Operation(summary = "유저 상품 현황",

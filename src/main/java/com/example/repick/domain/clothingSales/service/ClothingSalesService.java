@@ -32,6 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.repick.global.error.exception.ErrorCode.*;
@@ -168,24 +169,42 @@ public class ClothingSalesService {
     }
 
     // Admin API
-    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(PageCondition PageCondition, DateCondition dateCondition) {Page<ClothingSales> clothingSalesPage;
-        if (dateCondition.hasValidDateRange()) {
-            // 날짜 범위에 맞는 데이터 페이징 처리
-            LocalDateTime startDateTime = dateCondition.startDate().atStartOfDay(); // 시작일의 자정
-            LocalDateTime endDateTime = dateCondition.endDate().atTime(LocalTime.MAX); // 종료일의 마지막 시간
-            clothingSalesPage = clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(
-                    startDateTime, endDateTime, PageCondition.toPageable()
-            );
-        } else {
-            // 날짜 조건이 없으면 전체 데이터 페이징 처리
-            clothingSalesPage = clothingSalesRepository.findAllByOrderByCreatedDateDesc(PageCondition.toPageable());
-        }
+    public PageResponse<List<GetClothingSales>> getClothingSalesInformation(String type, PageCondition pageCondition, DateCondition dateCondition) {
+        Page<ClothingSales> clothingSalesPage = getClothingSalesByType(type, pageCondition, dateCondition);
 
         List<GetClothingSales> clothingSalesList = clothingSalesPage.stream()
                 .map(GetClothingSales::of)
                 .collect(Collectors.toList());
         // 페이지 응답 반환
         return PageResponse.of(clothingSalesList, clothingSalesPage.getTotalPages(), clothingSalesPage.getTotalElements());
+    }
+
+    private Page<ClothingSales> getClothingSalesByType(String type, PageCondition pageCondition, DateCondition dateCondition) {
+        LocalDateTime startDateTime = Optional.ofNullable(dateCondition.startDate())
+                .map(LocalDate::atStartOfDay)
+                .orElse(null);
+
+        LocalDateTime endDateTime = Optional.ofNullable(dateCondition.endDate())
+                .map(date -> date.atTime(LocalTime.MAX))
+                .orElse(null);
+
+        switch (type) {
+            case "oldest" -> {
+                if (dateCondition.hasValidDateRange()) {
+                    return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateAsc(startDateTime, endDateTime, pageCondition.toPageable());
+                } else {
+                    return clothingSalesRepository.findAllByOrderByCreatedDateAsc(pageCondition.toPageable());
+                }
+            }
+            case "latest" -> {
+                if (dateCondition.hasValidDateRange()) {
+                    return clothingSalesRepository.findByCreatedDateBetweenOrderByCreatedDateDesc(startDateTime, endDateTime, pageCondition.toPageable());
+                } else {
+                    return clothingSalesRepository.findAllByOrderByCreatedDateDesc(pageCondition.toPageable());
+                }
+            }
+            default -> throw new CustomException(INVALID_SORT_TYPE);
+        }
     }
 
 

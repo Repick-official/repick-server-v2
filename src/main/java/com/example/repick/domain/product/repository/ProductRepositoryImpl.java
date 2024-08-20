@@ -378,7 +378,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<GetProductCountClothingSales> getClothingSalesProductCount(Pageable pageable, Long userId) {
+    public Page<GetProductCountClothingSales> getClothingSalesProductCount(String type, Pageable pageable, Long userId) {
         JPAQuery<GetProductCountClothingSales> query =  jpaQueryFactory
                 .select(Projections.constructor(GetProductCountClothingSales.class,
                         product.clothingSales.id,
@@ -398,9 +398,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .leftJoin(clothingSales).on(product.clothingSales.id.eq(clothingSales.id))
                 .groupBy(
                         product.clothingSales.id
-                )
+                );
 
-                .orderBy(clothingSales.createdDate.max().desc());
+        if ("latest".equalsIgnoreCase(type)) {
+            query.orderBy(clothingSales.createdDate.max().desc());
+        } else if ("oldest".equalsIgnoreCase(type)) {
+            query.orderBy(clothingSales.createdDate.max().asc());
+        }
 
         if (userId != null) {
             query.where(product.user.id.eq(userId));
