@@ -26,4 +26,6 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
     int countByProductOrderStateAndLastModifiedDateAfter(ProductOrderState productOrderState, LocalDateTime localDateTime);
 
     Optional<ProductOrder> findByTrackingNumber(String trackingNumber);
+
+    List<ProductOrder> findByProductOrderState(ProductOrderState productOrderState);
 }
