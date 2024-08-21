@@ -1,5 +1,6 @@
 package com.example.repick.domain.admin.api;
 
+import com.example.repick.domain.admin.dto.DeliveryTrackerCallback;
 import com.example.repick.domain.admin.dto.GetPresignedUrl;
 import com.example.repick.domain.admin.dto.PostFcmToken;
 import com.example.repick.domain.admin.entity.FileType;
@@ -70,5 +71,19 @@ public class AdminController {
                                                                @Parameter(description = "파일 타입 (IMAGE | EXCEL)") @RequestParam FileType fileType) {
         return SuccessResponse.success(adminService.createPresignedUrl(filename, fileType));
     }
+
+    @PostMapping("/deliveryTracking")
+    public SuccessResponse<Boolean> enableTracking(@Parameter(description = "운송장 번호") @RequestParam String trackingNumber,
+                                                   @Parameter(description = "택배사 (kr.cjlogistics)") @RequestParam String carrierId,
+                                                   @Parameter(description = "callback Url", example = "http://localhost:8080/admin/deliveryTracking/callback") @RequestParam String callbackUrl) {
+        return SuccessResponse.success(adminService.enableTracking(trackingNumber, carrierId, callbackUrl));
+    }
+
+    @PostMapping("/deliveryTracking/callback")
+    public SuccessResponse<Boolean> deliveryTrackingCallback(@RequestBody DeliveryTrackerCallback deliveryTrackerCallback) {
+        return SuccessResponse.success(adminService.deliveryTrackingCallback(deliveryTrackerCallback));
+    }
+
+
 
 }
