@@ -6,6 +6,9 @@ import com.example.repick.domain.admin.dto.PostFcmToken;
 import com.example.repick.domain.admin.entity.FileType;
 import com.example.repick.domain.fcmtoken.entity.UserFcmTokenInfo;
 import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
+import com.example.repick.domain.product.entity.ProductOrder;
+import com.example.repick.domain.product.entity.ProductOrderState;
+import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.global.error.exception.CustomException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +32,7 @@ import static com.example.repick.global.error.exception.ErrorCode.LAMBDA_INVOKE_
 public class AdminService {
 
     private final UserFcmTokenInfoService userFcmTokenInfoService;
+    private final ProductOrderRepository productOrderRepository;
     @Value("${delivery.clientId}")
     private String clientId;
     @Value("${delivery.clientSecret}")
@@ -133,8 +137,62 @@ public class AdminService {
     }
 
     public Boolean deliveryTrackingCallback(DeliveryTrackerCallback deliveryTrackerCallback) {
-        System.out.println("deliveryTrackerCallback = " + deliveryTrackerCallback.carrierId());
-        System.out.println("deliveryTrackerCallback = " + deliveryTrackerCallback.trackingNumber());
+        WebClient webClient = WebClient.builder().build();
+        String url = "https://apis.tracker.delivery/graphql";
+
+        String requestBody = "{"
+                + "\"query\": \"query Track($carrierId: ID!, $trackingNumber: String!) { "
+                + "track(carrierId: $carrierId, trackingNumber: $trackingNumber) { "
+                + "lastEvent { time status { code } } } }\","
+                + "\"variables\": {"
+                + "    \"carrierId\": \"" + deliveryTrackerCallback.carrierId() + "\","
+                + "    \"trackingNumber\": \"" + deliveryTrackerCallback.trackingNumber() + "\""
+                + "  }"
+                + "}";
+
+        String response = webClient.post()
+                .uri(url)
+                .header("Content-Type", "application/json")
+                .header("Authorization", "TRACKQL-API-KEY " + clientId + ":" + clientSecret)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        String code;
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            JsonNode rootNode = objectMapper.readTree(response);
+
+            JsonNode codeNode = rootNode.path("data")
+                    .path("track")
+                    .path("lastEvent")
+                    .path("status")
+                    .path("code");
+
+            code = codeNode.asText();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CustomException(INVALID_REQUEST_ERROR);
+        }
+
+        switch (code) {
+            case "DELIVERED" -> {
+                ProductOrder deliveredOrder = productOrderRepository.findByTrackingNumber(deliveryTrackerCallback.trackingNumber())
+                        .orElseThrow(() -> new CustomException(INVALID_REQUEST_ERROR));
+                deliveredOrder.updateProductOrderState(ProductOrderState.DELIVERED);
+                productOrderRepository.save(deliveredOrder);
+            }
+            case "AT_PICKUP" -> {
+                ProductOrder startedOrder = productOrderRepository.findByTrackingNumber(deliveryTrackerCallback.trackingNumber())
+                        .orElseThrow(() -> new CustomException(INVALID_REQUEST_ERROR));
+                startedOrder.updateProductOrderState(ProductOrderState.SHIPPING);
+                productOrderRepository.save(startedOrder);
+            }
+        }
 
         return true;
     }
