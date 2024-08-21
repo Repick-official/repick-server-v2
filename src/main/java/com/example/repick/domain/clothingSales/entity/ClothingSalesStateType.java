@@ -14,7 +14,7 @@ public enum ClothingSalesStateType {
     REQUEST_CANCELLED(3,"요청 취소", "요청 취소"),
     BAG_DELIVERY(4, "배송 중", "리픽백 배송"),
     BAG_DELIVERED(5, "배송 완료", "리픽백 배송 완료"),
-    BAG_COLLECT_REQUEST(6, "신청 완료", "리픽백 신청"),
+    BAG_COLLECT_REQUEST(6, "신청 완료", "리픽백 수거 신청"),
     COLLECTING(7, "수거 중", "수거 중"),
     COLLECTED(8, "수거 완료", "수거 완료(푸시)"),
     SHOOTING(9, "수거 완료", "촬영 중"),
