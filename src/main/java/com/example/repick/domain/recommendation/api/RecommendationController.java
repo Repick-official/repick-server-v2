@@ -24,6 +24,8 @@ public class RecommendationController {
             리픽 추천 상품을 가져옵니다.
             
             **한 요청에 상품을 3개씩 가져옵니다.**
+            
+            상품을 모두 조회하여 3개를 가져올 수 없는 경우 기존에 봤던 상품들을 다시 가져옵니다.
             """)
     @GetMapping
     public SuccessResponse<List<GetRecommendation>> getRecommendation() {
