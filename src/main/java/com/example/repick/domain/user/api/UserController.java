@@ -188,6 +188,9 @@ public class UserController {
                     - bottomSize: 하의 사이즈
                     - pushAllow: 푸시 알림 허용 여부
                     - fcmToken: FCM 토큰
+                    - address: 기본 배송지 정보
+                    - account: 기본 결제 정보
+                    - gender: 성별 (MALE 또는 FEMALE)
                     """)
     @PatchMapping("/userInfo")
     public SuccessResponse<Boolean> patchUserInfo(@RequestBody PatchUserInfo patchUserInfo) {
