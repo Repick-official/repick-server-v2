@@ -72,6 +72,11 @@ public class AdminController {
         return SuccessResponse.success(adminService.createPresignedUrl(filename, fileType));
     }
 
+    @Operation(summary = "운송장 번호 추적 웹훅 활성화", description = """
+            ## 운송장 번호 추적 웹훅을 활성화합니다.
+            - 운송장 번호와 택배사를 입력하면 해당 운송장 번호의 배송 상태를 추적합니다.
+            - 추적 결과는 callbackUrl로 전송됩니다.
+            """)
     @PostMapping("/deliveryTracking")
     public SuccessResponse<Boolean> enableTracking(@Parameter(description = "운송장 번호") @RequestParam String trackingNumber,
                                                    @Parameter(description = "택배사 (kr.cjlogistics)") @RequestParam String carrierId,
@@ -79,6 +84,7 @@ public class AdminController {
         return SuccessResponse.success(adminService.enableTracking(trackingNumber, carrierId, callbackUrl));
     }
 
+    @Operation(summary = "운송장 번호 추적 콜백 (사용금지)")
     @PostMapping("/deliveryTracking/callback")
     public SuccessResponse<Boolean> deliveryTrackingCallback(@RequestBody DeliveryTrackerCallback deliveryTrackerCallback) {
         return SuccessResponse.success(adminService.deliveryTrackingCallback(deliveryTrackerCallback));
