@@ -1,6 +1,5 @@
 package com.example.repick.domain.user.api;
 
-import com.example.repick.domain.fcmtoken.service.UserFcmTokenInfoService;
 import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.service.UserService;
 import com.example.repick.global.jwt.TokenResponse;
@@ -21,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 
@@ -35,7 +33,6 @@ public class UserController {
     private final AppleUserService appleUserService;
     private final NaverUserService naverUserService;
     private final GoogleUserService googleUserService;
-    private final UserFcmTokenInfoService userFcmTokenInfoService;
 
     @Operation(summary = "구글 엑세스 토큰으로 내부 토큰 발급하기",
             description = """
@@ -204,7 +201,7 @@ public class UserController {
                     - multipartFile: 프로필 사진 (content type이 multipart/form-data여야 합니다.)
                     """)
     @PostMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public SuccessResponse<Boolean> registerProfile(@RequestPart("multipartFile") MultipartFile profileImage) throws IOException {
+    public SuccessResponse<Boolean> registerProfile(@RequestPart("multipartFile") MultipartFile profileImage) {
         return SuccessResponse.success(userService.registerProfile(profileImage));
     }
 
