@@ -84,6 +84,11 @@ public class RecommendationService {
 
         List<Product> productRecommendation = productRepository.findRecommendation(user.getId());
 
+        // 가져온 상품이 2개 이하라면 UserPreferenceProduct에서 해당 유저의 데이터를 초기화
+        if (productRecommendation.size() <= 2) {
+            userPreferenceProductRepository.deleteByUserId(user.getId());
+        }
+
         List<Integer> sortedCategoryIndices = getSortedIndicesByPreference(userPreference.getCategoryPreference());
         List<Integer> sortedStyleIndices = getSortedIndicesByPreference(userPreference.getStylePreference());
 
