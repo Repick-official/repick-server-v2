@@ -8,6 +8,7 @@ import java.util.List;
 public record GetProductDetail(
         @Schema(description = "상품ID", example = "3") Long productId,
         @Schema(description = "상품 이미지 url 리스트") List<String> productImageUrlList,
+        @Schema(description = "상품 상위 카테고리") String parentCategory,
         @Schema(description = "상품 카테고리 리스트") List<String> categoryList,
         @Schema(description = "브랜드 이름", example = "무인양품") String brandName,
         @Schema(description = "상품명", example = "블랙 카라 오버핏 셔츠") String productName,
@@ -27,6 +28,7 @@ public record GetProductDetail(
         return new GetProductDetail(
                 product.getId(),
                 productImageList.stream().map(ProductImage::getImageUrl).toList(),
+                productCategoryList.get(0).getCategory().getParent(),
                 productCategoryList.stream().map(productCategory -> productCategory.getCategory().getValue()).toList(),
                 product.getBrandName(),
                 product.getProductName(),
