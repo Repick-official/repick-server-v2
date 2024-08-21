@@ -36,7 +36,8 @@ public class User extends BaseEntity {
     private Account defaultAccount;
     private String topSize;
     private String bottomSize;
-
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
     private long settlement;
 
     // TODO: 정산금 출금 신청 및 정산 완료 API 구현
@@ -85,6 +86,7 @@ public class User extends BaseEntity {
         this.bottomSize = patchUserInfo.bottomSize() != null ? patchUserInfo.bottomSize() : this.bottomSize;
         this.pushAllow = patchUserInfo.pushAllow() != null ? patchUserInfo.pushAllow() : this.pushAllow;
         this.fcmToken = patchUserInfo.fcmToken() != null ? patchUserInfo.fcmToken() : this.fcmToken;
+        this.gender = patchUserInfo.gender() != null ? patchUserInfo.gender() : this.gender;
     }
 
     public void updateProfile(String profile) {
@@ -101,5 +103,8 @@ public class User extends BaseEntity {
 
     public void addSettlement(long settlement) {
         this.settlement += settlement;
+    }
+    public void updateGender(Gender gender) {
+        this.gender = gender;
     }
 }
