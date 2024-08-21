@@ -210,7 +210,7 @@ public class ClothingSalesService {
 
     @Transactional
     public Boolean updateClothingSalesState(PostClothingSalesState postClothingSalesState) {
-        ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesState.id())
+        ClothingSales clothingSales = clothingSalesRepository.findById(postClothingSalesState.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
 
         ClothingSalesStateType clothingSalesStateType = ClothingSalesStateType.fromAdminValue(postClothingSalesState.clothingSalesState());
