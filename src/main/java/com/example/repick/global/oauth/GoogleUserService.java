@@ -1,5 +1,6 @@
 package com.example.repick.global.oauth;
 
+import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.GoogleUserDto;
 import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
@@ -30,6 +31,7 @@ import java.util.UUID;
 public class GoogleUserService {
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final RecommendationService recommendationService;
 
     @Value("${oauth.google.client-id}")
     private String clientId;
@@ -75,6 +77,10 @@ public class GoogleUserService {
                     .pushAllow(false)
                     .build();
             userRepository.save(googleUser);
+
+            // create user preference
+            recommendationService.registerUserPreference(googleUser.getId());
+
             return Pair.of(googleUser, true);
         }
         return Pair.of(googleUser, false);
