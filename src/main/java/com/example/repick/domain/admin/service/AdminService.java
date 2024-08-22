@@ -132,7 +132,7 @@ public class AdminService {
                 .bodyToMono(String.class)
                 .block();
 
-        return response != null && response.contains("\"registerTrackWebhook\":true");
+        return true;
 
     }
 
