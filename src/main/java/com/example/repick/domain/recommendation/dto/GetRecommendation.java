@@ -11,10 +11,10 @@ public record GetRecommendation (
         @Schema(description = "할인 가격", example = "15000") Long discountPrice,
         @Schema(description = "할인율",example = "30") Long discountRate,
         @Schema(description = "브랜드 이름", example = "무인양품") String brandName,
-        @Schema(description = "상품 품질 등급 (S, A, B)", example = "S") String qualityRate
+        @Schema(description = "상품 품질 등급 (A+, A, A-)", example = "A") String qualityRate
 ) {
 
     public GetRecommendation(Product product) {
-        this(product.getId(), product.getThumbnailImageUrl(), product.getProductName(), product.getPrice(), product.getDiscountPrice(), product.getDiscountRate(), product.getBrandName(), product.getQualityRate().name());
+        this(product.getId(), product.getThumbnailImageUrl(), product.getProductName(), product.getPrice(), product.getDiscountPrice(), product.getDiscountRate(), product.getBrandName(), product.getQualityRate().getValue());
     }
 }

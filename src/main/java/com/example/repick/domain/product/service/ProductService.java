@@ -4,7 +4,6 @@ import com.example.repick.domain.product.dto.productClothingSales.GetProductCoun
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.product.dto.product.*;
-import com.example.repick.domain.product.dto.productClothingSales.GetKgSellProductClothingSales;
 import com.example.repick.domain.product.dto.productOrder.GetProductCart;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
@@ -86,11 +85,6 @@ public class ProductService {
         }
     }
 
-
-    public void addProductSellingState(Long productId, ProductStateType productStateType) {
-        productStateRepository.save(ProductState.of(productId, productStateType));
-    }
-
     @Transactional
     public ProductResponse registerProduct(List<MultipartFile> images, PostProduct postProduct) {
         User user = userRepository.findById(postProduct.userId())
@@ -121,7 +115,7 @@ public class ProductService {
         if (!postProduct.materials().isEmpty()) addMaterials(postProduct.materials(), product);
 
         // productSellingState
-        addProductSellingState(product.getId(), ProductStateType.PREPARING);
+        productStateRepository.save(ProductState.of(product.getId(), ProductStateType.PREPARING));
 
         return ProductResponse.fromProduct(product);
 
@@ -138,7 +132,7 @@ public class ProductService {
         product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
         // productSellingState
-        addProductSellingState(product.getId(), ProductStateType.REJECTED);
+        productStateRepository.save(ProductState.of(product.getId(), ProductStateType.REJECTED));
 
         return product;
 
@@ -396,8 +390,9 @@ public class ProductService {
     }
 
     public void changeSellingState(Product product, ProductStateType sellingState) {
-        addProductSellingState(product.getId(), sellingState);
+        productStateRepository.save(ProductState.of(product.getId(), sellingState));
         product.updateProductState(sellingState);
+        productRepository.save(product);
     }
 
     public void calculateDiscountPriceAndPredictDiscountRateAndSave(Product product) {

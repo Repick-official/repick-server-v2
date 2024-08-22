@@ -12,7 +12,7 @@ public record GetProductThumbnail(
         @Schema(description = "할인율",example = "30") Long discountRate,
         @Schema(description = "예측 정가 대비 할인율",example = "30") Long predictDiscountRate,
         @Schema(description = "브랜드 이름", example = "무인양품") String brandName,
-        @Schema(description = "상품 품질 등급 (S, A, B)", example = "S") String qualityRate,
+        @Schema(description = "상품 품질 등급 (A+, A, A-)", example = "A") String qualityRate,
         @Schema(description = "좋아요 여부", example = "False") Boolean isLiked
 ) {
     public static GetProductThumbnail fromProduct(Product product) {
@@ -25,7 +25,7 @@ public record GetProductThumbnail(
                 product.getDiscountRate(),
                 product.getPredictPriceDiscountRate(),
                 product.getBrandName(),
-                product.getQualityRate().name(),
+                product.getQualityRate().getValue(),
                 false
         );
     }

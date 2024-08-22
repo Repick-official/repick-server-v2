@@ -15,7 +15,7 @@ public record ProductResponse(
         @Schema(description = "브랜드 이름", example = "무인양품") String brandName,
         @Schema(description = "상품 설명", example = "바람이 잘 통하는 시원한 오버핏 셔츠입니다.") String description,
         @Schema(description = "사이즈 (XXS, XS, S, M, L, XL, XXL)", example = "XXS") String size,
-        @Schema(description = "상품 품질 등급 (S, A, B)", example = "S") String qualityRate,
+        @Schema(description = "상품 품질 등급 (A+, A, A-)", example = "A") String qualityRate,
         @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender
 ) {
     public ProductResponse(Long id, Long userId, Integer clothingSalesCount) {
@@ -35,7 +35,7 @@ public record ProductResponse(
                 product.getBrandName(),
                 product.getDescription(),
                 product.getSize(),
-                product.getQualityRate().name(),
+                product.getQualityRate().getValue(),
                 product.getGender().name()
         );
     }

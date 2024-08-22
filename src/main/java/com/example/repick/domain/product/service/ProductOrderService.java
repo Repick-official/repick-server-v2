@@ -42,6 +42,7 @@ public class ProductOrderService {
     private final ProductValidator productValidator;
     private final ProductStateRepository productStateRepository;
     private final AdminService adminService;
+    private final ProductService productService;
 
     @Transactional
     public GetProductOrderPreparation prepareProductOrder(PostProductOrder postProductOrder) {
@@ -137,12 +138,9 @@ public class ProductOrderService {
         productOrders.forEach(productOrder -> {
             productOrder.updateProductOrderState(ProductOrderState.PAYMENT_COMPLETED);
             productCartRepository.deleteByUserIdAndProductId(productOrder.getUserId(), productOrder.getProductId());
-            productStateRepository.save(ProductState.of(productOrder.getProductId(), ProductStateType.SOLD_OUT));
-            // Product 엔티티의 productState 업데이트
             Product product = productRepository.findById(productOrder.getProductId())
                     .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-            product.updateProductState(ProductStateType.SOLD_OUT);
-            productRepository.save(product);
+            productService.changeSellingState(product, ProductStateType.SOLD_OUT);
         });
         productOrderRepository.saveAll(productOrders);
 
@@ -268,8 +266,16 @@ public class ProductOrderService {
     public Boolean updateProductOrderState(Long productOrderId, ProductOrderSateRequest productOrderStateRequest){
         ProductOrder productOrder = productOrderRepository.findById(productOrderId)
                 .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
-        productOrder.updateProductOrderState(ProductOrderState.fromValue(productOrderStateRequest.state()));
+        ProductOrderState productOrderState = ProductOrderState.fromValue(productOrderStateRequest.state());
+        // productOrderState 변경
+        productOrder.updateProductOrderState(productOrderState);
         productOrderRepository.save(productOrder);
+        // 환불되었을 경우 상품 다시 판매중으로 변경
+        if(productOrderState == ProductOrderState.REFUND_COMPLETED){
+            Product product = productRepository.findById(productOrder.getProductId())
+                    .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+            productService.changeSellingState(product, ProductStateType.SELLING);
+        }
         return true;
     }
 
