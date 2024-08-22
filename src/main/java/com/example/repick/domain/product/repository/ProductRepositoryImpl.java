@@ -351,14 +351,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<Product> findRecommendation(Long userId) {
         return jpaQueryFactory
                 .selectFrom(product)
-                .leftJoin(productState).on(product.id.eq(productState.productId))
                 .leftJoin(userPreferenceProduct).on(product.id.eq(userPreferenceProduct.productId))
                 .leftJoin(productLike).on(product.id.eq(productLike.productId))
                 .leftJoin(productCart).on(product.id.eq(productCart.productId))
                 .where(
                         deletedFilter(),
-                        sellingStateFilter(ProductStateType.SELLING),
-                        notExistsUserPreferenceProduct(userId),
+                        product.productState.eq(ProductStateType.SELLING),
+                        product.id.notIn(
+                            JPAExpressions
+                                .select(userPreferenceProduct.productId)
+                                .from(userPreferenceProduct)
+                                .where(userPreferenceProduct.userId.eq(userId))
+                        ),
                         product.id.notIn(
                             JPAExpressions
                                 .select(productLike.productId)
@@ -502,18 +506,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 ))
                 .collect(Collectors.toList());
         return new PageImpl<>(contents, pageable, total);
-    }
-
-
-    private BooleanExpression notExistsUserPreferenceProduct(Long userId) {
-
-        return JPAExpressions
-                .selectFrom(userPreferenceProduct)
-                .where(
-                        userPreferenceProduct.userId.eq(userId),
-                        userPreferenceProduct.productId.eq(QProduct.product.id)
-                )
-                .notExists();
     }
 
 }
