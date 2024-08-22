@@ -46,7 +46,9 @@ public class SecurityConfig {
     };
 
     private final String[] AdminPatterns = {
-            "/admin/**"
+            "/admin/fcmToken",
+            "/admin/fcmToken/**",
+            "/admin/presignedUrl"
     };
 
     private final String[] GeneratedContentPatterns = {

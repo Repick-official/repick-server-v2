@@ -1,5 +1,6 @@
 package com.example.repick.domain.product.service;
 
+import com.example.repick.domain.admin.service.AdminService;
 import com.example.repick.domain.product.dto.productOrder.*;
 import com.example.repick.domain.product.entity.*;
 import com.example.repick.domain.product.repository.*;
@@ -40,6 +41,7 @@ public class ProductOrderService {
     private final IamportClient iamportClient;
     private final ProductValidator productValidator;
     private final ProductStateRepository productStateRepository;
+    private final AdminService adminService;
     private final ProductService productService;
 
     @Transactional
@@ -253,6 +255,9 @@ public class ProductOrderService {
                 .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
         productOrder.updateTrackingNumber(trackingNumberRequest.trackingNumber());
         productOrderRepository.save(productOrder);
+
+        adminService.enableTracking(productOrder.getTrackingNumber(), trackingNumberRequest.carrierId(), "https://www.repick-server.shop/api/admin/deliveryTracking/callback");
+
         return true;
     }
 

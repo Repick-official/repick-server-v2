@@ -72,6 +72,11 @@ dependencies {
 	implementation(platform("software.amazon.awssdk:bom:2.21.1"))
 	implementation("software.amazon.awssdk:lambda")
 
+	// WebFlux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// netty
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
 
 }
 

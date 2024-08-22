@@ -1,13 +1,14 @@
 package com.example.repick.domain.product.scheduler;
 
+import com.example.repick.domain.admin.service.AdminService;
 import com.example.repick.domain.clothingSales.entity.ClothingSales;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
-import com.example.repick.domain.clothingSales.service.ClothingSalesService;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
+import com.example.repick.domain.product.entity.ProductOrderState;
 import com.example.repick.domain.product.entity.ProductStateType;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Predicate;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +32,7 @@ public class ProductScheduler {
     private final ProductService productService;
     private final ClothingSalesRepository clothingSalesRepository;
     private final ClothingSalesStateRepository clothingSalesStateRepository;
+    private final AdminService adminService;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateProductDiscountRate() {
@@ -82,5 +83,14 @@ public class ProductScheduler {
             }
         });
         productOrderRepository.saveAll(productOrders);
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateDeliveryTrackerWebhook() {
+        List<ProductOrder> productOrders = productOrderRepository.findByProductOrderState(ProductOrderState.SHIPPING_PREPARING);
+        String carrierId = "kr.cjlogistics";
+        String callbackUrl = "https://www.repick-server.shop/api/admin/deliveryTracking/callback";
+
+        productOrders.forEach(po -> adminService.enableTracking(po.getTrackingNumber(), carrierId, callbackUrl));
     }
 }

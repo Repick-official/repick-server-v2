@@ -63,7 +63,15 @@ public class ProductOrderController {
         return SuccessResponse.success(productOrderService.getReturnedProductOrders(pageCondition));
     }
 
-    @Operation(summary = "운송장 등록")
+    @Operation(summary = "운송장 등록",
+                description = """
+                            상품 주문에 대한 운송장 번호를 등록합니다.
+                            - trackingNumber: 운송장 번호 (숫자만 입력)
+                            - carrierId: 택배사 ID (CJ 대한통운일 경우 `kr.cjlogistics`)
+                            
+                            택배사 ID를 조회하기 위해선 다음 문서를 참고하세요:
+                            [Delivery Tracker Docs](https://tracker.delivery/docs/tracking-api#carriers)
+                            """)
     @PatchMapping("/{productOrderId}/tracking-number")
     public SuccessResponse<Boolean> registerTrackingNumber(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderId, @RequestBody TrackingNumberRequest trackingNumberRequest) {
         return SuccessResponse.success(productOrderService.registerTrackingNumber(productOrderId, trackingNumberRequest));
