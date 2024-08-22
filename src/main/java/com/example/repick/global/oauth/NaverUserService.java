@@ -78,10 +78,10 @@ public class NaverUserService {
                     .pushAllow(false)
                     .build();
 
+            userRepository.save(naverUser);
             // create user preference
             recommendationService.registerUserPreference(naverUser.getId());
 
-            userRepository.save(naverUser);
             return Pair.of(naverUser, true);
         }
         return Pair.of(naverUser, false);
