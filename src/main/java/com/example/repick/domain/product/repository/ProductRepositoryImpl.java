@@ -11,6 +11,8 @@ import com.example.repick.domain.product.entity.*;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -54,7 +56,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.discountRate,
                         product.predictPriceDiscountRate,
                         product.brandName,
-                        product.qualityRate.stringValue(),
+                        getQualityRateValue(),
                         productLike.id.isNotNull()))
                 .from(product)
                 .leftJoin(productLike)
@@ -124,7 +126,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.discountRate,
                         product.predictPriceDiscountRate,
                         product.brandName,
-                        product.qualityRate.stringValue(),
+                        getQualityRateValue(),
                         productLike.id.isNotNull()))
                 .from(product)
                 .leftJoin(productLike)
@@ -178,6 +180,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return new PageImpl<>(content, pageable, total);
     }
 
+    private StringExpression getQualityRateValue() {
+        return new CaseBuilder()
+                .when(product.qualityRate.eq(QualityRate.A_PLUS)).then("A+")
+                .when(product.qualityRate.eq(QualityRate.A)).then("A")
+                .when(product.qualityRate.eq(QualityRate.A_MINUS)).then("A-")
+                .otherwise("Unknown");
+    }
+
+
     private BooleanExpression cartFilter(Long userId) {
         return productCart.userId.eq(userId);
     }
@@ -222,7 +233,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression qualityFilter(List<String> qualityRates) {
-        return qualityRates != null ? product.qualityRate.stringValue().in(qualityRates) : null;
+        if (qualityRates == null || qualityRates.isEmpty()) {
+            return null;
+        }
+        List<QualityRate> qualityRateList = qualityRates.stream()
+                .map(QualityRate::fromValue)
+                .collect(Collectors.toList());
+        return product.qualityRate.in(qualityRateList);
     }
 
     private BooleanExpression sizesFilter(List<String> sizes) {
@@ -271,7 +288,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     @Override
     public Page<GetProductThumbnail> findMainPageRecommendation(Pageable pageable, Long userId, String gender, List<String> subCategories) {
-        JPAQuery<GetProductThumbnail> query =  jpaQueryFactory
+        JPAQuery<GetProductThumbnail> query = jpaQueryFactory
                 .select(Projections.constructor(GetProductThumbnail.class,
                         product.id,
                         product.thumbnailImageUrl,
@@ -281,7 +298,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.discountRate,
                         product.predictPriceDiscountRate,
                         product.brandName,
-                        product.qualityRate.stringValue(),
+                        getQualityRateValue(),
                         productLike.id.isNotNull()))
                 .from(product)
                 .leftJoin(productLike)
@@ -445,7 +462,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                             p.getProductCode(),
                             p.getThumbnailImageUrl(),
                             p.getProductName(),
-                            p.getQualityRate().toString(),
+                            p.getQualityRate().getValue(),
                             dateRange,
                             p.getDiscountPrice(),
                             p.getSettlement(),
@@ -499,7 +516,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         p.getProductCode(),
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
-                        p.getQualityRate().toString(),
+                        p.getQualityRate().getValue(),
                         p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")),
                         isExpired != null ? isExpired : p.getProductState().equals(ProductStateType.SELLING_END),
                         null  // TODO: kg 매입 정산 플로우

@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 public enum QualityRate {
-    S(1, "S"),
+    A_PLUS(1, "A+"),
     A(2, "A"),
-    B(3, "B");
+    A_MINUS(3, "A-");
 
     private final int id;
     private final String value;
