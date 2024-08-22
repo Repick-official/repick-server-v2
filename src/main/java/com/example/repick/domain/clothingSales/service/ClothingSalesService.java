@@ -241,24 +241,24 @@ public class ClothingSalesService {
     public GetClothingSalesCount getClothingSalesCount() {
         List<ClothingSalesState> clothingSalesStateList = clothingSalesStateRepository.findByCreatedDateAfter(LocalDateTime.now().minusMonths(1));
         long collectionRequestCount = 0;
-        long productionProgressCount = 0;
+        long collectingCount = 0;
         long productionCompleteCount = 0;
         long sellingCount = 0;
         long settlementRequestCount = 0; // TODO: 정산 요청 수 (정산금 출금 신청 플로우 구현 후 추가)
         for (ClothingSalesState clothingSalesState : clothingSalesStateList) {
             switch (clothingSalesState.getClothingSalesStateType()) {
-                case BOX_COLLECT_REQUEST, BAG_COLLECT_REQUEST -> collectionRequestCount++;
-                case COLLECTED, SHOOTING, SHOOTED, PRODUCTING -> productionProgressCount++;
+                case BAG_INIT_REQUEST -> collectionRequestCount++;
+                case BOX_COLLECT_REQUEST, BAG_COLLECT_REQUEST -> collectingCount++;
                 case PRODUCTED, PRODUCT_REGISTERED -> productionCompleteCount++;
                 case SELLING -> sellingCount++;
             }
         }
-        return GetClothingSalesCount.of(collectionRequestCount, productionProgressCount, productionCompleteCount, sellingCount, settlementRequestCount);
+        return GetClothingSalesCount.of(collectionRequestCount, collectingCount, productionCompleteCount, sellingCount, settlementRequestCount);
     }
 
     public GetClothingSalesAndProductOrderCount getCountToday(){
         int collectionRequestCount = clothingSalesStateRepository.countByClothingSalesStateTypeInAndCreatedDateAfter(
-                List.of(ClothingSalesStateType.BOX_COLLECT_REQUEST, ClothingSalesStateType.BAG_COLLECT_REQUEST),
+                List.of(ClothingSalesStateType.BAG_INIT_REQUEST),
                 LocalDate.now().atStartOfDay());
         int paymentCompleteCount = productOrderRepository.countByProductOrderStateAndLastModifiedDateAfter(
                 ProductOrderState.PAYMENT_COMPLETED, LocalDate.now().atStartOfDay());

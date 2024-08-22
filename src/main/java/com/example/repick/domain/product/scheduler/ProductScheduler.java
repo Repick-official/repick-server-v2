@@ -46,9 +46,7 @@ public class ProductScheduler {
 
     private void handleExpiredSales(ClothingSales clothingSales) {
         clothingSales.getProductList().forEach(p -> {
-            productService.addProductSellingState(p.getId(), ProductStateType.SELLING_END);
-            p.updateProductState(ProductStateType.SELLING_END);
-            productRepository.save(p);
+            productService.changeSellingState(p, ProductStateType.SELLING_END);
         });
         ClothingSalesState clothingSalesState = ClothingSalesState.of(clothingSales.getId(), ClothingSalesStateType.SELLING_EXPIRED);
         clothingSales.updateClothingSalesState(ClothingSalesStateType.SELLING_EXPIRED);
