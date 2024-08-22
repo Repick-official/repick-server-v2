@@ -2,6 +2,7 @@ package com.example.repick.global.oauth;
 
 import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.KakaoUserDto;
+import com.example.repick.domain.user.entity.Gender;
 import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
 import com.example.repick.domain.user.entity.User;
@@ -82,7 +83,9 @@ public class KakaoUserService {
 
         String thumbnailImage = jsonNode.get("kakao_account").get("profile").get("thumbnail_image_url").asText();
 
-        return KakaoUserDto.of(id, email, nickname, thumbnailImage);
+        String gender = jsonNode.get("kakao_account").get("gender").asText();
+
+        return KakaoUserDto.of(id, email, nickname, thumbnailImage, gender);
     }
 
     private Pair<User, Boolean> registerKakaoUserIfNeed (KakaoUserDto kakaoUserInfo) {
@@ -104,6 +107,7 @@ public class KakaoUserService {
                     .role(Role.USER)
                     .password(password)
                     .pushAllow(false)
+                    .gender(Gender.fromKakaoInfo(kakaoUserInfo.getGender()))
                     .build();
 
             userRepository.save(kakaoUser);

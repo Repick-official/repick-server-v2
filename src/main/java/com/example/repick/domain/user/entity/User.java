@@ -56,7 +56,7 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(Long id, OAuthProvider oAuthProvider, String providerId, String email, String nickname, String phoneNumber, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken) {
+    public User(Long id, OAuthProvider oAuthProvider, String providerId, String email, String nickname, String phoneNumber, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken, Gender gender ) {
         this.id = id;
         this.oAuthProvider = oAuthProvider;
         this.providerId = providerId;
@@ -74,6 +74,7 @@ public class User extends BaseEntity {
         this.pushAllow = pushAllow;
         this.fcmToken = fcmToken;
         this.userClass = UserClass.ROOKIE_COLLECTOR;
+        this.gender = gender;
     }
 
 

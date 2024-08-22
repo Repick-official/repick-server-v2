@@ -2,6 +2,7 @@ package com.example.repick.global.oauth;
 
 import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.GoogleUserDto;
+import com.example.repick.domain.user.entity.Gender;
 import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
 import com.example.repick.domain.user.entity.User;
@@ -48,16 +49,42 @@ public class GoogleUserService {
 
     private GoogleUserDto getGoogleUserInfo(String accessToken) throws JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization","Bearer "+ accessToken);
-        HttpEntity<MultiValueMap<String, String>> googleUserInfoRequest = new HttpEntity<>(headers);
+        headers.add("Authorization", "Bearer " + accessToken);
         RestTemplate restTemplate = new RestTemplate();
+
+        // 첫 번째 요청: 기본 사용자 정보 가져오기
+        HttpEntity<MultiValueMap<String, String>> googleUserInfoRequest = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(
                 "https://www.googleapis.com/oauth2/v1/userinfo",
                 HttpMethod.GET,
                 googleUserInfoRequest,
                 String.class
         );
-        return handleGoogleResponse(response.getBody());
+        GoogleUserDto userInfo = handleGoogleResponse(response.getBody());
+
+        // 두 번째 요청: 성별 정보 가져오기
+        HttpEntity<MultiValueMap<String, String>> genderInfoRequest = new HttpEntity<>(headers);
+        ResponseEntity<String> genderResponse = restTemplate.exchange(
+                "https://people.googleapis.com/v1/people/me?personFields=genders",
+                HttpMethod.GET,
+                genderInfoRequest,
+                String.class
+        );
+
+        // JSON 파싱하여 성별 정보 추출
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode genderNode = objectMapper.readTree(genderResponse.getBody())
+                .path("genders")
+                .path(0)
+                .path("value");
+
+        String genderValue = null;
+        if (!genderNode.isMissingNode()) {
+            genderValue = genderNode.asText();
+        }
+
+        // GoogleUserDto에 성별 정보 포함시켜 리턴
+        return GoogleUserDto.of(userInfo.getId(), userInfo.getEmail(), userInfo.getNickname(), userInfo.getProfileImage(), genderValue);
     }
 
 
@@ -75,6 +102,7 @@ public class GoogleUserService {
                     .profileImage(googleUserInfo.getProfileImage())
                     .password(password)
                     .pushAllow(false)
+                    .gender(Gender.fromGoogleInfo(googleUserInfo.getGender()))
                     .build();
             userRepository.save(googleUser);
 
@@ -99,6 +127,6 @@ public class GoogleUserService {
 
         String profileImage = jsonNode.get("picture").asText();
 
-        return GoogleUserDto.of(id, email, nickname, profileImage);
+        return GoogleUserDto.of(id, email, nickname, profileImage, null);
     }
 }
