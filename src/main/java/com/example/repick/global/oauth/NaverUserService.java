@@ -2,6 +2,7 @@ package com.example.repick.global.oauth;
 
 import com.example.repick.domain.recommendation.service.RecommendationService;
 import com.example.repick.domain.user.dto.NaverUserDto;
+import com.example.repick.domain.user.entity.Gender;
 import com.example.repick.domain.user.entity.OAuthProvider;
 import com.example.repick.domain.user.entity.Role;
 import com.example.repick.domain.user.entity.User;
@@ -74,14 +75,15 @@ public class NaverUserService {
                     .profileImage(naverUserInfo.getProfileImage())
                     .phoneNumber(naverUserInfo.getPhoneNumber())
                     .role(Role.USER)
+                    .gender(Gender.fromNaverInfo(naverUserInfo.getGender()))
                     .password(password)
                     .pushAllow(false)
                     .build();
 
+            userRepository.save(naverUser);
             // create user preference
             recommendationService.registerUserPreference(naverUser.getId());
 
-            userRepository.save(naverUser);
             return Pair.of(naverUser, true);
         }
         return Pair.of(naverUser, false);

@@ -12,6 +12,7 @@ public class NaverUserDto {
     private String nickname;
     private String profileImage;
     private String phoneNumber;
+    private String gender;
 
     @JsonProperty("response")
     private void unpackNested(Response response) {
@@ -20,6 +21,7 @@ public class NaverUserDto {
         this.nickname = response.nickname;
         this.profileImage = response.profile_image;
         this.phoneNumber = response.phoneNumber;
+        this.gender = response.gender;
     }
 
     private static class Response {
@@ -28,6 +30,7 @@ public class NaverUserDto {
         public String nickname;
         public String profile_image;
         public String phoneNumber;
+        public String gender;
     }
 }
 
