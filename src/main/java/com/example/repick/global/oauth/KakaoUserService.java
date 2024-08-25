@@ -83,7 +83,8 @@ public class KakaoUserService {
 
         String thumbnailImage = jsonNode.get("kakao_account").get("profile").get("thumbnail_image_url").asText();
 
-        String gender = jsonNode.get("kakao_account").get("gender").asText();
+        JsonNode genderNode = jsonNode.get("kakao_account").get("gender");
+        String gender = (genderNode != null) ? genderNode.asText(null) : null;
 
         return KakaoUserDto.of(id, email, nickname, thumbnailImage, gender);
     }
