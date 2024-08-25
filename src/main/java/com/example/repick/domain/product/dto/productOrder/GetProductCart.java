@@ -14,7 +14,6 @@ public record GetProductCart(
         @Schema(description = "예측 정가 대비 할인율", example = "30") Long predictDiscountRate,
         @Schema(description = "판매 여부", example = "true") Boolean isSold
 ) {
-    // 새로운 인스턴스를 생성하는 메서드
     public GetProductCart updateIsSold(Boolean isSold) {
         return new GetProductCart(
                 this.productId,
