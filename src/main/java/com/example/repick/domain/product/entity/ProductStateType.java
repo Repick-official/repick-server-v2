@@ -26,6 +26,10 @@ public enum ProductStateType {
         this.engValue = engValue;
     }
 
+    public boolean isSold() {
+        return this == SOLD_OUT || this == SETTLING || this == SETTLED || this == SELLING_END || this == RETURN_REQUESTED;
+    }
+
     public static ProductStateType fromId(int id) {
         for (ProductStateType productStateType : values()) {
             if (productStateType.getId() == id) {

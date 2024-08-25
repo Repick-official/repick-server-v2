@@ -386,7 +386,18 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         Page<GetProductCart> products = productRepository.findCartedProducts(user.getId(), pageCondition.toPageable());
-        return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
+
+        List<GetProductCart> updatedProducts = products.stream()
+                .map(productCart -> {
+                    Product product = productRepository.findById(productCart.productId())
+                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+
+                    Boolean isSold = product.getProductState().isSold();
+                    return productCart.updateIsSold(isSold);
+                })
+                .collect(Collectors.toList());
+
+        return PageResponse.of(updatedProducts, products.getTotalPages(), products.getTotalElements());
     }
 
     public void changeSellingState(Product product, ProductStateType sellingState) {

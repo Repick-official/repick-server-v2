@@ -10,7 +10,23 @@ public record GetProductCart(
         @Schema(description = "사이즈 (XXS, XS, S, M, L, XL, XXL)", example = "XXS") String size,
         @Schema(description = "상품 가격(할인 전)", example = "40000") Long price, // TODO: 할인 후 가격도 넣어야 함!!
         @Schema(description = "할인 가격", example = "15000") Long discountPrice,
-        @Schema(description = "할인율",example = "30") Long discountRate,
-        @Schema(description = "예측 정가 대비 할인율",example = "30") Long predictDiscountRate
+        @Schema(description = "할인율", example = "30") Long discountRate,
+        @Schema(description = "예측 정가 대비 할인율", example = "30") Long predictDiscountRate,
+        @Schema(description = "판매 여부", example = "true") Boolean isSold
 ) {
+    // 새로운 인스턴스를 생성하는 메서드
+    public GetProductCart updateIsSold(Boolean isSold) {
+        return new GetProductCart(
+                this.productId,
+                this.thumbnailImageUrl,
+                this.brandName,
+                this.productName,
+                this.size,
+                this.price,
+                this.discountPrice,
+                this.discountRate,
+                this.predictDiscountRate,
+                isSold
+        );
+    }
 }

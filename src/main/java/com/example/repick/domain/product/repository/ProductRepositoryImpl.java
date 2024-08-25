@@ -12,6 +12,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -161,7 +162,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.price,
                         product.discountPrice,
                         product.discountRate,
-                        product.predictPriceDiscountRate))
+                        product.predictPriceDiscountRate,
+                        Expressions.constant(false)))
                 .from(product)
                 .leftJoin(productCart)
                 .on(product.id.eq(productCart.productId))
