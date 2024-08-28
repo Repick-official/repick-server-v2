@@ -20,10 +20,6 @@ phases:
       - mkdir -p ./src/main/resources/key
       - rm -f ./src/main/resources/application.yml
       - touch ./src/main/resources/application.yml
-
-      - echo "Logging into Amazon ECR"
-      - aws ecr get-login --no-include-email --region $AWS_REGION
-
   build:
     commands:
       - echo "Building application with Gradle"
@@ -33,6 +29,8 @@ phases:
 
   post_build:
     commands:
+      - echo "Logging into Amazon ECR"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
       - echo "Pushing Docker image to Amazon ECR"
       - docker push $ECR_REGISTRY/$ECR_REPOSITORY
 artifacts:
