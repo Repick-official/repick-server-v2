@@ -36,11 +36,6 @@ phases:
     commands:
       - echo "Pushing Docker image to Amazon ECR"
       - docker push $ECR_REGISTRY/$ECR_REPOSITORY
-      -
 artifacts:
   files:
-    - appspec.yml
-    - kill_process.sh
-    - start_process.sh
-    - docker-compose.yml
-  discard-paths: yes
+    - '**/*'
