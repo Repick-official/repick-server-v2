@@ -35,4 +35,7 @@ phases:
       - docker push $ECR_REGISTRY/$ECR_REPOSITORY
 artifacts:
   files:
-    - '**/*'
+    - appspec.yml
+    - kill_process.sh
+    - start_process.sh
+  discard-paths: yes
