@@ -2,7 +2,7 @@
 
 set -e
 
-ECR_REGISTRY=654654448479.dkr.ecr.ap-northeast-2.amazonaws.com/repick-repo
+ECR_REGISTRY=$(aws ssm get-parameter --name "ECR_REGISTRY" --with-decryption --region ap-northeast-2 --query "Parameter.Value" --output text)
 ECR_DOCKER_TAG=latest
 
 echo $ECR_REGISTRY
