@@ -6,9 +6,15 @@ Repick은 중고 의류 판매자의 판매 플로우를 자동화해주는 서�
 
 리픽 서버가 가진 기능은 다음과 같습니다:
 - **Terraform IaC(Infrastructure as Code)**: Terraform으로 인프라를 프로비저닝합니다. 이를 통해 코드로 인프라를 관리하며, 배포 프로세스를 표준화하고 오류 발생을 줄입니다. 다양한 환경에서 일관된 인프라 구성을 유지할 수 있습니다.
+- **AWS Lambda**: S3 event notification을 통한 thumbnail generator, presigned-url generator, subscription manager, product manager 등 여러 기능을 구현하였습니다.
 <!-- 여기에 개발한 기능들 적어주세요!! -->
 
 ## Server Architecture
+
+<img width="1201" alt="Infrastructure" src="https://github.com/user-attachments/assets/a0fe6c02-f385-4280-8e03-1bf99c8048a8">
+
+
+
 ![SpringBoot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![AmazonDynamoDB](https://img.shields.io/badge/Amazon%20DynamoDB-4053D6?style=for-the-badge&logo=Amazon%20DynamoDB&logoColor=white)
@@ -20,7 +26,6 @@ Repick은 중고 의류 판매자의 판매 플로우를 자동화해주는 서�
 ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 
 
-WIP
 
 ## Repick Developers
 - 서버 개발 담당 서찬혁  chanhyeok.seo2@gmail.com
