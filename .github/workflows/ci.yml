@@ -73,7 +73,7 @@ jobs:
 #          aws s3 cp ${{ env.ZIP_FILE_NAME }} s3://${{ secrets.S3_BUCKET }}/${{ env.ZIP_FILE_NAME }}
 
   deploy:
-    needs: build
+#    needs: build
     name: Trigger CD (CodeDeploy)
     runs-on: ubuntu-latest
 
