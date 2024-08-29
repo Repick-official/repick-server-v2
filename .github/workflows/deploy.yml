@@ -2,7 +2,7 @@ name: Push to ECR
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "legacy-githubactions" ]
 
 env:
   AWS_REGION: ap-northeast-2
