@@ -64,6 +64,14 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY
 
+      - name: Zip deployment files
+        run: |
+          zip -r ${{ env.ZIP_FILE_NAME }} ./aws/
+
+      - name: Upload AppSpec and scripts to S3
+        run: |
+          aws s3 cp ${{ env.ZIP_FILE_NAME }} s3://${{ secrets.S3_BUCKET }}/${{ env.ZIP_FILE_NAME }}
+
   deploy:
     needs: build
     name: Trigger CD (CodeDeploy)
@@ -76,14 +84,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Zip deployment files
-        run: |
-          zip -r ${{ env.ZIP_FILE_NAME }} appspec.yml start_process.sh kill_process.sh
-
-      - name: Upload AppSpec and scripts to S3
-        run: |
-          aws s3 cp ${{ env.ZIP_FILE_NAME }} s3://${{ secrets.S3_BUCKET }}/${{ env.ZIP_FILE_NAME }}
 
       - name: Trigger CodeDeploy
         run: |
