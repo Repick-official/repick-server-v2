@@ -6,7 +6,7 @@ ECR_REPOSITORY="654654448479.dkr.ecr.ap-northeast-2.amazonaws.com/repick-repo"
 ECR_REPOSITORY="repick-repo"
 ECR_DOCKER_TAG="latest"
 
-aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 654654448479.dkr.ecr.ap-northeast-2.amazonaws.com/repick-repo
 
 sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_DOCKER_TAG
 
