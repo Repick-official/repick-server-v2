@@ -91,4 +91,5 @@ jobs:
             --application-name repick-codedeploy-app \
             --deployment-group-name repick-codedeploy-deployment-group \
             --s3-location bucket=${{ secrets.S3_BUCKET }},bundleType=zip,key=${{ env.ZIP_FILE_NAME }} \
-            --file-exists-behavior OVERWRITE
+            --file-exists-behavior OVERWRITE \
+            --ignore-application-stop-failures
