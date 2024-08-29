@@ -4,7 +4,7 @@ files:
   - source: /
     destination: /home/ec2-user
     overwrite: yes
-permission:
+permissions:
   - object: /home/ec2-user
     pattern: "**"
     owner: ec2-user
