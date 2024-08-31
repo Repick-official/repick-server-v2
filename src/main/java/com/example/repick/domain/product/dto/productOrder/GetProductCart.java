@@ -12,20 +12,6 @@ public record GetProductCart(
         @Schema(description = "할인 가격", example = "15000") Long discountPrice,
         @Schema(description = "할인율", example = "30") Long discountRate,
         @Schema(description = "예측 정가 대비 할인율", example = "30") Long predictDiscountRate,
-        @Schema(description = "판매 여부", example = "true") Boolean isSold
+        @Schema(description = "판매 여부", example = "true") Boolean isSelling
 ) {
-    public GetProductCart updateIsSold(Boolean isSold) {
-        return new GetProductCart(
-                this.productId,
-                this.thumbnailImageUrl,
-                this.brandName,
-                this.productName,
-                this.size,
-                this.price,
-                this.discountPrice,
-                this.discountRate,
-                this.predictDiscountRate,
-                isSold
-        );
-    }
 }

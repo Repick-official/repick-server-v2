@@ -163,7 +163,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.discountPrice,
                         product.discountRate,
                         product.predictPriceDiscountRate,
-                        Expressions.constant(false)))
+                        product.productState.eq(ProductStateType.SELLING)))
                 .from(product)
                 .leftJoin(productCart)
                 .on(product.id.eq(productCart.productId))
