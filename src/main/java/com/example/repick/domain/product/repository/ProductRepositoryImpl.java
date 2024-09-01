@@ -54,7 +54,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         product.price,
                         product.discountPrice,
                         product.discountRate,
-                        product.predictPriceDiscountRate,
+                        product.predictPriceDiscountRate.coalesce(0L),
                         product.brandName,
                         getQualityRateValue(),
                         productLike.id.isNotNull()))
