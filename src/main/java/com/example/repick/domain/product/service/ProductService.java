@@ -386,6 +386,7 @@ public class ProductService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         Page<GetProductCart> products = productRepository.findCartedProducts(user.getId(), pageCondition.toPageable());
+
         return PageResponse.of(products.getContent(), products.getTotalPages(), products.getTotalElements());
     }
 
