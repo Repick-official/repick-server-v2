@@ -147,20 +147,15 @@ public class UserController {
                     - refreshToken: 서버 내부에서 발급한 토큰입니다.
                     """)
     @PostMapping("/oauth/apple")
-    public ResponseEntity<String> appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true) @RequestParam String id_token) {
-        Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
-        String htmlResponse = String.format(
-                "<div><BR><BR><BR><a style=\"text-align:center;font-size:24pt;font-weight:bold;\"href=\""
-                + "repick.oauth://signinwithapple?"
-                + "accessToken=%s&"
-                + "refreshToken=%s"
-                + "\"/>리픽으로 돌아가기</a></div>",
-                pair.getLeft().accessToken(),
-                pair.getLeft().refreshToken());
+    public SuccessResponse<TokenResponse> appleLogin(@Parameter(name = "id_token", description = "애플 인증서버에서 받은 id_token", required = true)
+                                                   @RequestParam String id_token) {
 
-        return ResponseEntity.status(pair.getRight() ? HttpStatus.CREATED : HttpStatus.OK)
-                .contentType((new MediaType("text", "html", StandardCharsets.UTF_8)))
-                .body(htmlResponse);
+        Pair<TokenResponse, Boolean> pair = appleUserService.appleLogin(id_token);
+        if (pair.getRight()) {
+            return SuccessResponse.createSuccess(pair.getLeft());
+        } else {
+            return SuccessResponse.success(pair.getLeft());
+        }
     }
 
     @Operation(summary = "유저 정보 조회하기",

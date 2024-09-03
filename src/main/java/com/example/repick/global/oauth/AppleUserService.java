@@ -102,11 +102,11 @@ public class AppleUserService {
                     .password(password)
                     .pushAllow(false)
                     .build();
+            userRepository.save(newUser);
 
             // create user preference
             recommendationService.registerUserPreference(newUser.getId());
 
-            userRepository.save(newUser);
             return Pair.of(newUser, true);
         }
     }
