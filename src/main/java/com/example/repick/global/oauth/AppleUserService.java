@@ -154,6 +154,7 @@ public class AppleUserService {
             }
 
         } catch (Exception e) {
+            log.error(String.valueOf(e));
             throw new CustomException(APPLE_LOGIN_FAILED);
         }
     }
