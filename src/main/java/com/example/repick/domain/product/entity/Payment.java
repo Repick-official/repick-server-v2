@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,8 +37,9 @@ public class Payment extends BaseEntity {
     @Embedded
     private Address address;
 
+    private LocalDateTime deletedAt;
     @Builder
-    public Payment(Long userId, PaymentStatus paymentStatus, String iamportUid, String merchantUid, BigDecimal amount, String userName, String phoneNumber, Address address) {
+    public Payment(Long userId, PaymentStatus paymentStatus, String iamportUid, String merchantUid, BigDecimal amount, String userName, String phoneNumber, Address address, LocalDateTime deletedAt) {
         this.userId = userId;
         this.paymentStatus = paymentStatus;
         this.iamportUid = iamportUid;
@@ -46,6 +48,7 @@ public class Payment extends BaseEntity {
         this.userName = userName;
         this.phoneNumber = phoneNumber;
         this.address = address;
+        this.deletedAt = deletedAt;
     }
 
     public static Payment of(Long userId, String merchantUid, BigDecimal amount, String userName, String phoneNumber, Address address) {
@@ -58,6 +61,13 @@ public class Payment extends BaseEntity {
                 .phoneNumber(phoneNumber)
                 .address(address)
                 .build();
+    }
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
+    public void deleteAddress() {
+        this.address = null;
     }
 
     public void updatePaymentStatus(PaymentStatus paymentStatus) {

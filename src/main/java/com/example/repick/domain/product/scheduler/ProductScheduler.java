@@ -6,17 +6,18 @@ import com.example.repick.domain.clothingSales.entity.ClothingSalesState;
 import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
-import com.example.repick.domain.product.entity.Product;
-import com.example.repick.domain.product.entity.ProductOrder;
-import com.example.repick.domain.product.entity.ProductOrderState;
-import com.example.repick.domain.product.entity.ProductStateType;
+import com.example.repick.domain.product.entity.*;
+import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.product.repository.ProductRepository;
 import com.example.repick.domain.product.service.ProductOrderService;
 import com.example.repick.domain.product.service.ProductService;
+import com.example.repick.domain.user.entity.User;
+import com.example.repick.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -33,6 +34,8 @@ public class ProductScheduler {
     private final ClothingSalesRepository clothingSalesRepository;
     private final ClothingSalesStateRepository clothingSalesStateRepository;
     private final AdminService adminService;
+    private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateProductDiscountRate() {
@@ -92,5 +95,25 @@ public class ProductScheduler {
         String callbackUrl = "https://www.repick-server.shop/api/admin/deliveryTracking/callback";
 
         productOrders.forEach(po -> adminService.enableTracking(po.getTrackingNumber(), carrierId, callbackUrl));
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteAddressAfterThirtyDays() {
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        List<Payment> addressToDelete = paymentRepository.findAllByDeletedAtBefore(thirtyDaysAgo);
+
+        addressToDelete.forEach(payment -> {
+            //결제 내역에서 결제 정보만 30일 뒤에 삭제
+            payment.deleteAddress();
+            paymentRepository.save(payment);
+            });
+    }
+
+    // 5년 후 결제 정보 전체 삭제하는 스케줄러
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deletePaymentAfterFiveYears() {
+        LocalDateTime fiveYearsAgo = LocalDateTime.now().minusYears(5);
+        List<Payment> paymentsToDelete = paymentRepository.findAllByDeletedAtBefore(fiveYearsAgo);
+        paymentRepository.deleteAll(paymentsToDelete);
     }
 }

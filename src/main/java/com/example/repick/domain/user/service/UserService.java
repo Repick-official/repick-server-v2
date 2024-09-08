@@ -6,6 +6,8 @@ import com.example.repick.domain.product.entity.ProductOrderState;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.entity.User;
+import com.example.repick.domain.product.entity.Payment;
+import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.user.entity.UserSmsVerificationInfo;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.dynamodb.UserFcmTokenInfoRepository;
@@ -20,6 +22,7 @@ import com.example.repick.global.jwt.UserDetailsImpl;
 import com.example.repick.global.sms.MessageService;
 import com.example.repick.global.util.StringParser;
 import lombok.RequiredArgsConstructor;
+import org.joda.time.DateTime;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.TOKEN_EXPIRED;
+import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
+import static java.time.LocalTime.now;
 
 @Service @RequiredArgsConstructor
 public class UserService {
@@ -44,7 +49,7 @@ public class UserService {
     private final TokenService tokenService;
     private final ProductOrderRepository productOrderRepository;
     private final UserPreferenceRepository userPreferenceRepository;
-
+    private final PaymentRepository paymentRepository;
 
     public GetUserInfo getUserInfo() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -100,6 +105,30 @@ public class UserService {
 
         return true;
     }
+
+    @Transactional
+    public Boolean withdraw() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByProviderId(email)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        if (user.getDeletedAt() == null) {
+            user.setDeletedAt(LocalDateTime.now());
+            userRepository.save(user);
+        }
+
+        List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
+        payments.forEach(payment -> {
+            if (payment.getDeletedAt() == null) {
+                payment.setDeletedAt(LocalDateTime.now());
+                paymentRepository.save(payment);
+            }
+        });
+
+        return true;
+    }
+
 
     @Transactional
     public Boolean initSmsVerification(PostInitSmsVerification postInitSmsVerification) {

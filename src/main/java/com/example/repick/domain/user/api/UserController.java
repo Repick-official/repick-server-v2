@@ -216,6 +216,22 @@ public class UserController {
         return SuccessResponse.success(userService.deleteUser());
     }
 
+    @Operation(summary = "회원 탈퇴하기",
+            description = """
+                회원 탈퇴 절차를 진행하고, 소셜로그인 연결을 끊습니다.
+                
+                **거래 및 결제 기록과 관련된 정보(이름, 연락처 등)은 5년간 보관합니다.**
+                
+                **그 외의 정보는 30일 후 삭제합니다.**
+                
+                """)
+    @DeleteMapping("/withdraw")
+    public SuccessResponse<Boolean> withdraw() {
+        userService.withdraw();
+        return SuccessResponse.success(true);
+    }
+
+
     @Operation(summary = "SMS 인증번호 요청하기",
             description = """
                     SMS 인증번호를 요청합니다.
