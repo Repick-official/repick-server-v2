@@ -4,6 +4,7 @@ import com.example.repick.domain.clothingSales.dto.*;
 import com.example.repick.domain.clothingSales.service.BagService;
 import com.example.repick.domain.clothingSales.service.BoxService;
 import com.example.repick.domain.clothingSales.service.ClothingSalesService;
+import com.example.repick.domain.clothingSales.dto.GetSalesProductsByClothingSales;
 import com.example.repick.global.page.DateCondition;
 import com.example.repick.global.page.PageCondition;
 import com.example.repick.global.page.PageResponse;
@@ -69,8 +70,23 @@ public class ClothingSalesController {
             옷장 정리 통합 조회: 판매 중인 옷장, 신청 완료일 내림차순으로 정렬되어 리스트로 반환합니다.
             """)
     @GetMapping("/selling")
-    public SuccessResponse<List<GetSellingClothingSales>> getSellingClothingSales() {
-        return SuccessResponse.success(clothingSalesService.getSellingClothingSales());
+    public SuccessResponse<List<GetSellingClothingSales>> getSellingClothingSalesList() {
+        return SuccessResponse.success(clothingSalesService.getSellingClothingSalesList());
+    }
+
+    @Operation(summary = "옷장 개별 보기: 옷장 정보")
+    @GetMapping("/selling/{clothingSalesId}")
+    public SuccessResponse<GetSellingClothingSales> getSellingClothingSales(@PathVariable Long clothingSalesId) {
+        return SuccessResponse.success(clothingSalesService.getSellingClothingSales(clothingSalesId));
+    }
+
+    @Operation(summary = "옷장 개별 보기: 옷장 상품 현황",
+            description = """
+                    productState: selling, confirm-pending, sold-out, selling-end
+                    """)
+    @GetMapping("/products/{clothingSalesId}/{productState}")
+    public SuccessResponse<List<GetSalesProductsByClothingSales>> getProductsByClothingSales(@PathVariable Long clothingSalesId, @PathVariable String productState) {
+        return SuccessResponse.success(clothingSalesService.getProductsByClothingSales(clothingSalesId, productState));
     }
 
     @Operation(summary = "수거: 상품 보기", description = """

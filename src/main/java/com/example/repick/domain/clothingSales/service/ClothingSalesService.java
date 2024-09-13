@@ -7,6 +7,7 @@ import com.example.repick.domain.clothingSales.entity.ClothingSalesStateType;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesRepository;
 import com.example.repick.domain.clothingSales.repository.ClothingSalesStateRepository;
 import com.example.repick.domain.clothingSales.validator.ClothingSalesValidator;
+import com.example.repick.domain.clothingSales.dto.GetSalesProductsByClothingSales;
 import com.example.repick.domain.product.entity.Product;
 import com.example.repick.domain.product.entity.ProductOrder;
 import com.example.repick.domain.product.entity.ProductOrderState;
@@ -106,7 +107,7 @@ public class ClothingSalesService {
         return true;
     }
 
-    public List<GetSellingClothingSales> getSellingClothingSales() {
+    public List<GetSellingClothingSales> getSellingClothingSalesList() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
@@ -114,32 +115,76 @@ public class ClothingSalesService {
         List<ClothingSales> clothingSalesList = clothingSalesRepository.findByUserAndClothingSalesState(user, ClothingSalesStateType.SELLING);
 
         for (ClothingSales clothingSales : clothingSalesList) {
-            List<Product> productList = clothingSales.getProductList();
-            if(productList.isEmpty()) {
-                continue;
-            }
-            int remainingSalesDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), clothingSales.getSalesStartDate().toLocalDate().plusDays(90));
-            int sellingQuantity = 0;
-            int pendingQuantity = 0;
-            int soldQuantity = 0;
-            for (Product product : productList) {
-                if (product.getProductState().equals(ProductStateType.SELLING)) {
-                    sellingQuantity++;
-                } else if (product.getProductState().equals(ProductStateType.SOLD_OUT)) {
-                    ProductOrder productOrder = productOrderRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
-                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
-                    if (productOrder.isConfirmed()) {
-                        soldQuantity++;
-                    } else {
-                        pendingQuantity++;
-                    }
-                }
-            }
-            sellingClothingSalesList.add(GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, pendingQuantity, soldQuantity));
+            sellingClothingSalesList.add(getSellingClothingSalesInfo(clothingSales));
         }
         return sellingClothingSalesList;
-
     }
+
+    public GetSellingClothingSales getSellingClothingSales(Long clothingSalesId) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        ClothingSales clothingSales = clothingSalesRepository.findById(clothingSalesId)
+                .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
+
+        if(!clothingSales.getUser().getId().equals(user.getId())){
+            throw new CustomException(INVALID_CLOTHING_SALES_ID);
+        }
+
+        return getSellingClothingSalesInfo(clothingSales);
+    }
+
+
+    private GetSellingClothingSales getSellingClothingSalesInfo(ClothingSales clothingSales) {
+        List<Product> productList = clothingSales.getProductList();
+        if(productList.isEmpty()) {
+            return GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), 0, 0, 0, 0);
+        }
+
+        int remainingSalesDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), clothingSales.getSalesStartDate().toLocalDate().plusDays(90));
+        int sellingQuantity = 0;
+        int pendingQuantity = 0;
+        int soldQuantity = 0;
+
+        for (Product product : productList) {
+            if (product.getProductState().equals(ProductStateType.SELLING)) {
+                sellingQuantity++;
+            } else if (product.getProductState().equals(ProductStateType.SOLD_OUT)) {
+                ProductOrder productOrder = productOrderRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
+                        .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                if (productOrder.isConfirmed()) {
+                    soldQuantity++;
+                } else {
+                    pendingQuantity++;
+                }
+            }
+        }
+        return GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, pendingQuantity, soldQuantity);
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<GetSalesProductsByClothingSales> getProductsByClothingSales(Long clothingSalesId, String productState) {
+        if (productState.equals("confirm-pending") || productState.equals("sold-out")) {
+            List<Product> products = productRepository.findByClothingSalesIdAndProductState(clothingSalesId, ProductStateType.SOLD_OUT);
+            boolean isConfirmed = productState.equals("sold-out");
+            return products.stream()
+                    .filter(product -> {
+                        ProductOrder productOrder = productOrderRepository.findFirstByProductIdOrderByCreatedDateDesc(product.getId())
+                                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+                        return productOrder.isConfirmed() == isConfirmed;
+                    })
+                    .map(GetSalesProductsByClothingSales::from)
+                    .collect(Collectors.toList());
+        } else {
+            ProductStateType productStateType = ProductStateType.fromEngValue(productState);
+            List<Product> products = productRepository.findByClothingSalesIdAndProductState(clothingSalesId, productStateType);
+            return products.stream()
+                    .map(GetSalesProductsByClothingSales::from)
+                    .collect(Collectors.toList());
+        }
+    }
+
 
     public GetProductListByClothingSales getProductsByClothingSalesId(Long clothingSalesId) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
