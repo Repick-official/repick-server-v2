@@ -33,7 +33,6 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 @Service @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ProductOrderRepository productOrderRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductStyleRepository productStyleRepository;
     private final ProductImageRepository productImageRepository;
