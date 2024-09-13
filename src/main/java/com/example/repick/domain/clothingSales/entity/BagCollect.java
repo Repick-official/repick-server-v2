@@ -17,7 +17,7 @@ public class BagCollect extends ClothingSales{
     private Integer bagQuantity;
 
     @Column(name = "notify_count")
-    private int notifyCount = 0;
+    private int notifyCount;
 
     public void updateNotifyCount(int notifyCount) {
         this.notifyCount = notifyCount;

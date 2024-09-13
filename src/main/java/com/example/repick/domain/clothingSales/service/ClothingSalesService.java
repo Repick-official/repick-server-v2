@@ -138,13 +138,15 @@ public class ClothingSalesService {
     private GetSellingClothingSales getSellingClothingSalesInfo(ClothingSales clothingSales) {
         List<Product> productList = clothingSales.getProductList();
         if(productList.isEmpty()) {
-            return GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), 0, 0, 0, 0);
+            return GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), 0, 0, 0, 0, 0, 0);
         }
 
         int remainingSalesDays = (int) ChronoUnit.DAYS.between(LocalDate.now(), clothingSales.getSalesStartDate().toLocalDate().plusDays(90));
         int sellingQuantity = 0;
-        int pendingQuantity = 0;
+        int confirmPendingQuantity = 0;
         int soldQuantity = 0;
+        int expiredQuantity = 0;
+        long totalPoint = 0;
 
         for (Product product : productList) {
             if (product.getProductState().equals(ProductStateType.SELLING)) {
@@ -154,12 +156,15 @@ public class ClothingSalesService {
                         .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
                 if (productOrder.isConfirmed()) {
                     soldQuantity++;
+                    totalPoint += product.getSettlement();
                 } else {
-                    pendingQuantity++;
+                    confirmPendingQuantity++;
                 }
+            } else if (product.getProductState().equals(ProductStateType.SELLING_END)) {
+                expiredQuantity++;
             }
         }
-        return GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, pendingQuantity, soldQuantity);
+        return GetSellingClothingSales.of(clothingSales, clothingSales.getSalesStartDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")), remainingSalesDays, sellingQuantity, confirmPendingQuantity, soldQuantity, expiredQuantity, totalPoint);
     }
 
 

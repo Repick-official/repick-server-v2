@@ -25,7 +25,6 @@ public record PostBoxCollect (
                 .address(new Address(postalCode, mainAddress, detailAddress))
                 .collectionDate(LocalDate.parse(collectionDate))
                 .clothingSalesCount(clothingSalesCount)
-                .point(0L)
                 .clothingSalesState(ClothingSalesStateType.BOX_COLLECT_REQUEST)
                 .build();
     }

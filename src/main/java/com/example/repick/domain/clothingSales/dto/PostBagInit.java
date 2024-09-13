@@ -20,7 +20,6 @@ public record PostBagInit(
                 .bagQuantity(bagQuantity)
                 .initAddress(new Address(postalCode, mainAddress, detailAddress))
                 .clothingSalesCount(clothingSalesCount)
-                .point(0L)
                 .clothingSalesState(ClothingSalesStateType.BAG_INIT_REQUEST)
                 .build();
     }

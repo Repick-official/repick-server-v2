@@ -43,9 +43,6 @@ public abstract class ClothingSales {
     @Column(name = "clothing_sales_count")
     private Integer clothingSalesCount;
 
-    @Column(name = "point")
-    private Long point;
-
     @Column(name = "weight")
     private Double weight;
 
@@ -81,9 +78,6 @@ public abstract class ClothingSales {
         this.imageUrl = imageUrl;
     }
 
-    public void updatePoint(long point) {
-        this.point = point;
-    }
     public void updateWeight(double weight) {
         this.weight = weight;
     }
