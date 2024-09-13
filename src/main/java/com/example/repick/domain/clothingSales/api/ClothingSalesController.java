@@ -74,7 +74,7 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.getSellingClothingSalesList());
     }
 
-    @Operation(summary = "옷장 정리 통합 조회: 판매 중인 옷장 개별 보기")
+    @Operation(summary = "옷장 개별 보기: 옷장 정보")
     @GetMapping("/selling/{clothingSalesId}")
     public SuccessResponse<GetSellingClothingSales> getSellingClothingSales(@PathVariable Long clothingSalesId) {
         return SuccessResponse.success(clothingSalesService.getSellingClothingSales(clothingSalesId));
