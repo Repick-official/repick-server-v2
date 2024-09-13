@@ -241,7 +241,7 @@ public class ProductController {
         return SuccessResponse.success(productService.getProductCountByClothingSales(type, userId, pageCondition));
     }
 
-    @Operation(summary = "유저 상품 현황",
+    @Operation(summary = "유저 상품 현황 (Admin API)",
             description = """
                     
                     productState: selling, sold-out, rejected, selling-end, kg-sell

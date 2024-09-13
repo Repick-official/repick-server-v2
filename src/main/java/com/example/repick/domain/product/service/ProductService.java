@@ -33,6 +33,7 @@ import static com.example.repick.global.error.exception.ErrorCode.*;
 @Service @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductOrderRepository productOrderRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductStyleRepository productStyleRepository;
     private final ProductImageRepository productImageRepository;
@@ -482,6 +483,7 @@ public class ProductService {
         return PageResponse.of(pages.getContent(), pages.getTotalPages(), pages.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<List<?>> getProductsByUserClothingSales(Long clothingSalesId, String productState, Boolean isExpired, PageCondition pageCondition) {
         Page<?> pages;
         if (productState.equals("kg-sell")) { // kg 매입 상품(리젝, 만료되었을 경우 kg 매입 가능)
