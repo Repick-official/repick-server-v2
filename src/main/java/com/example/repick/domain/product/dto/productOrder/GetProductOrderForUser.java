@@ -10,7 +10,8 @@ public record GetProductOrderForUser(
         @Schema(description = "브랜드 이름") String brandName,
         @Schema(description = "상품 이름") String productName,
         @Schema(description = "상품 이미지 URL") String productImageUrl,
-        @Schema(description = "구매확정 여부") Boolean isConfirmed
+        @Schema(description = "구매확정 여부") Boolean isConfirmed,
+        @Schema(description = "운송장 번호") String trackingNumber
 ) {
     public static GetProductOrderForUser from(ProductOrder productOrder, Product product) {
         return new GetProductOrderForUser(
@@ -19,7 +20,8 @@ public record GetProductOrderForUser(
                 product.getBrandName(),
                 product.getProductName(),
                 product.getThumbnailImageUrl(),
-                productOrder.isConfirmed()
+                productOrder.isConfirmed(),
+                productOrder.getTrackingNumber()
         );
     }
 }
