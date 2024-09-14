@@ -170,7 +170,7 @@ public class ProductOrderService {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
         Pageable pageable = pageCondition.toPageable();
-        Page<ProductOrder> productOrderPage = productOrderRepository.findByUserIdAndProductOrderStateNot(user.getId(), ProductOrderState.DEFAULT, pageable);
+        Page<ProductOrder> productOrderPage = productOrderRepository.findByUserIdAndProductOrderStateNotOrderByCreatedDateDesc(user.getId(), ProductOrderState.DEFAULT, pageable);
         List<GetProductOrderForUser> getProductOrders = productOrderPage.stream()
                 .map(productOrder -> {
                     Product product = productRepository.findById(productOrder.getProductId())
