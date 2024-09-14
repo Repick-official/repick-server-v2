@@ -12,7 +12,7 @@ public record GetPendingClothingSales(
         @Schema(description = "수거 ID", example = "1") Long id,
         @Schema(description = "옷장 정리 회차", example = "1") Integer clothingSalesCount,
         @Schema(description = "박스 수거 여부 true: 박스 수거, false: 리픽백 수거") boolean isBoxCollect,
-        @Schema(description = "리픽백 수거 요청 여부 true: 수거 요청, false: 수거 미요청") boolean isBagCollectReqeusted,
+        @Schema(description = "리픽백 수거 요청 여부 true: 수거 요청, false: 수거 미요청") boolean isBagCollectRequested,
         @Schema(description = "신청 완료일") LocalDateTime requestDate,
         @Schema(description = "수거 완료일") LocalDateTime collectDate,
         @Schema(description = "상품 촬영일") LocalDateTime shootDate,
