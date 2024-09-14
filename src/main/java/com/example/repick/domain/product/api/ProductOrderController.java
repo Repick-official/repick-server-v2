@@ -40,6 +40,13 @@ public class ProductOrderController {
         return SuccessResponse.createSuccess(productOrderService.validatePayment(postPayment));
     }
 
+    @Operation(summary = "주문 내역 리스트")
+    @GetMapping
+    public SuccessResponse<PageResponse<List<GetProductOrderForUser>>> getProductOrdersForUser(@ParameterObject PageCondition pageCondition) {
+        return SuccessResponse.success(productOrderService.getProductOrdersForUser(pageCondition));
+    }
+
+
     @Operation(summary = "상품 구매 확정",
             description = """
                     구매를 확정합니다.

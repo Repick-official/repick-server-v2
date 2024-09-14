@@ -166,6 +166,21 @@ public class ProductOrderService {
         paymentRepository.save(payment);
     }
 
+    public PageResponse<List<GetProductOrderForUser>> getProductOrdersForUser(PageCondition pageCondition) {
+        User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+        Pageable pageable = pageCondition.toPageable();
+        Page<ProductOrder> productOrderPage = productOrderRepository.findByUserId(user.getId(), pageable);
+        List<GetProductOrderForUser> getProductOrders = productOrderPage.stream()
+                .map(productOrder -> {
+                    Product product = productRepository.findById(productOrder.getProductId())
+                            .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
+                    return GetProductOrderForUser.from(productOrder, product);
+                }).toList();
+        Page<GetProductOrderForUser> page = new PageImpl<>(getProductOrders, pageable, productOrderPage.getTotalElements());
+        return new PageResponse<>(page.getContent(), page.getTotalPages(), page.getTotalElements());
+    }
+
     @Transactional
     public Boolean confirmProductOrder(Long productOrderId){
         ProductOrder productOrder = productOrderRepository.findById(productOrderId)

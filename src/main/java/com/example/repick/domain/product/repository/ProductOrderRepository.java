@@ -17,6 +17,7 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
     List<ProductOrder> findByIsConfirmed(boolean isConfirmed);
 
     List<ProductOrder> findByUserId(Long userId);
+    Page<ProductOrder> findByUserId(Long userId, Pageable pageable);
 
     Page<ProductOrder> findByProductOrderStateIn(List<ProductOrderState> productOrderStates, Pageable pageable);
 
