@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record GetProductOrderForUser(
         @Schema(description = "주문 아이디") long productOrderId,
+        @Schema(description = "주문 상태") String orderState,
         @Schema(description = "브랜드 이름") String brandName,
         @Schema(description = "상품 이름") String productName,
         @Schema(description = "상품 이미지 URL") String productImageUrl,
@@ -14,6 +15,7 @@ public record GetProductOrderForUser(
     public static GetProductOrderForUser from(ProductOrder productOrder, Product product) {
         return new GetProductOrderForUser(
                 productOrder.getId(),
+                productOrder.getProductOrderState().getValue(),
                 product.getBrandName(),
                 product.getProductName(),
                 product.getThumbnailImageUrl(),

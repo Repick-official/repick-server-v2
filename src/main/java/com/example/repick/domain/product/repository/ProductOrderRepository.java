@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long> {
     List<ProductOrder> findByPayment(Payment payment);
 
-    List<ProductOrder> findByIsConfirmed(boolean isConfirmed);
+    List<ProductOrder> findByIsConfirmedAndProductOrderStateIn(boolean isConfirmed, List<ProductOrderState> productOrderStates);
 
     List<ProductOrder> findByUserId(Long userId);
-    Page<ProductOrder> findByUserId(Long userId, Pageable pageable);
+    Page<ProductOrder> findByUserIdAndProductOrderStateNot(Long userId, ProductOrderState productOrderState, Pageable pageable);
 
     Page<ProductOrder> findByProductOrderStateIn(List<ProductOrderState> productOrderStates, Pageable pageable);
 

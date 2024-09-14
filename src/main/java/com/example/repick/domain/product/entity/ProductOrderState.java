@@ -4,6 +4,8 @@ import com.example.repick.global.error.exception.CustomException;
 import com.example.repick.global.error.exception.ErrorCode;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public enum ProductOrderState {
     // 주문 관련
@@ -20,6 +22,8 @@ public enum ProductOrderState {
 
     private final int id;
     private final String value;
+
+    public static final List<ProductOrderState> ORDERED_STATES = List.of(PAYMENT_COMPLETED, SHIPPING_PREPARING, SHIPPING, DELIVERED);
 
     ProductOrderState(int id, String value) {
         this.id = id;

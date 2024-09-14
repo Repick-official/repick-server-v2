@@ -75,7 +75,7 @@ public class ProductScheduler {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void confirmProductOrder() {
-        List<ProductOrder> productOrders = productOrderRepository.findByIsConfirmed(false);
+        List<ProductOrder> productOrders = productOrderRepository.findByIsConfirmedAndProductOrderStateIn(false, ProductOrderState.ORDERED_STATES);
         productOrders.forEach(po -> {
             if (Duration.between(po.getCreatedDate(), LocalDateTime.now()).toDays() >= 7) {
                 po.confirmOrder();
