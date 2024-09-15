@@ -198,7 +198,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression keywordFilter(String keyword) {
-        return keyword != null ? product.productName.contains(keyword) : null;
+        return keyword != null ? product.productName.contains(keyword)
+                .or(product.brandName.contains(keyword)) : null;
     }
 
     private BooleanExpression genderFilter(String gender) {
