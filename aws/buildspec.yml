@@ -1,0 +1,41 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "ap-northeast-2"
+    ECR_REPOSITORY: "repick-repo:latest"
+
+  parameter-store:
+    ECR_REGISTRY: "ECR_REGISTRY"
+    APPLICATION_SECRET: "application-secrets"
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - echo "Setting up resources and secrets"
+      - mkdir -p ./src/main/resources
+      - mkdir -p ./src/main/resources/key
+      - rm -f ./src/main/resources/application.yml
+      - touch ./src/main/resources/application.yml
+  build:
+    commands:
+      - echo "Building application with Gradle"
+      - ./gradlew bootJar
+      - echo "Building Docker image"
+      - docker build -t $ECR_REGISTRY/$ECR_REPOSITORY .
+
+  post_build:
+    commands:
+      - echo "Logging into Amazon ECR"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - echo "Pushing Docker image to Amazon ECR"
+      - docker push $ECR_REGISTRY/$ECR_REPOSITORY
+artifacts:
+  files:
+    - appspec.yml
+    - kill_process.sh
+    - start_process.sh
+  discard-paths: yes

@@ -77,7 +77,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         categoryFilter(productFilter.category(), productFilter.isParentCategory()),
                         stylesFilter(productFilter.styles()),
                         priceFilter(productFilter.minPrice(), productFilter.maxPrice()),
-                        brandFilter(productFilter.brandName()),
+                        brandFilter(productFilter.brandNames()),
                         qualityFilter(productFilter.qualityRates()),
                         sizesFilter(productFilter.sizes()),
                         materialsFilter(productFilter.materials()),
@@ -200,7 +200,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression keywordFilter(String keyword) {
-        return keyword != null ? product.productName.contains(keyword) : null;
+        return keyword != null ? product.productName.contains(keyword)
+                .or(product.brandName.contains(keyword)) : null;
     }
 
     private BooleanExpression genderFilter(String gender) {
@@ -230,8 +231,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return (minPrice != null && maxPrice != null) ? product.price.between(minPrice, maxPrice) : null;
     }
 
-    private BooleanExpression brandFilter(String brandName) {
-        return brandName != null ? product.brandName.like("%" + brandName + "%") : null;
+    private BooleanExpression brandFilter(List<String> brandNames) {
+        return brandNames != null ? product.brandName.in(brandNames) : null;
     }
 
     private BooleanExpression qualityFilter(List<String> qualityRates) {
