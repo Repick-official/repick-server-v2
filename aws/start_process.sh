@@ -6,7 +6,7 @@ ECR_REGISTRY=$(aws ssm get-parameter --name "ECR_REGISTRY" --with-decryption --r
 ECR_DOCKER_TAG=latest
 
 echo $ECR_REGISTRY
-aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+aws ecr get-login-password --region ap-northeast-2 | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
 
 sudo docker pull $ECR_REGISTRY:$ECR_DOCKER_TAG
 
