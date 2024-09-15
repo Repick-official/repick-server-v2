@@ -50,6 +50,17 @@ public class KakaoUserService {
 
     }
 
+    public void disconnectKakao(String accessToken) {
+        String url = "https://kapi.kakao.com/v1/user/unlink";
+        System.out.println("accessToken: " + accessToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        restTemplate.postForEntity(url, request, String.class);
+    }
+
     private KakaoUserDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();

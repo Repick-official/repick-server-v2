@@ -19,10 +19,13 @@ import com.example.repick.global.error.exception.ErrorCode;
 import com.example.repick.global.jwt.TokenResponse;
 import com.example.repick.global.jwt.TokenService;
 import com.example.repick.global.jwt.UserDetailsImpl;
+import com.example.repick.global.oauth.AppleUserService;
+import com.example.repick.global.oauth.GoogleUserService;
+import com.example.repick.global.oauth.KakaoUserService;
+import com.example.repick.global.oauth.NaverUserService;
 import com.example.repick.global.sms.MessageService;
 import com.example.repick.global.util.StringParser;
 import lombok.RequiredArgsConstructor;
-import org.joda.time.DateTime;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -34,8 +37,6 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static com.example.repick.global.error.exception.ErrorCode.TOKEN_EXPIRED;
-import static com.example.repick.global.error.exception.ErrorCode.USER_NOT_FOUND;
-import static java.time.LocalTime.now;
 
 @Service @RequiredArgsConstructor
 public class UserService {
@@ -50,6 +51,10 @@ public class UserService {
     private final ProductOrderRepository productOrderRepository;
     private final UserPreferenceRepository userPreferenceRepository;
     private final PaymentRepository paymentRepository;
+    private final NaverUserService naverUserService;
+    private final KakaoUserService kakaoUserService;
+    private final AppleUserService appleUserService;
+    private final GoogleUserService googleUserService;
 
     public GetUserInfo getUserInfo() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -107,14 +112,32 @@ public class UserService {
     }
 
     @Transactional
-    public Boolean withdraw() {
+    public Boolean withdraw(String accessToken) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByProviderId(email)
-                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 소셜 로그인 연결 해제 로직
+        switch (user.getOAuthProvider()) {
+            case KAKAO:
+                kakaoUserService.disconnectKakao(accessToken);
+                break;
+            case NAVER:
+                naverUserService.disconnectNaver(accessToken);
+                break;
+            case GOOGLE:
+                googleUserService.disconnectGoogle(accessToken);
+                break;
+            case APPLE:
+                break;
+            default:
+                throw new CustomException(ErrorCode.INVALID_REQUEST_ERROR);
+        }
 
         if (user.getDeletedAt() == null) {
             user.setDeletedAt(LocalDateTime.now());
+            user.setIsDeleted();
             userRepository.save(user);
         }
 
@@ -122,6 +145,7 @@ public class UserService {
         payments.forEach(payment -> {
             if (payment.getDeletedAt() == null) {
                 payment.setDeletedAt(LocalDateTime.now());
+                payment.setIsDeleted();
                 paymentRepository.save(payment);
             }
         });

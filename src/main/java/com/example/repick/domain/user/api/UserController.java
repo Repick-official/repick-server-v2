@@ -226,8 +226,9 @@ public class UserController {
                 
                 """)
     @DeleteMapping("/withdraw")
-    public SuccessResponse<Boolean> withdraw() {
-        userService.withdraw();
+    public SuccessResponse<Boolean> withdraw(@Parameter(name = "accessToken", description = "소셜 로그인 인증서버에서 받은 토큰", required = true)
+                                             @RequestParam String accessToken) {
+        userService.withdraw(accessToken);
         return SuccessResponse.success(true);
     }
 
