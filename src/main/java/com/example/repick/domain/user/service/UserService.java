@@ -67,7 +67,7 @@ public class UserService {
 
     public Boolean patchUserInfo(PatchUserInfo patchUserInfo) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         user.update(patchUserInfo);
 
@@ -83,7 +83,7 @@ public class UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByProviderId(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String profile = s3UploadService.saveFile(profileImage, "profile/" + user.getId().toString());
 
@@ -100,7 +100,7 @@ public class UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByProviderId(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // delete fcm token from ddb
         userFcmTokenInfoRepository.deleteById(user.getId());
@@ -157,7 +157,7 @@ public class UserService {
     @Transactional
     public Boolean initSmsVerification(PostInitSmsVerification postInitSmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String phoneNumber = StringParser.parsePhoneNumber(postInitSmsVerification.phoneNumber());
         String randomNumber = messageService.sendSMS(postInitSmsVerification.phoneNumber());
@@ -177,7 +177,7 @@ public class UserService {
     @Transactional
     public Boolean verifySmsVerification(PostVerifySmsVerification postVerifySmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String phoneNumber = StringParser.parsePhoneNumber(postVerifySmsVerification.phoneNumber());
 
