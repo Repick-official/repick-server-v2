@@ -31,6 +31,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Optional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -112,7 +113,7 @@ public class UserService {
     }
 
     @Transactional
-    public Boolean withdraw(String accessToken) {
+    public Boolean withdraw(Optional<String> accessToken) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByProviderId(email)
@@ -121,20 +122,19 @@ public class UserService {
         // 소셜 로그인 연결 해제 로직
         switch (user.getOAuthProvider()) {
             case KAKAO:
-                kakaoUserService.disconnectKakao(accessToken);
+                accessToken.ifPresent(kakaoUserService::disconnectKakao);
                 break;
             case NAVER:
-                naverUserService.disconnectNaver(accessToken);
+                accessToken.ifPresent(naverUserService::disconnectNaver);
                 break;
             case GOOGLE:
-                googleUserService.disconnectGoogle(accessToken);
+                accessToken.ifPresent(googleUserService::disconnectGoogle);
                 break;
             case APPLE:
                 break;
             default:
                 throw new CustomException(ErrorCode.INVALID_REQUEST_ERROR);
         }
-
         if (user.getDeletedAt() == null) {
             user.setDeletedAt(LocalDateTime.now());
             user.setIsDeleted();

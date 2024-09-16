@@ -14,13 +14,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Optional;
 
-import java.nio.charset.StandardCharsets;
 
 
 @Tag(name = "User", description = "유저 관련 API")
@@ -226,11 +224,11 @@ public class UserController {
                 
                 """)
     @DeleteMapping("/withdraw")
-    public SuccessResponse<Boolean> withdraw(@Parameter(name = "accessToken", description = "소셜 로그인 인증서버에서 받은 토큰", required = true)
-                                             @RequestParam String accessToken) {
+    public SuccessResponse<Boolean> withdraw(@RequestParam(required = false) Optional<String> accessToken) {
         userService.withdraw(accessToken);
         return SuccessResponse.success(true);
     }
+
 
 
     @Operation(summary = "SMS 인증번호 요청하기",
