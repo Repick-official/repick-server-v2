@@ -44,8 +44,6 @@ public interface ProductRepositoryCustom {
 
     List<GetProductByClothingSalesDto> findProductDtoByClothingSalesId(long clothingSalesId);
 
-    List<Product> findByProductSellingStateType(ProductStateType productStateType);
-
     List<GetBrandList> getBrandList();
 
     List<Product> findRecommendation(Long userId);

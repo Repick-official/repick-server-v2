@@ -12,7 +12,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -69,8 +68,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productCategory.product.id))
                 .leftJoin(productMaterial)
                 .on(product.id.eq(productMaterial.product.id))
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
                 .where(
                         keywordFilter(productFilter.keyword()),
                         genderFilter(productFilter.gender()),
@@ -82,7 +79,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         sizesFilter(productFilter.sizes()),
                         materialsFilter(productFilter.materials()),
                         deletedFilter(),
-                        sellingStateFilter(ProductStateType.SELLING))
+                        sellingStateFilter())
                 .distinct()
                 .orderBy(orderBy);
 
@@ -138,7 +135,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(
                         likeFilter(userId),
                         categoryFilter(category, false),
-                        deletedFilter())
+                        deletedFilter(),
+                        sellingStateFilter())
                 .distinct()
                 .orderBy(productLike.id.desc());
         long total = query.stream().count();
@@ -257,24 +255,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.isDeleted.eq(false);
     }
 
-    private BooleanExpression sellingStateFilter(ProductStateType productStateType) {
-        if (productStateType == null) {
-            return null;
-        }
-
-        QProductState subProductState = new QProductState("subProductState");
-
-        return productState.id.in(
-                JPAExpressions
-                        .select(subProductState.id)
-                        .from(subProductState)
-                        .where(subProductState.id.in(
-                                JPAExpressions
-                                        .select(productState.id.max())
-                                        .from(productState)
-                                        .groupBy(productState.productId)
-                        ).and(subProductState.productStateType.eq(ProductStateType.SELLING)))
-        );
+    private BooleanExpression sellingStateFilter() {
+        return product.productState.eq(ProductStateType.SELLING);
     }
 
     private BooleanExpression stylesFilter(List<String> styles) {
@@ -311,13 +293,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
                 .where(
                     genderFilter(gender),
                     subCategoryFilter(subCategories),
                     deletedFilter(),
-                    sellingStateFilter(ProductStateType.SELLING))
+                    sellingStateFilter())
                 .distinct()
                 .orderBy(product.id.desc());
         long total = query.stream().count();
@@ -345,16 +325,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(product.isDeleted.isFalse())
                         .and(product.productState.eq(ProductStateType.PREPARING).or(product.productState.eq(ProductStateType.REJECTED))))
                 .distinct()
-                .fetch();
-    }
-
-    @Override
-    public List<Product> findByProductSellingStateType(ProductStateType productStateType) {
-        return jpaQueryFactory
-                .selectFrom(product)
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
-                .where(sellingStateFilter(productStateType))
                 .fetch();
     }
 
