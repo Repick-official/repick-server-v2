@@ -100,13 +100,12 @@ public class ProductScheduler {
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteAddressAfterThirtyDays() {
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        List<Payment> addressToDelete = paymentRepository.findAllByDeletedAtBefore(thirtyDaysAgo);
-
-        addressToDelete.forEach(payment -> {
-            //결제 내역에서 결제 정보만 30일 뒤에 삭제
-            payment.deleteAddress();
-            paymentRepository.save(payment);
-            });
+        paymentRepository.findAllByDeletedAtBefore(thirtyDaysAgo)
+                        .forEach(payment ->  {
+                            //결제 내역에서 결제 정보만 30일 뒤에 삭제
+                            payment.deleteAddress();
+                            paymentRepository.save(payment);
+                        });
     }
 
     // 5년 후 결제 정보 전체 삭제하는 스케줄러
