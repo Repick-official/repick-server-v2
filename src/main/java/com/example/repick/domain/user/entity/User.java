@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.joda.time.DateTime;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +28,7 @@ public class User extends BaseEntity {
     private String phoneNumber;
     private String profileImage;
     private String password;
-
+    private LocalDateTime deletedAt;
     // 추가 정보
     private String nickname;
     @Embedded
@@ -56,7 +57,7 @@ public class User extends BaseEntity {
     private Role role;
 
     @Builder
-    public User(Long id, OAuthProvider oAuthProvider, String providerId, String email, String nickname, String phoneNumber, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken, Gender gender ) {
+    public User(Long id, OAuthProvider oAuthProvider, String providerId, String email, String nickname, String phoneNumber, Address defaultAddress, Account defaultAccount, String topSize, String bottomSize, String profileImage, String password, Role role, Boolean pushAllow, String fcmToken, Gender gender,LocalDateTime deletedAt ) {
         this.id = id;
         this.oAuthProvider = oAuthProvider;
         this.providerId = providerId;
@@ -75,6 +76,7 @@ public class User extends BaseEntity {
         this.fcmToken = fcmToken;
         this.userClass = UserClass.ROOKIE_COLLECTOR;
         this.gender = gender;
+        this.deletedAt = deletedAt;
     }
 
 
@@ -88,6 +90,7 @@ public class User extends BaseEntity {
         this.pushAllow = patchUserInfo.pushAllow() != null ? patchUserInfo.pushAllow() : this.pushAllow;
         this.fcmToken = patchUserInfo.fcmToken() != null ? patchUserInfo.fcmToken() : this.fcmToken;
         this.gender = patchUserInfo.gender() != null ? patchUserInfo.gender() : this.gender;
+
     }
 
     public void updateProfile(String profile) {
@@ -102,6 +105,9 @@ public class User extends BaseEntity {
         this.userClass = userClass;
     }
 
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
     public void addSettlement(long settlement) {
         this.settlement += settlement;
     }
