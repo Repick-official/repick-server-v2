@@ -101,7 +101,8 @@ public class TokenService {
             Jws<Claims> claims = build.parseClaimsJws(token);
 
             // 만료되었을 시 false
-            return !claims.getBody().getExpiration().before(new Date());
+//            return !claims.getBody().getExpiration().before(new Date());
+            return true;
         } catch (Exception e) {
             return false;
         }
