@@ -35,12 +35,12 @@ public class TokenService {
 
     // access 토큰 생성
     public String createAccessToken(UserDetailsImpl userDetailsImpl) {
-        return createToken(userDetailsImpl.user().getProviderId(), userDetailsImpl.user().getRole(), 8640000000L);
+        return createToken(userDetailsImpl.user().getProviderId(), userDetailsImpl.user().getRole(), 86400000000L);
     }
 
     // refresh 토큰 생성
     public String createRefreshToken(UserDetailsImpl userDetailsImpl) {
-        return createToken(userDetailsImpl.user().getProviderId(), userDetailsImpl.user().getRole(), 8640000000L);
+        return createToken(userDetailsImpl.user().getProviderId(), userDetailsImpl.user().getRole(), 86400000000L);
     }
 
     // 토큰 생성
@@ -65,7 +65,21 @@ public class TokenService {
 
     // 토큰에 담겨있는 유저 userId 획득
     public String getProviderId(String token) {
-        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
+//        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
+        try {
+            // 정상적인 경우 토큰에서 subject(providerId)를 추출
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰의 Claims에서 subject(providerId)를 추출
+            Claims claims = e.getClaims();
+            return claims.getSubject();
+        }
     }
 
     /* 추가됨: getMember
