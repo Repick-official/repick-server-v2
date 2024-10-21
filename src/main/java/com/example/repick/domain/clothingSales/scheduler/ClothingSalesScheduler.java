@@ -15,7 +15,7 @@ public class ClothingSalesScheduler {
     private final BagCollectRepository bagCollectRepository;
     private final PushNotificationService pushNotificationService;
 
-    @Scheduled(cron = "0 0 5 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 14 * * *", zone = "Asia/Seoul")
     public void checkNotProcessedBagInit() {
         List<BagCollect> bagCollects = bagCollectRepository.findNotProcessedBagCollects();
 

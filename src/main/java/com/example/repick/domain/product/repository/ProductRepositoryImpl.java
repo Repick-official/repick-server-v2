@@ -12,7 +12,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -69,20 +68,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productCategory.product.id))
                 .leftJoin(productMaterial)
                 .on(product.id.eq(productMaterial.product.id))
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
                 .where(
                         keywordFilter(productFilter.keyword()),
                         genderFilter(productFilter.gender()),
                         categoryFilter(productFilter.category(), productFilter.isParentCategory()),
                         stylesFilter(productFilter.styles()),
                         priceFilter(productFilter.minPrice(), productFilter.maxPrice()),
-                        brandFilter(productFilter.brandName()),
+                        brandFilter(productFilter.brandNames()),
                         qualityFilter(productFilter.qualityRates()),
                         sizesFilter(productFilter.sizes()),
                         materialsFilter(productFilter.materials()),
                         deletedFilter(),
-                        sellingStateFilter(ProductStateType.SELLING))
+                        sellingStateFilter())
                 .distinct()
                 .orderBy(orderBy);
 
@@ -138,7 +135,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .where(
                         likeFilter(userId),
                         categoryFilter(category, false),
-                        deletedFilter())
+                        deletedFilter(),
+                        sellingStateFilter())
                 .distinct()
                 .orderBy(productLike.id.desc());
         long total = query.stream().count();
@@ -200,7 +198,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression keywordFilter(String keyword) {
-        return keyword != null ? product.productName.contains(keyword) : null;
+        return keyword != null ? product.productName.contains(keyword)
+                .or(product.brandName.contains(keyword)) : null;
     }
 
     private BooleanExpression genderFilter(String gender) {
@@ -230,8 +229,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return (minPrice != null && maxPrice != null) ? product.price.between(minPrice, maxPrice) : null;
     }
 
-    private BooleanExpression brandFilter(String brandName) {
-        return brandName != null ? product.brandName.like("%" + brandName + "%") : null;
+    private BooleanExpression brandFilter(List<String> brandNames) {
+        return brandNames != null ? product.brandName.in(brandNames) : null;
     }
 
     private BooleanExpression qualityFilter(List<String> qualityRates) {
@@ -256,24 +255,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return product.isDeleted.eq(false);
     }
 
-    private BooleanExpression sellingStateFilter(ProductStateType productStateType) {
-        if (productStateType == null) {
-            return null;
-        }
-
-        QProductState subProductState = new QProductState("subProductState");
-
-        return productState.id.in(
-                JPAExpressions
-                        .select(subProductState.id)
-                        .from(subProductState)
-                        .where(subProductState.id.in(
-                                JPAExpressions
-                                        .select(productState.id.max())
-                                        .from(productState)
-                                        .groupBy(productState.productId)
-                        ).and(subProductState.productStateType.eq(ProductStateType.SELLING)))
-        );
+    private BooleanExpression sellingStateFilter() {
+        return product.productState.eq(ProductStateType.SELLING);
     }
 
     private BooleanExpression stylesFilter(List<String> styles) {
@@ -310,13 +293,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .on(product.id.eq(productStyle.product.id))
                 .leftJoin(productCategory)
                 .on(product.id.eq(productCategory.product.id))
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
                 .where(
                     genderFilter(gender),
                     subCategoryFilter(subCategories),
                     deletedFilter(),
-                    sellingStateFilter(ProductStateType.SELLING))
+                    sellingStateFilter())
                 .distinct()
                 .orderBy(product.id.desc());
         long total = query.stream().count();
@@ -344,16 +325,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         .and(product.isDeleted.isFalse())
                         .and(product.productState.eq(ProductStateType.PREPARING).or(product.productState.eq(ProductStateType.REJECTED))))
                 .distinct()
-                .fetch();
-    }
-
-    @Override
-    public List<Product> findByProductSellingStateType(ProductStateType productStateType) {
-        return jpaQueryFactory
-                .selectFrom(product)
-                .leftJoin(productState)
-                .on(product.id.eq(productState.productId))
-                .where(sellingStateFilter(productStateType))
                 .fetch();
     }
 

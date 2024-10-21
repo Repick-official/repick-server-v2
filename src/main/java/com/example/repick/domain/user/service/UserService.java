@@ -6,6 +6,8 @@ import com.example.repick.domain.product.entity.ProductOrderState;
 import com.example.repick.domain.product.repository.ProductOrderRepository;
 import com.example.repick.domain.user.dto.*;
 import com.example.repick.domain.user.entity.User;
+import com.example.repick.domain.product.entity.Payment;
+import com.example.repick.domain.product.repository.PaymentRepository;
 import com.example.repick.domain.user.entity.UserSmsVerificationInfo;
 import com.example.repick.domain.user.repository.UserRepository;
 import com.example.repick.dynamodb.UserFcmTokenInfoRepository;
@@ -17,6 +19,10 @@ import com.example.repick.global.error.exception.ErrorCode;
 import com.example.repick.global.jwt.TokenResponse;
 import com.example.repick.global.jwt.TokenService;
 import com.example.repick.global.jwt.UserDetailsImpl;
+import com.example.repick.global.oauth.AppleUserService;
+import com.example.repick.global.oauth.GoogleUserService;
+import com.example.repick.global.oauth.KakaoUserService;
+import com.example.repick.global.oauth.NaverUserService;
 import com.example.repick.global.sms.MessageService;
 import com.example.repick.global.util.StringParser;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +31,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Optional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,7 +51,11 @@ public class UserService {
     private final TokenService tokenService;
     private final ProductOrderRepository productOrderRepository;
     private final UserPreferenceRepository userPreferenceRepository;
-
+    private final PaymentRepository paymentRepository;
+    private final NaverUserService naverUserService;
+    private final KakaoUserService kakaoUserService;
+    private final AppleUserService appleUserService;
+    private final GoogleUserService googleUserService;
 
     public GetUserInfo getUserInfo() {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
@@ -56,7 +67,7 @@ public class UserService {
 
     public Boolean patchUserInfo(PatchUserInfo patchUserInfo) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         user.update(patchUserInfo);
 
@@ -72,7 +83,7 @@ public class UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByProviderId(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String profile = s3UploadService.saveFile(profileImage, "profile/" + user.getId().toString());
 
@@ -89,7 +100,7 @@ public class UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByProviderId(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // delete fcm token from ddb
         userFcmTokenInfoRepository.deleteById(user.getId());
@@ -102,9 +113,51 @@ public class UserService {
     }
 
     @Transactional
+    public Boolean withdraw(Optional<String> accessToken) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByProviderId(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 소셜 로그인 연결 해제 로직
+        switch (user.getOAuthProvider()) {
+            case KAKAO:
+                accessToken.ifPresent(kakaoUserService::disconnectKakao);
+                break;
+            case NAVER:
+                accessToken.ifPresent(naverUserService::disconnectNaver);
+                break;
+            case GOOGLE:
+                accessToken.ifPresent(googleUserService::disconnectGoogle);
+                break;
+            case APPLE:
+                break;
+            default:
+                throw new CustomException(ErrorCode.INVALID_REQUEST_ERROR);
+        }
+        if (user.getDeletedAt() == null) {
+            user.setDeletedAt(LocalDateTime.now());
+            user.setIsDeleted();
+            userRepository.save(user);
+        }
+
+        List<Payment> payments = paymentRepository.findAllByUserId(user.getId());
+        payments.forEach(payment -> {
+            if (payment.getDeletedAt() == null) {
+                payment.setDeletedAt(LocalDateTime.now());
+                payment.setIsDeleted();
+                paymentRepository.save(payment);
+            }
+        });
+
+        return true;
+    }
+
+
+    @Transactional
     public Boolean initSmsVerification(PostInitSmsVerification postInitSmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String phoneNumber = StringParser.parsePhoneNumber(postInitSmsVerification.phoneNumber());
         String randomNumber = messageService.sendSMS(postInitSmsVerification.phoneNumber());
@@ -124,7 +177,7 @@ public class UserService {
     @Transactional
     public Boolean verifySmsVerification(PostVerifySmsVerification postVerifySmsVerification) {
         User user = userRepository.findByProviderId(SecurityContextHolder.getContext().getAuthentication().getName())
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         String phoneNumber = StringParser.parsePhoneNumber(postVerifySmsVerification.phoneNumber());
 

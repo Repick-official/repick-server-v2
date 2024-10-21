@@ -58,6 +58,22 @@ public class NaverUserService {
         return objectMapper.readValue(response.getBody(), NaverUserDto.class);
     }
 
+    public void disconnectNaver(String accessToken) {
+        String url = "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id=" + clientId +
+                "&client_secret=" + clientSecret + "&access_token=" + accessToken;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+    }
+
+
     private Pair<User, Boolean> registerNaverUserIfNeed(NaverUserDto naverUserInfo) {
         String providerId = naverUserInfo.getId();
         User naverUser = userRepository.findByProviderId(providerId).orElse(null);

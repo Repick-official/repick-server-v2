@@ -114,6 +114,12 @@ public class GoogleUserService {
         return Pair.of(googleUser, false);
     }
 
+    public void disconnectGoogle(String accessToken){
+        String url = "https://oauth2.googleapis.com/revoke?token=" + accessToken;
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.postForEntity(url, null, String.class);
+    }
+
     private GoogleUserDto handleGoogleResponse(String responseBody) throws JsonProcessingException {
 
         ObjectMapper objectMapper = new ObjectMapper();
