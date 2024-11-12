@@ -464,7 +464,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         p.getProductName(),
                         p.getQualityRate() != null ? p.getQualityRate().getValue() : null,
                         p.getClothingSales().getReturnRequestDate() != null ? p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")) : null,
-                        p.getReturnState().getValue()
+                        p.getReturnState() != null ? p.getReturnState().getValue() : "반송 미요청"
                 ))
                 .collect(Collectors.toList());
         return new PageImpl<>(contents, pageable, total);
