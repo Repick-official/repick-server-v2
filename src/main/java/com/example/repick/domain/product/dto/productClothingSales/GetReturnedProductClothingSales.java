@@ -8,6 +8,7 @@ public record GetReturnedProductClothingSales(
         @Schema(description = "썸네일") String thumbnailImageUrl,
         @Schema(description = "상품명") String productName,
         @Schema(description = "등급") String grade,
-        @Schema(description = "신청일") String requestDate
+        @Schema(description = "신청일") String requestDate,
+        @Schema(description = "상태") String state
 ) {
 }

@@ -463,7 +463,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         p.getThumbnailImageUrl(),
                         p.getProductName(),
                         p.getQualityRate() != null ? p.getQualityRate().getValue() : null,
-                        p.getClothingSales().getReturnRequestDate() != null ? p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")) : null
+                        p.getClothingSales().getReturnRequestDate() != null ? p.getClothingSales().getReturnRequestDate().format(DateTimeFormatter.ofPattern("MM/dd/yy")) : null,
+                        p.getReturnState().getValue()
                 ))
                 .collect(Collectors.toList());
         return new PageImpl<>(contents, pageable, total);
