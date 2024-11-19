@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -471,6 +472,7 @@ public class ProductService {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
             product.updateReturnState(ProductReturnStateType.fromValue(patchProductReturn.returnState()));
+            product.getClothingSales().updateReturnRequestDate(LocalDateTime.now());
             productRepository.save(product);
         });
         return true;
