@@ -1,5 +1,6 @@
 package com.example.repick.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -11,12 +12,21 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    @Value("${server.url}")
+    private String SERVER_URL;
+
+    @Value("${server.dev}")
+    private String DEV_URL;
+
+    @Value("${server.admin}")
+    private String ADMIN_URL;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://www.repick-server.shop", "https://repick-server.shop", "https://appleid.apple.com", "https://dev.repick-server.shop"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "https://appleid.apple.com", SERVER_URL, DEV_URL, ADMIN_URL));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
