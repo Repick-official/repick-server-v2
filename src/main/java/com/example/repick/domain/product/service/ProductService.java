@@ -116,7 +116,7 @@ public class ProductService {
         if (!postProduct.materials().isEmpty()) addMaterials(postProduct.materials(), product);
 
         // productSellingState
-        productStateRepository.save(ProductState.of(product.getId(), ProductStateType.PREPARING));
+        changeSellingState(product, ProductStateType.PREPARING);
 
         return ProductResponse.fromProduct(product);
 
@@ -133,7 +133,7 @@ public class ProductService {
         product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
         // productSellingState
-        productStateRepository.save(ProductState.of(product.getId(), ProductStateType.REJECTED));
+        changeSellingState(product, ProductStateType.REJECTED);
 
         return product;
 
