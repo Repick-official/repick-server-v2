@@ -19,6 +19,7 @@ public record PatchProduct (
         @Schema(description = "치수 정보") Size sizeInfo,
         @Schema(description = "상품 품질 등급 (A+, A, A-)", example = "A") String qualityRate,
         @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender,
-        @Schema(description = "상품 소재 목록", example = "면, 나일론") List<String> materials
+        @Schema(description = "상품 소재 목록", example = "면, 나일론") List<String> materials,
+        @Schema(description = "상품 상태", example = "판매중, 판매완료, 리젝됨") String productState
 ) {
 }

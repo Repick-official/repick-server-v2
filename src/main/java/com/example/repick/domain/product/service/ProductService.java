@@ -253,8 +253,12 @@ public class ProductService {
                         .orElseGet(() -> product.getProductCategoryList().get(0).getCategory());
                 product.updateSize(convertSizeInfo(category, patchProduct.sizeInfo()));
             }
-        }
 
+            if(patchProduct.productState() != null) {
+                ProductStateType productStateType = ProductStateType.fromValue(patchProduct.productState());
+                changeSellingState(product, productStateType);
+            }
+        }
         return ProductResponse.fromProduct(product);
 
     }
