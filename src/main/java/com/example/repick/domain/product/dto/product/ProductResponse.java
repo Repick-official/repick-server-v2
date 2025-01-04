@@ -3,6 +3,7 @@ package com.example.repick.domain.product.dto.product;
 import com.example.repick.domain.product.entity.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+
 public record ProductResponse(
         @Schema(description = "상품ID", example = "3") Long productId,
         @Schema(description = "판매하는 유저의 id", example = "5") Long userId,
@@ -16,11 +17,9 @@ public record ProductResponse(
         @Schema(description = "상품 설명", example = "바람이 잘 통하는 시원한 오버핏 셔츠입니다.") String description,
         @Schema(description = "사이즈 (XXS, XS, S, M, L, XL, XXL)", example = "XXS") String size,
         @Schema(description = "상품 품질 등급 (A+, A, A-)", example = "A") String qualityRate,
-        @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender
+        @Schema(description = "상품 성별 (남성, 여성, 공용)", example = "남성") String gender,
+        @Schema(description = "상품 상태", example = "판매중, 판매완료, 리젝됨, 판매종료") String productState
 ) {
-    public ProductResponse(Long id, Long userId, Integer clothingSalesCount) {
-        this(id, userId, clothingSalesCount, null, null, null, null, null, null, null, null, null, null);
-    }
 
     public static ProductResponse fromProduct(Product product) {
         return new ProductResponse(
@@ -36,7 +35,8 @@ public record ProductResponse(
                 product.getDescription(),
                 product.getSize(),
                 product.getQualityRate().getValue(),
-                product.getGender().name()
+                product.getGender().name(),
+                product.getProductState().getValue()
         );
     }
 
@@ -44,7 +44,18 @@ public record ProductResponse(
         return new ProductResponse(
                 product.getId(),
                 product.getUser().getId(),
-                product.getClothingSalesCount()
+                product.getClothingSalesCount(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                product.getProductState().getValue()
         );
     }
 }
