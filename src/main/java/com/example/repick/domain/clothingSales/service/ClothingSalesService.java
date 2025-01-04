@@ -273,10 +273,11 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public void updateClothingSalesWeight(PatchClothingSalesWeight patchClothingSalesWeight) {
-        ClothingSales clothingSales = clothingSalesRepository.findById(patchClothingSalesWeight.clothingSalesId())
+    public void updateKgSellClothingSales(PatchKgSellClothingSales patchKgSellClothingSales) {
+        ClothingSales clothingSales = clothingSalesRepository.findById(patchKgSellClothingSales.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
-        clothingSales.updateWeight(patchClothingSalesWeight.weight());
+        clothingSales.addWeight(patchKgSellClothingSales.weight());
+        clothingSales.getUser().addSettlement(patchKgSellClothingSales.point());
         clothingSalesRepository.save(clothingSales);
     }
 

@@ -44,7 +44,7 @@ public abstract class ClothingSales {
     private Integer clothingSalesCount;
 
     @Column(name = "weight")
-    private Double weight;
+    private double weight;
 
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
@@ -78,8 +78,8 @@ public abstract class ClothingSales {
         this.imageUrl = imageUrl;
     }
 
-    public void updateWeight(double weight) {
-        this.weight = weight;
+    public void addWeight(double weight) {
+        this.weight += weight;
     }
 
     public void updateClothingSalesState(ClothingSalesStateType clothingSalesState) {
