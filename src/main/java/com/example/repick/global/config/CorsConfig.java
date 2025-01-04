@@ -12,11 +12,11 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    @Value("${server.origin}")
+    private String SERVER_ORIGIN;
+
     @Value("${server.url}")
     private String SERVER_URL;
-
-    @Value("${server.dev}")
-    private String DEV_URL;
 
     @Value("${server.admin}")
     private String ADMIN_URL;
@@ -26,7 +26,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000", "https://appleid.apple.com", SERVER_URL, DEV_URL, ADMIN_URL));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "https://appleid.apple.com", SERVER_ORIGIN, SERVER_URL, ADMIN_URL));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
