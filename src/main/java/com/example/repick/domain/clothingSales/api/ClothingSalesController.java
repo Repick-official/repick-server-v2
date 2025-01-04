@@ -134,10 +134,10 @@ public class ClothingSalesController {
         return SuccessResponse.success(clothingSalesService.updateClothingSalesState(postClothingSalesState));
     }
 
-    @Operation(summary = "옷장 정리 상품 무게 등록")
-    @PatchMapping("/weight")
-    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PatchClothingSalesWeight patchClothingSalesWeight) {
-        clothingSalesService.updateClothingSalesWeight(patchClothingSalesWeight);
+    @Operation(summary = "옷장 정리 무게/포인트 등록 (KG 매입)")
+    @PatchMapping("/kg-sell")
+    public SuccessResponse<Boolean> updateClothingSalesWeight(@RequestBody PatchKgSellClothingSales patchKgSellClothingSales) {
+        clothingSalesService.updateKgSellClothingSales(patchKgSellClothingSales);
         return SuccessResponse.success(true);
     }
 
