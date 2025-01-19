@@ -39,12 +39,11 @@ public class SettlementService {
     }
 
     @Transactional
-    public Boolean completeSettlement(Long userId, Long settlementRequestId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public Boolean completeSettlement(Long settlementRequestId) {
         SettlementRequest settlementRequest = settlementRequestRepository.findById(settlementRequestId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SETTLEMENT_REQUEST_NOT_FOUND));
-
+        User user = userRepository.findById(settlementRequest.getUserId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         settlementRequest.complete();
         settlementRequestRepository.save(settlementRequest);
         user.completeSettlement();

@@ -33,9 +33,9 @@ public class SettlementController {
             description = """
                     정산 요청 처리 완료
                     """)
-    @PatchMapping("/{userId}/{settlementRequestId}")
-    public SuccessResponse<Boolean> completeSettlement(@PathVariable Long userId, @PathVariable Long settlementRequestId) {
-        return SuccessResponse.success(settlementService.completeSettlement(userId, settlementRequestId));
+    @PatchMapping("/{settlementRequestId}")
+    public SuccessResponse<Boolean> completeSettlement(@PathVariable Long settlementRequestId) {
+        return SuccessResponse.success(settlementService.completeSettlement(settlementRequestId));
     }
 
     @Operation(summary = "정산금 출금 신청 내역 조회",
