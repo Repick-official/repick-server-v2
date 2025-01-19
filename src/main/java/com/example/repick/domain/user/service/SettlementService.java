@@ -1,5 +1,6 @@
 package com.example.repick.domain.user.service;
 
+import com.example.repick.domain.user.dto.GetSettlementRequest;
 import com.example.repick.domain.user.dto.PostSettlementRequest;
 import com.example.repick.domain.user.entity.SettlementRequest;
 import com.example.repick.domain.user.entity.User;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +51,18 @@ public class SettlementService {
         userRepository.save(user);
 
         return true;
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetSettlementRequest> getSettlementRequestList(String status) {
+        return settlementRequestRepository.findByIsCompleted(status.equals("completed"))
+                .stream()
+                .map(settlementRequest -> {
+                    User user = userRepository.findById(settlementRequest.getUserId())
+                            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                    return GetSettlementRequest.from(settlementRequest, user);
+                })
+                .toList();
     }
 
 

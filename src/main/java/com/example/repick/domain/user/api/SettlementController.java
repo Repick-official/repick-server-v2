@@ -1,6 +1,7 @@
 package com.example.repick.domain.user.api;
 
 
+import com.example.repick.domain.user.dto.GetSettlementRequest;
 import com.example.repick.domain.user.dto.PostSettlementRequest;
 import com.example.repick.domain.user.service.SettlementService;
 import com.example.repick.global.response.SuccessResponse;
@@ -8,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Settlement", description = "정산금 API")
 @RestController
@@ -23,7 +26,7 @@ public class SettlementController {
                     """)
     @PostMapping("/user")
     public SuccessResponse<Boolean> requestSettlement(@RequestBody PostSettlementRequest postSettlementRequest) {
-        return SuccessResponse.success(settlementService.requestSettlement(postSettlementRequest));
+        return SuccessResponse.createSuccess(settlementService.requestSettlement(postSettlementRequest));
     }
 
     @Operation(summary = "정산 완료",
@@ -35,5 +38,14 @@ public class SettlementController {
         return SuccessResponse.success(settlementService.completeSettlement(userId, settlementRequestId));
     }
 
+    @Operation(summary = "정산금 출금 신청 내역 조회",
+            description = """
+                    정산금 출금 신청 내역 리스트 (관리자)
+                    ** status: requested, completed **
+                    """)
+    @GetMapping("/{status}")
+    public SuccessResponse<List<GetSettlementRequest>> getSettlementRequestList(@PathVariable String status) {
+        return SuccessResponse.success(settlementService.getSettlementRequestList(status));
+    }
 
 }

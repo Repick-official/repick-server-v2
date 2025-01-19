@@ -33,7 +33,7 @@ public class SettlementRequest extends BaseEntity {
 
     private boolean isCompleted;
 
-    private LocalDateTime completedAt;
+    private LocalDateTime completedDate;
 
     @Builder
     public SettlementRequest(Long userId, Long amount, String bankName, String accountNumber, String accountHolder) {
@@ -47,7 +47,7 @@ public class SettlementRequest extends BaseEntity {
 
     public void complete() {
         this.isCompleted = true;
-        this.completedAt = LocalDateTime.now();
+        this.completedDate = LocalDateTime.now();
     }
 
 }
