@@ -41,7 +41,7 @@ public class User extends BaseEntity {
     private Gender gender;
     private long settlement;
 
-    // TODO: 정산금 출금 신청 및 정산 완료 API 구현
+    // 정산금 요청일, 정산완료일 (가장 최신 값)
     private LocalDateTime settlementRequestDate;
     private LocalDateTime settlementCompleteDate;
 
@@ -111,6 +111,16 @@ public class User extends BaseEntity {
     public void addSettlement(long settlement) {
         this.settlement += settlement;
     }
+
+    public void withdrawSettlement(long settlement) {
+        this.settlement -= settlement;
+        settlementRequestDate = LocalDateTime.now();
+    }
+
+    public void completeSettlement() {
+        settlementCompleteDate = LocalDateTime.now();
+    }
+
     public void updateGender(Gender gender) {
         this.gender = gender;
     }
