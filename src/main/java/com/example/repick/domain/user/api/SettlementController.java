@@ -41,7 +41,8 @@ public class SettlementController {
     @Operation(summary = "정산금 출금 신청 내역 조회",
             description = """
                     정산금 출금 신청 내역 리스트 (관리자)
-                    ** status: requested, completed **
+                    
+                    **status: requested, completed**
                     """)
     @GetMapping("/{status}")
     public SuccessResponse<List<GetSettlementRequest>> getSettlementRequestList(@PathVariable String status) {
