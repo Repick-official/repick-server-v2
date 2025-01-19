@@ -58,6 +58,16 @@ public class ProductOrderController {
     }
 
     // Admin API
+    @Operation(summary = "반품 요청",
+            description = """
+                    반품을 요청합니다.
+                    반품 요청 시 상품은 반품 접수 상태로 변경됩니다.
+                    """)
+    @PostMapping("/return/{productOrderId}")
+    public SuccessResponse<Boolean> returnOrder(@Schema(description = "상품 주문 ID") @PathVariable Long productOrderId) {
+        return SuccessResponse.success(productOrderService.returnOrder(productOrderId));
+    }
+
     @Operation(summary = "구매 현황")
     @GetMapping("/status")
     public SuccessResponse<PageResponse<List<GetProductOrder>>> orderStatus(@ParameterObject PageCondition pageCondition) {
