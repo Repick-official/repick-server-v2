@@ -18,7 +18,7 @@ public interface ClothingSalesRepository extends JpaRepository<ClothingSales, Lo
     List<ClothingSales> findByUserAndClothingSalesState(User user, ClothingSalesStateType clothingSalesStateType);
     Page<ClothingSales> findByCreatedDateBetweenOrderByCreatedDateDesc(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     Page<ClothingSales> findByCreatedDateBetweenOrderByCreatedDateAsc(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-    List<ClothingSales> findByUserOrderByCreatedDateDesc(User user);
+    List<ClothingSales> findByUserAndClothingSalesStateInOrderByCreatedDateDesc(User user, List<ClothingSalesStateType> clothingSalesStateTypes);
     Optional<ClothingSales> findByUserAndClothingSalesCount(User user, Integer clothingSalesCount);
     int countByUser(User user);
 }
