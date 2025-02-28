@@ -281,7 +281,7 @@ public class ProductOrderService {
         productOrder.updateTrackingNumber(trackingNumberRequest.trackingNumber());
         productOrderRepository.save(productOrder);
 
-        adminService.enableTracking(productOrder.getTrackingNumber(), trackingNumberRequest.carrierId(), "https://www.repick-server.shop/api/admin/deliveryTracking/callback");
+        adminService.enableTracking(productOrder.getTrackingNumber(), trackingNumberRequest.carrierId(), "https://dev.repick-server.store/api/admin/deliveryTracking/callback");
 
         return true;
     }

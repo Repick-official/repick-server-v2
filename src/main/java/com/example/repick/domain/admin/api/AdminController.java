@@ -80,7 +80,7 @@ public class AdminController {
     @PostMapping("/deliveryTracking")
     public SuccessResponse<Boolean> enableTracking(@Parameter(description = "운송장 번호") @RequestParam String trackingNumber,
                                                    @Parameter(description = "택배사 (kr.cjlogistics)") @RequestParam String carrierId,
-                                                   @Parameter(description = "callback Url", example = "https://www.repick-server.shop/api/admin/deliveryTracking/callback") @RequestParam String callbackUrl) {
+                                                   @Parameter(description = "callback Url", example = "https://dev.repick-server.store/api/admin/deliveryTracking/callback") @RequestParam String callbackUrl) {
         return SuccessResponse.success(adminService.enableTracking(trackingNumber, carrierId, callbackUrl));
     }
 
