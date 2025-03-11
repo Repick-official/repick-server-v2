@@ -35,7 +35,7 @@ import java.util.ArrayList;
         
         """),
         servers = {
-                @Server(url = "https://www.repick-server.shop/api", description = "Server URL"),
+                @Server(url = "https://dev.repick-server.store/api", description = "Server URL"),
                 @Server(url = "http://localhost:8080/api", description = "Local Server URL")
         },
         security = {

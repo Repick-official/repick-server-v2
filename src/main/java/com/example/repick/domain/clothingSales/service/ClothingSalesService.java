@@ -55,7 +55,8 @@ public class ClothingSalesService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         List<GetPendingClothingSales> pendingClothingSalesList = new ArrayList<>();
-        List<ClothingSales> clothingSalesList = clothingSalesRepository.findByUserOrderByCreatedDateDesc(user);
+        List<ClothingSales> clothingSalesList = clothingSalesRepository.findByUserAndClothingSalesStateInOrderByCreatedDateDesc(user,
+                List.of(ClothingSalesStateType.BAG_INIT_REQUEST, ClothingSalesStateType.BOX_COLLECT_REQUEST, ClothingSalesStateType.BAG_COLLECT_REQUEST, ClothingSalesStateType.COLLECTED, ClothingSalesStateType.SHOOTED, ClothingSalesStateType.PRODUCT_REGISTERED));
         clothingSalesList.forEach(clothingSales -> {
             List<ClothingSalesState> clothingSalesStateList = clothingSalesStateRepository.findByClothingSalesId(clothingSales.getId());
             LocalDateTime requestDate = null;
@@ -273,10 +274,11 @@ public class ClothingSalesService {
     }
 
     @Transactional
-    public void updateClothingSalesWeight(PatchClothingSalesWeight patchClothingSalesWeight) {
-        ClothingSales clothingSales = clothingSalesRepository.findById(patchClothingSalesWeight.clothingSalesId())
+    public void updateKgSellClothingSales(PatchKgSellClothingSales patchKgSellClothingSales) {
+        ClothingSales clothingSales = clothingSalesRepository.findById(patchKgSellClothingSales.clothingSalesId())
                 .orElseThrow(() -> new CustomException(INVALID_CLOTHING_SALES_ID));
-        clothingSales.updateWeight(patchClothingSalesWeight.weight());
+        clothingSales.addWeight(patchKgSellClothingSales.weight());
+        clothingSales.getUser().addSettlement(patchKgSellClothingSales.point());
         clothingSalesRepository.save(clothingSales);
     }
 

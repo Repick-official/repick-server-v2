@@ -7,14 +7,16 @@ public record GetClothingSalesUser(
         @Schema(description = "이름") String name,
         @Schema(description = "코드") String code,
         @Schema(description = "주소") String address,
-        @Schema(description = "전화번호") String phoneNumber
+        @Schema(description = "전화번호") String phoneNumber,
+        @Schema(description = "보유 포인트") Long settlement
 ) {
     public static GetClothingSalesUser of(String code, User user) {
         return new GetClothingSalesUser(
                 user.getNickname(),
                 code,
                 user.getDefaultAddress() != null? user.getDefaultAddress().getMainAddress() : null,
-                user.getPhoneNumber()
+                user.getPhoneNumber(),
+                user.getSettlement()
         );
     }
 }

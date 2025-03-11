@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -115,7 +116,7 @@ public class ProductService {
         if (!postProduct.materials().isEmpty()) addMaterials(postProduct.materials(), product);
 
         // productSellingState
-        productStateRepository.save(ProductState.of(product.getId(), ProductStateType.PREPARING));
+        changeSellingState(product, ProductStateType.PREPARING);
 
         return ProductResponse.fromProduct(product);
 
@@ -132,7 +133,7 @@ public class ProductService {
         product.updateThumbnailImageUrl(thumbnailGeneratedUrl);
 
         // productSellingState
-        productStateRepository.save(ProductState.of(product.getId(), ProductStateType.REJECTED));
+        changeSellingState(product, ProductStateType.REJECTED);
 
         return product;
 
@@ -252,8 +253,12 @@ public class ProductService {
                         .orElseGet(() -> product.getProductCategoryList().get(0).getCategory());
                 product.updateSize(convertSizeInfo(category, patchProduct.sizeInfo()));
             }
-        }
 
+            if(patchProduct.productState() != null) {
+                ProductStateType productStateType = ProductStateType.fromValue(patchProduct.productState());
+                changeSellingState(product, productStateType);
+            }
+        }
         return ProductResponse.fromProduct(product);
 
     }
@@ -471,6 +476,7 @@ public class ProductService {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new CustomException(INVALID_PRODUCT_ID));
             product.updateReturnState(ProductReturnStateType.fromValue(patchProductReturn.returnState()));
+            product.getClothingSales().updateReturnRequestDate(LocalDateTime.now());
             productRepository.save(product);
         });
         return true;

@@ -92,7 +92,7 @@ public class ProductScheduler {
     public void updateDeliveryTrackerWebhook() {
         List<ProductOrder> productOrders = productOrderRepository.findByProductOrderState(ProductOrderState.SHIPPING_PREPARING);
         String carrierId = "kr.cjlogistics";
-        String callbackUrl = "https://www.repick-server.shop/api/admin/deliveryTracking/callback";
+        String callbackUrl = "https://dev.repick-server.store/api/admin/deliveryTracking/callback";
 
         productOrders.forEach(po -> adminService.enableTracking(po.getTrackingNumber(), carrierId, callbackUrl));
     }

@@ -222,6 +222,16 @@ public class ProductOrderService {
         product.getUser().addSettlement(settlement); // 판매자에게 포인트 지급
     }
 
+    // 반품 요청 (환불은 포트원 사이트에서 직접 처리)
+    @Transactional
+    public Boolean returnOrder(Long productOrderId){
+        ProductOrder productOrder = productOrderRepository.findById(productOrderId)
+                .orElseThrow(() -> new CustomException(PRODUCT_ORDER_NOT_FOUND));
+        productOrder.updateProductOrderState(ProductOrderState.RETURN_REQUESTED);
+        productOrderRepository.save(productOrder);
+        return true;
+    }
+
     // 구매 현황 보기
     @Transactional(readOnly = true)
     public PageResponse<List<GetProductOrder>> getProductOrders(PageCondition pageCondition) {
@@ -271,7 +281,7 @@ public class ProductOrderService {
         productOrder.updateTrackingNumber(trackingNumberRequest.trackingNumber());
         productOrderRepository.save(productOrder);
 
-        adminService.enableTracking(productOrder.getTrackingNumber(), trackingNumberRequest.carrierId(), "https://www.repick-server.shop/api/admin/deliveryTracking/callback");
+        adminService.enableTracking(productOrder.getTrackingNumber(), trackingNumberRequest.carrierId(), "https://dev.repick-server.store/api/admin/deliveryTracking/callback");
 
         return true;
     }
